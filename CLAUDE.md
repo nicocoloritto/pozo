@@ -52,7 +52,7 @@ npm test
 # App
 cd mobile && npm install
 npm start                      # QR para Expo Go; "w" abre la versión web
-npm run lint
+npm run typecheck              # tsc --noEmit; todavía no hay linter configurado
 ```
 
 `backend/.env` (no se commitea) necesita `DATABASE_URL="file:./dev.db"` y `PORT`.
