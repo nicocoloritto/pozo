@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Database (local SQLite)
+*.db
+*.db-journal
+
+# Build output
+dist/
+build/
+.expo/
+web-build/
+
+# Logs and OS
+*.log
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Claude Code local state
+.claude/scheduled_tasks.lock
+.claude/settings.local.json

@@ -1,0 +1,2 @@
+# Normalize line endings so Windows checkouts do not rewrite LF files as CRLF.
+* text=auto eol=lf
