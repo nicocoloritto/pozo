@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import PlaceholderScreen from '../../components/PlaceholderScreen';
-import { colors, spacing } from '../../theme';
+import { colors, fonts, fontSizes, spacing } from '../../theme';
 
 // Screen 04 of the mockup. Camera and location arrive with US-06.
 export default function NewReport() {
@@ -28,7 +28,8 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     color: colors.concrete,
-    fontWeight: '700',
+    fontFamily: fonts.bodyBold,
+    fontSize: fontSizes.sm,
     textTransform: 'uppercase',
   },
 });

@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import PlaceholderScreen from '../../components/PlaceholderScreen';
-import { colors, spacing } from '../../theme';
+import { colors, fonts, spacing } from '../../theme';
 
 // Screen 02 of the mockup. The link to the detail proves the stack navigation works.
 export default function MapScreen() {
@@ -25,6 +25,6 @@ const styles = StyleSheet.create({
   },
   linkText: {
     color: colors.rust,
-    fontWeight: '700',
+    fontFamily: fonts.bodyBold,
   },
 });
