@@ -32,3 +32,8 @@ Requisitos: Node.js y la app **Expo Go** en el celular (Android o iOS).
 - Cada sprint tiene su consigna y su backlog en [`docs/sprints/`](docs/sprints/).
 - Las decisiones técnicas que cuesta revertir se registran en [`docs/adr/`](docs/adr/).
 - Cómo se conecta cada clase de la materia con el proyecto: [`docs/mapeo-materia.md`](docs/mapeo-materia.md).
+
+## Enlaces
+
+- **Prototipo interactivo (Figma):** [Abrir prototipo](https://www.figma.com/proto/Kx7jqo5TdRHpUCyFCRYtKX/Pozo-%E2%80%94-Prototipo?node-id=5-1729&p=f&t=RrBYOwYcdLcOki0d-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=5%3A1729)
+- **Mockup de referencia:** [`design/pozo-pantallas-hifi.html`](design/pozo-pantallas-hifi.html)
