@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, spacing } from '../theme';
+import { colors, fonts, fontSizes, spacing } from '../theme';
 
 // Placeholder for screen 01 of the mockup. Only the entry into the tabs works for now.
 export default function Onboarding() {
@@ -31,15 +31,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.asphalt,
   },
   logo: {
-    fontSize: 32,
-    fontWeight: '900',
+    fontFamily: fonts.display,
+    fontSize: fontSizes.xxl,
     color: colors.chalk,
   },
   logoDot: {
     color: colors.yellow,
   },
   headline: {
-    fontSize: 16,
+    fontFamily: fonts.body,
+    fontSize: fontSizes.md,
     color: colors.concreteLight,
   },
   button: {
@@ -51,7 +52,8 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   buttonText: {
-    fontWeight: '700',
+    fontFamily: fonts.bodyBold,
+    fontSize: fontSizes.sm,
     textTransform: 'uppercase',
     color: colors.asphalt,
   },

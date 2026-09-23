@@ -1,5 +1,7 @@
 export { colors } from './colors';
 export type { ColorName } from './colors';
+export { fonts, fontSizes } from './typography';
+export type { FontName, FontSizeName } from './typography';
 
 export const spacing = {
   xs: 4,

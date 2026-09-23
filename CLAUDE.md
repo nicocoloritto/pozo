@@ -150,3 +150,4 @@ solo con Postman · README o docs actualizados si cambia un comando o una decisi
 - Correr migraciones contra una base que no sea la local, o borrar `dev.db`.
 - Cambiar de rama, resetear o revertir sin avisar.
 - Tocar los workflows de `.github/`.
+

@@ -34,12 +34,12 @@ documentación. Lo que importa son los **criterios de aceptación**:
 **Como** equipo, **queremos** una identidad de marca definida, **para** que mockup y app se
 vean iguales.
 
-- [ ] Nombre definido: **Pozo**.
-- [ ] Paleta con **códigos HEX**, coincidente con la del mockup y con `mobile/theme/`.
-- [ ] Tipografías definidas (Archivo Black, Inter, IBM Plex Mono) y usadas en el mockup y en la app.
+- [x] Nombre definido: **Pozo**.
+- [x] Paleta con **códigos HEX**, coincidente con la del mockup y con `mobile/theme/`.
+- [x] Tipografías definidas (Archivo Black, Inter, IBM Plex Mono) y usadas en el mockup y en la app.
 - [ ] Existe un isotipo/imagotipo/isologo, y el PDF dice cuál es de los cuatro tipos.
-- [ ] Ningún color de la app está escrito fuera de `mobile/theme/`.
-- [ ] Las tipografías Archivo Black, Inter e IBM Plex Mono se ven en la app (cargadas con
+- [x] Ningún color de la app está escrito fuera de `mobile/theme/`.
+- [x] Las tipografías Archivo Black, Inter e IBM Plex Mono se ven en la app (cargadas con
       `expo-font`).
 
 ### US-03 · Mockup interactivo en Figma (consigna 1.3 · criterio 3.3)

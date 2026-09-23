@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, spacing } from '../theme';
+import { colors, fonts, fontSizes, spacing } from '../theme';
 
 type PlaceholderScreenProps = {
   title: string;
@@ -30,8 +30,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.asphalt,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '800',
+    fontFamily: fonts.bodyExtraBold,
+    fontSize: fontSizes.xl,
     color: colors.asphalt,
     textAlign: 'center',
   },
@@ -39,7 +39,8 @@ const styles = StyleSheet.create({
     color: colors.chalk,
   },
   subtitle: {
-    fontSize: 13,
+    fontFamily: fonts.body,
+    fontSize: fontSizes.sm,
     color: colors.concrete,
     textAlign: 'center',
   },
