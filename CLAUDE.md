@@ -1,3 +1,6 @@
+> Archivo temporal para trabajar con Claude Code. Antes de la entrega se pasa a
+> `docs/convenciones.md` y se borra.
+
 # Pozo
 
 App móvil de reclamos urbanos hiperlocales. El vecino fotografía un problema de la calle
@@ -25,9 +28,12 @@ funcionalidad: `docs/mapeo-materia.md`.
 
 ```
 mobile/          # App Expo
-  app/           # Rutas de expo-router: (tabs)/, reports/[id].tsx, reports/new.tsx
+  app/           # Rutas de expo-router: (tabs)/ (con ranking.tsx), reports/[id].tsx, reports/new.tsx
   components/    # Componentes reutilizables (ReportCard, StatusStamp, CategoryChip…)
   theme/         # Tokens de color, tipografía y espaciado. Único lugar con colores.
+  types/         # Tipos compartidos (Report, Category, Severity, ReportStatus…)
+  data/          # Datos semilla para desarrollar sin backend (Sprint 1)
+  constants/     # Etiquetas en español para mostrar en la UI (categorías, estados…)
   services/      # Cliente HTTP (fetch/axios) y acceso a AsyncStorage / SQLite
 backend/
   src/
@@ -74,6 +80,8 @@ failed` → `API_URL` mal o celular en otra red. Ante cualquier falla, primero `
 - Animaciones con `Animated` y **`useNativeDriver: true`** (solo `transform` y `opacity`).
   Para expandir/colapsar o cambios de layout, `LayoutAnimation`.
 - Componentes en TypeScript con `props` tipadas; estado con hooks.
+- Tipografías solo desde `theme/` (familias por peso); nunca `fontWeight` ni `fontFamily`
+  sueltos.
 
 **Backend**
 - `cors()` y `express.json()` **antes** de declarar rutas.
@@ -111,6 +119,9 @@ failed` → `API_URL` mal o celular en otra red. Ante cualquier falla, primero `
 `Trench`, `Outage`, `OverflowingBin`. **Severidad**: `Minor`, `Serious`, `Urgent`.
 
 El envío al municipio **se simula**: es un cambio de estado, no hay integración real.
+
+En el **Sprint 1 no hay backend**: los datos salen de `mobile/data/` (datos semilla), no de
+una API.
 
 ## Flujo de ramas
 
