@@ -33,7 +33,7 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen name="map" options={{ title: 'Mapa' }} />
-      <Tabs.Screen name="neighborhood" options={{ title: 'Barrio' }} />
+      <Tabs.Screen name="ranking" options={{ title: 'Ranking' }} />
       <Tabs.Screen name="new" options={{ title: '', tabBarButton: () => <NewReportButton /> }} />
       <Tabs.Screen name="mine" options={{ title: 'Mis' }} />
       <Tabs.Screen name="profile" options={{ title: 'Perfil' }} />

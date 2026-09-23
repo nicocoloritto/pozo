@@ -20,9 +20,8 @@ Qué clase habilita cada parte de Pozo y qué reutilizamos de las tareas ya hech
 
 ## Qué reutilizamos de las tareas
 
-Los repos están en `OneDrive/Documentos/Mis Docs/UCA/Apps Moviles` (`tarea-clase4`,
-`tarea-clase5-galeria`). Ambos usan **Expo + `expo-router` + TypeScript**, así que Pozo
-arranca con la misma base. No se copian: se reusan los patrones.
+Las tareas `tarea-clase4` y `tarea-clase5-galeria` usan **Expo + `expo-router` +
+TypeScript**, así que Pozo arranca con la misma base. No se copian: se reusan los patrones.
 
 | Tarea | Lo que hicimos | Dónde va en Pozo |
 |---|---|---|

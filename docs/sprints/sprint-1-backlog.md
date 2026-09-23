@@ -39,6 +39,8 @@ vean iguales.
 - [ ] Tipografías definidas (Archivo Black, Inter, IBM Plex Mono) y usadas en el mockup y en la app.
 - [ ] Existe un isotipo/imagotipo/isologo, y el PDF dice cuál es de los cuatro tipos.
 - [ ] Ningún color de la app está escrito fuera de `mobile/theme/`.
+- [ ] Las tipografías Archivo Black, Inter e IBM Plex Mono se ven en la app (cargadas con
+      `expo-font`).
 
 ### US-03 · Mockup interactivo en Figma (consigna 1.3 · criterio 3.3)
 **Como** docente evaluador, **quiero** recorrer el prototipo con un enlace, **para** ver los
@@ -50,6 +52,8 @@ flujos sin instalar nada.
 - [ ] Las pantallas del mockup coinciden con las de la app (branding consistente).
 - [ ] La pantalla "Nuevo reclamo" muestra el uso de cámara y de ubicación, con sus permisos.
 - [ ] Ningún botón del prototipo lleva a una pantalla inexistente.
+- [ ] Los HTML de `design/` son referencia visual; el prototipo navegable que se entrega es
+      el de Figma, no los HTML.
 
 ### US-04 · Componentes nativos y justificación (consigna 1.4 · criterio 3.4)
 **Como** equipo, **queremos** justificar técnicamente por qué usamos cámara y GPS,
@@ -70,6 +74,9 @@ flujos sin instalar nada.
 - [ ] "+" abre "Nuevo reclamo" y "Cancelar" vuelve a donde estaba.
 - [ ] Las 6 pantallas del mockup existen y muestran datos estáticos con el aspecto del mockup.
 - [ ] Las listas son `FlatList` con datos de ejemplo; una lista vacía muestra un mensaje.
+- [ ] La tab bar tiene íconos.
+- [ ] Ninguna pantalla muestra textos de placeholder (ej. "Fuera del alcance"); Perfil
+      muestra datos estáticos.
 
 ### US-06 · Cámara y ubicación funcionando (refuerza 1.4 y 1.5)
 **Como** vecino, **quiero** sacar la foto y ver mi ubicación en "Nuevo reclamo", **para**
@@ -80,9 +87,6 @@ comprobar que los componentes nativos funcionan de verdad.
 - [ ] Veo mis coordenadas actuales en la pantalla.
 - [ ] Si rechazo un permiso, veo un mensaje que explica qué se pierde; la app no se cierra.
 - [ ] "Publicar" queda deshabilitado sin foto, categoría o severidad.
-
-> US-06 es lo único que va más allá de "datos estáticos". Es opcional para aprobar, pero
-> respalda el criterio 3.4 con evidencia real. Se hace si hay tiempo.
 
 ### US-07 · Entrega (consigna 2 · criterio 3.5)
 **Como** equipo, **queremos** entregar el PDF y los enlaces sin errores, **para** no perder
@@ -97,7 +101,7 @@ puntos por formato.
 
 ## Orden sugerido y fechas
 
-Hoy es 19/9; quedan ~26 días.
+Hoy es 23/9; quedan ~22 días.
 
 | Cuándo | Qué |
 |---|---|
@@ -107,7 +111,3 @@ Hoy es 19/9; quedan ~26 días.
 | Hasta el 12/10 | US-06 (cámara y GPS), US-04 (justificación técnica) |
 | 13 y 14/10 | US-07: armar el PDF, revisar entre los 3 y probar los enlaces |
 | **15/10 18hs** | **Entrega** (apuntar a subir el 14/10, no el mismo día) |
-
-## Se recorta si falta tiempo
-
-US-06 (cámara y GPS funcionando). Nunca se recorta el PDF ni el prototipo de Figma.
