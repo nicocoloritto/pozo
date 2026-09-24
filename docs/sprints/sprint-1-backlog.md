@@ -24,11 +24,11 @@ documentación. Lo que importa son los **criterios de aceptación**:
 **Como** docente evaluador, **quiero** entender qué problema resuelve Pozo y para quién,
 **para** juzgar si es relevante y sostenible.
 
-- [ ] El PDF describe el problema con contexto concreto (CABA, reclamos urbanos), no genérico.
-- [ ] Define al menos **un arquetipo de usuario** con nombre, edad, situación y necesidad.
-- [ ] Nombra **al menos dos competidores o alternativas** existentes (ej. BA Elige, 147) y
+- [x] El PDF describe el problema con contexto concreto (CABA, reclamos urbanos), no genérico.
+- [x] Define al menos **un arquetipo de usuario** con nombre, edad, situación y necesidad.
+- [x] Nombra **al menos dos competidores o alternativas** existentes (ej. BA Elige, 147) y
       dice en qué se diferencia Pozo.
-- [ ] Propone una estrategia de sustento concreta (ej. convenios, valor social, freemium).
+- [x] Propone una estrategia de sustento concreta (ej. convenios, valor social, freemium).
 
 ### US-02 · Branding (consigna 1.2 · criterio 3.2)
 **Como** equipo, **queremos** una identidad de marca definida, **para** que mockup y app se
@@ -37,7 +37,7 @@ vean iguales.
 - [x] Nombre definido: **Pozo**.
 - [x] Paleta con **códigos HEX**, coincidente con la del mockup y con `mobile/theme/`.
 - [x] Tipografías definidas (Archivo Black, Inter, IBM Plex Mono) y usadas en el mockup y en la app.
-- [ ] Existe un isotipo/imagotipo/isologo, y el PDF dice cuál es de los cuatro tipos.
+- [x] Existe un isotipo/imagotipo/isologo, y el PDF dice cuál es de los cuatro tipos.
 - [x] Ningún color de la app está escrito fuera de `mobile/theme/`.
 - [x] Las tipografías Archivo Black, Inter e IBM Plex Mono se ven en la app (cargadas con
       `expo-font`).
@@ -46,13 +46,13 @@ vean iguales.
 **Como** docente evaluador, **quiero** recorrer el prototipo con un enlace, **para** ver los
 flujos sin instalar nada.
 
-- [ ] El prototipo está en **Figma** y su enlace se abre **sin iniciar sesión**.
-- [ ] Muestra al menos estos flujos navegables: onboarding → mapa; mapa → detalle; "+" →
+- [x] El prototipo está en **Figma** y su enlace se abre **sin iniciar sesión**.
+- [x] Muestra al menos estos flujos navegables: onboarding → mapa; mapa → detalle; "+" →
       nuevo reclamo → publicar; Mis reclamos; Ranking.
 - [ ] Las pantallas del mockup coinciden con las de la app (branding consistente).
-- [ ] La pantalla "Nuevo reclamo" muestra el uso de cámara y de ubicación, con sus permisos.
-- [ ] Ningún botón del prototipo lleva a una pantalla inexistente.
-- [ ] Los HTML de `design/` son referencia visual; el prototipo navegable que se entrega es
+- [x] La pantalla "Nuevo reclamo" muestra el uso de cámara y de ubicación, con sus permisos.
+- [x] Ningún botón del prototipo lleva a una pantalla inexistente.
+- [x] Los HTML de `design/` son referencia visual; el prototipo navegable que se entrega es
       el de Figma, no los HTML.
 
 ### US-04 · Componentes nativos y justificación (consigna 1.4 · criterio 3.4)
