@@ -28,6 +28,7 @@ Requisitos: Node.js y la app **Expo Go** en el celular (Android o iOS).
 
 ## Cómo trabajamos
 
+- Convenciones, stack, glosario y flujo de ramas: [`CONTRIBUTORS.md`](CONTRIBUTORS.md).
 - Flujo de ramas `feature → dev → main`, con PR y una aprobación.
 - Cada sprint tiene su consigna y su backlog en [`docs/sprints/`](docs/sprints/).
 - Las decisiones técnicas que cuesta revertir se registran en [`docs/adr/`](docs/adr/).
