@@ -51,9 +51,10 @@ flujos sin instalar nada.
       nuevo reclamo → publicar; Mis reclamos; Ranking.
 - [ ] Las pantallas del mockup coinciden con las de la app (branding consistente).
 - [x] La pantalla "Nuevo reclamo" muestra el uso de cámara y de ubicación, con sus permisos.
-- [x] Ningún botón del prototipo lleva a una pantalla inexistente.
-- [x] Los HTML de `design/` son referencia visual; el prototipo navegable que se entrega es
-      el de Figma, no los HTML.
+- [ ] Ningún botón del prototipo lleva a una pantalla inexistente (arreglar la tab activa
+      resaltada en Mis reclamos, Ranking y Perfil, y el "VOLVER" tapado en Detalle).
+- [x] Los HTML de `design/` son referencia visual antigua; el prototipo navegable que se
+      entrega es el de Figma. Las capturas vigentes están en `design/figma/`.
 
 ### US-04 · Componentes nativos y justificación (consigna 1.4 · criterio 3.4)
 **Como** equipo, **queremos** justificar técnicamente por qué usamos cámara y GPS,
@@ -63,30 +64,55 @@ flujos sin instalar nada.
 - [ ] Cada uno explica con terminología técnica: permiso solicitado, API de Expo usada,
       dato que produce (ej. coordenadas WGS84, precisión) y cómo se usa en el flujo.
 - [ ] Explica qué pasa si el usuario **rechaza** el permiso.
-- [ ] Explica cómo interactúan entre sí en "Nuevo reclamo" (foto + coordenadas = evidencia).
+- [ ] Explica cómo interactúan entre sí en "Nuevo reclamo" (foto + coordenadas = evidencia,
+      guardado como `locationSource: Device`).
+- [ ] Menciona el tercer uso de la cámara: lectura del código de barras **PDF417** del DNI
+      para el registro (US-08), como evidencia extra de dominio técnico del sensor.
 
 ### US-05 · App inicial con navegación (consigna 1.5)
 **Como** vecino, **quiero** moverme entre las pantallas de Pozo, **para** ver cómo va a ser la app.
 
 - [ ] La app corre en Expo Go en un celular, sin errores al abrir.
-- [ ] Hay una barra de tabs con Mapa, Barrio, "+", Mis reclamos y Perfil.
+- [ ] Hay una barra de tabs con Mapa, Ranking, "+", Mis reclamos y Perfil.
 - [ ] Desde el feed puedo abrir el detalle de un reclamo y volver.
 - [ ] "+" abre "Nuevo reclamo" y "Cancelar" vuelve a donde estaba.
-- [ ] Las 6 pantallas del mockup existen y muestran datos estáticos con el aspecto del mockup.
+- [ ] Las 8 pantallas de `design/figma/` existen (Onboarding, Mapa, Detalle, Nuevo reclamo,
+      Permisos, Publicado, Mis reclamos, Ranking, Perfil) y muestran datos estáticos con su
+      aspecto: sello de estado, expediente, timeline, tarjetas de categoría.
 - [ ] Las listas son `FlatList` con datos de ejemplo; una lista vacía muestra un mensaje.
 - [ ] La tab bar tiene íconos.
 - [ ] Ninguna pantalla muestra textos de placeholder (ej. "Fuera del alcance"); Perfil
       muestra datos estáticos.
+- [ ] El detalle muestra la etiqueta "Urgente" solo cuando `severity == High` y
+      `confirmations >= 10`, calculada, no como un dato cargado a mano.
 
 ### US-06 · Cámara y ubicación funcionando (refuerza 1.4 y 1.5)
 **Como** vecino, **quiero** sacar la foto y ver mi ubicación en "Nuevo reclamo", **para**
 comprobar que los componentes nativos funcionan de verdad.
 
 - [ ] La app pide permiso de cámara y de ubicación la primera vez que se necesitan.
-- [ ] Puedo sacar una foto y verla en la pantalla.
-- [ ] Veo mis coordenadas actuales en la pantalla.
+- [ ] Puedo sacar una foto (con la cámara o desde la Galería) y verla en la pantalla.
+- [ ] Veo mis coordenadas actuales y la precisión (± metros) en la pantalla.
 - [ ] Si rechazo un permiso, veo un mensaje que explica qué se pierde; la app no se cierra.
-- [ ] "Publicar" queda deshabilitado sin foto, categoría o severidad.
+      (Falta esta pantalla en `design/figma/`; hay que agregarla.)
+- [ ] "Generar expediente" queda deshabilitado sin foto, categoría o severidad.
+- [ ] El reclamo generado muestra el número de expediente y un sello de "Ingresado".
+
+### US-08 · Registro y login con dos roles (nueva, sin criterio propio de la consigna;
+respalda 3.4 con un tercer uso de la cámara)
+**Como** vecino, **quiero** registrarme escaneando el dorso de mi DNI, **para** no tener que
+completar un formulario y que la app confirme que soy una persona real.
+
+- [ ] Al registrarme, la cámara lee el código **PDF417** del dorso del DNI y completa nombre
+      y apellido automáticamente.
+- [ ] Si el código no se puede leer, veo un mensaje claro y puedo reintentar.
+- [ ] El número de documento **no se muestra ni se guarda en texto plano** en ningún lado de
+      la app.
+- [ ] Existe un login separado para el rol **Municipalidad**, con email y contraseña.
+- [ ] Un vecino no ve ninguna pantalla ni acción reservada a Municipalidad, y viceversa.
+
+> US-08 depende de tener un DNI real para probar el formato del PDF417. Se prueba en un
+> dispositivo físico apenas se pueda; hasta entonces se avanza con datos mockeados.
 
 ### US-07 · Entrega (consigna 2 · criterio 3.5)
 **Como** equipo, **queremos** entregar el PDF y los enlaces sin errores, **para** no perder
@@ -101,13 +127,15 @@ puntos por formato.
 
 ## Orden sugerido y fechas
 
-Hoy es 23/9; quedan ~22 días.
+Hoy es 27/9; quedan ~18 días. US-01, US-02 y US-03 (con el ajuste pendiente de Figma) ya
+están encaminadas.
 
 | Cuándo | Qué |
 |---|---|
-| Hasta el 24/9 | Repo público en GitHub; US-02 (branding: logo y paleta finales) |
-| Hasta el 1/10 | US-03 (Figma) en paralelo con la inicialización de Expo (US-05, tabs vacías) |
-| Hasta el 8/10 | US-05 (pantallas con datos estáticos) y US-01 (texto de negocio) |
-| Hasta el 12/10 | US-06 (cámara y GPS), US-04 (justificación técnica) |
+| Hasta el 29/9 | Arreglos de Figma pendientes (tabs activas, "VOLVER" tapado); componentes
+compartidos y datos estáticos de la app (`ReportCard`, `StatusStamp`, `CategoryChip`) |
+| Hasta el 5/10 | US-05: las 8 pantallas con datos estáticos, repartidas entre los 3 |
+| Hasta el 9/10 | US-06 (cámara, GPS, permisos) y US-08 (PDF417 y login de Municipalidad) |
+| Hasta el 12/10 | US-04 (justificación técnica en el PDF) |
 | 13 y 14/10 | US-07: armar el PDF, revisar entre los 3 y probar los enlaces |
 | **15/10 18hs** | **Entrega** (apuntar a subir el 14/10, no el mismo día) |

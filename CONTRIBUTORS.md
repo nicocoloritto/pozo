@@ -21,7 +21,8 @@ funcionalidad: `docs/mapeo-materia.md`.
 | Backend | Node + Express + TypeScript |
 | ORM / DB | Prisma + SQLite (archivo `dev.db`) |
 | Local en el dispositivo | AsyncStorage (sesión, preferencias) · expo-sqlite (borradores y caché offline) |
-| Sensores | expo-camera / expo-image-picker · expo-location · react-native-maps |
+| Sensores | expo-camera (foto y lectura del PDF417 del DNI) / expo-image-picker · expo-location · react-native-maps |
+| Gráficos | react-native-svg (rombos de categoría, franjas, sellos) |
 | CI | GitHub Actions |
 
 ## Estructura del monorepo
@@ -109,16 +110,36 @@ failed` → `API_URL` mal o celular en otra red. Ante cualquier falla, primero `
 | Docs (español) | Código (inglés) | | Docs (español) | Código (inglés) |
 |---|---|---|---|---|
 | Reclamo / boleta | `Report` | | Barrio | `Neighborhood` |
-| Categoría | `Category` | | Ranking / termómetro | `Ranking` |
-| Severidad | `Severity` | | Vecino / usuario | `User` |
-| Estado | `ReportStatus` | | Historial de estados | `StatusChange` |
-| Confirmación | `Confirmation` | | Expediente | `caseNumber` |
+| Categoría | `Category` | | Comuna | `comuna` (número) |
+| Severidad | `Severity` | | Ranking / termómetro | `Ranking` |
+| Estado | `ReportStatus` | | Vecino | `User` con `role: Neighbor` |
+| Confirmación | `Confirmation` | | Municipalidad | `User` con `role: Municipality` |
+| Historial de estados | `StatusChange` | | Expediente | `caseNumber` |
+| Cuadrilla | `crewName` | | Urgente (calculado) | ver más abajo |
 
-**Estados** (`ReportStatus`): `Reported` → `Confirmed` → `Sent` → `InRepair` → `Resolved`.
+**Estados** (`ReportStatus`): `Reported` → `Validated` → `Escalated` → `InProgress` →
+`Resolved`. `Validated` se alcanza a las **10 confirmaciones**, `Escalated` a las **50**
+(constantes `CONFIRMATIONS_TO_VALIDATE` / `CONFIRMATIONS_TO_ESCALATE`, ver
+`docs/modelo-de-datos.md`).
+
 **Categorías**: `Pothole`, `BrokenSidewalk`, `TrafficLight`, `StreetLight`, `FallenPole`,
-`Trench`, `Outage`, `OverflowingBin`. **Severidad**: `Minor`, `Serious`, `Urgent`.
+`Trench`, `Outage`, `OverflowingBin`. **Severidad**: `Low`, `Medium`, `High` — la elige el
+vecino, son solo 3 niveles.
 
-El envío al municipio **se simula**: es un cambio de estado, no hay integración real.
+**"Urgente" no es un nivel de severidad**: es una etiqueta calculada en tiempo de lectura
+(`severity == High && confirmations >= CONFIRMATIONS_TO_VALIDATE`), nunca un campo que se
+guarda. No agregues un cuarto valor a `Severity` para esto.
+
+**Roles y alta de cuenta:**
+- `Neighbor`: se registra escaneando el **PDF417** del dorso del DNI con la cámara. No se
+  guarda el número de documento en texto plano, solo `documentHash`.
+- `Municipality`: cuenta interna, login con email y contraseña. Cambia el estado de un
+  reclamo desde `Escalated` en adelante; no es una simulación, es una acción real de ese rol.
+
+El origen de la ubicación de una foto se guarda en `Report.locationSource`: `Device` (GPS al
+sacarla dentro de la app, la confiable), `Exif` (venía en una foto de la Galería) o `Manual`
+(sin coordenadas disponibles, se usó y confirmó la ubicación actual). Ver
+`docs/diseno-funcional.md`.
 
 En el **Sprint 1 no hay backend**: los datos salen de `mobile/data/` (datos semilla), no de
 una API.
@@ -134,7 +155,10 @@ feature ──PR──► dev ──PR──► main
 - `<prefijo>/<issue>-descripcion-corta`: sale de `dev`, vuelve a `dev` por PR.
 - feature → `dev`: **squash**. `dev` → `main`: **merge commit**. Se borra la rama después.
 - `hotfix/` sale de `main`, vuelve a `main` y se mergea a `dev` en el acto.
-- Un PR necesita al menos **1 aprobación** de otro integrante. Nadie mergea su propio PR.
+- **Código de `mobile/` o `backend/`**: rama + PR, aunque nadie más lo revise; el PR es lo
+  que dispara la CI antes de llegar a `dev`.
+- **Docs, README, imágenes de diseño**: se puede subir directo a `dev`, sin PR.
+- Antes de arrancar a trabajar, `git pull` en `dev`.
 
 ## Definition of Done
 
