@@ -15,6 +15,7 @@ import {
 import CategoryChip from '../../components/CategoryChip';
 import PermissionNotice from '../../components/PermissionNotice';
 import { categoryOrder } from '../../constants/categories';
+import { CURRENT_USER_NAME } from '../../constants/currentUser';
 import { severityLabels } from '../../constants/status';
 import { addReport, generateCaseNumber } from '../../data/reports';
 import type { Category, LocationSource, Severity } from '../../types/report';
@@ -187,7 +188,7 @@ export default function NewReport() {
       locationSource: locationSource ?? 'Manual',
       address: address ?? undefined,
       confirmations: 0,
-      authorName: 'Vos',
+      authorName: CURRENT_USER_NAME,
       createdAt: now,
       history: [{ status: 'Reported', description: 'Ingresado', createdAt: now }],
     });

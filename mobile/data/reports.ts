@@ -1,3 +1,4 @@
+import { CONFIRMATIONS_TO_ESCALATE, CONFIRMATIONS_TO_VALIDATE } from '../types/report';
 import type { Report } from '../types/report';
 
 // Seed data for Sprint 1 (no backend yet). Mirrors the shape the API will return in
@@ -110,6 +111,47 @@ export function generateCaseNumber(): string {
   const year = new Date().getFullYear().toString().slice(-2);
   const sequence = Math.floor(10000 + Math.random() * 90000);
   return `EXP-${year}-${sequence}`;
+}
+
+// Adds one confirmation and, crossing a threshold, advances ReportStatus with its
+// own StatusChange entry. See docs/diseno-funcional.md ("Estados del reclamo").
+export function confirmReport(id: string): Report | undefined {
+  const report = getReportById(id);
+  if (!report) return undefined;
+
+  report.confirmations += 1;
+  const now = new Date().toISOString();
+
+  if (report.status === 'Reported' && report.confirmations >= CONFIRMATIONS_TO_VALIDATE) {
+    report.status = 'Validated';
+    report.history.push({
+      status: 'Validated',
+      description: `Validado ×${CONFIRMATIONS_TO_VALIDATE}`,
+      createdAt: now,
+    });
+  } else if (report.status === 'Validated' && report.confirmations >= CONFIRMATIONS_TO_ESCALATE) {
+    report.status = 'Escalated';
+    report.comuna = report.comuna ?? 6;
+    report.history.push({
+      status: 'Escalated',
+      description: `Elevado a Comuna ${report.comuna}`,
+      createdAt: now,
+    });
+  }
+
+  return report;
+}
+
+// Rank of a report's confirmations within its own neighborhood (1 = most confirmed).
+// Purely derived from the seed data, matching the "3° del barrio" stat in
+// design/figma/03-detalle.png.
+export function getNeighborhoodRank(report: Report): number | undefined {
+  if (!report.neighborhood) return undefined;
+  const sameNeighborhood = REPORTS.filter((item) => item.neighborhood === report.neighborhood).sort(
+    (a, b) => b.confirmations - a.confirmations
+  );
+  const index = sameNeighborhood.findIndex((item) => item.id === report.id);
+  return index === -1 ? undefined : index + 1;
 }
 
 export type RankingRow = {
