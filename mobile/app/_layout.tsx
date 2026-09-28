@@ -54,6 +54,7 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="reports/[id]" />
         <Stack.Screen name="reports/new" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="reports/published" options={{ gestureEnabled: false }} />
       </Stack>
     </>
   );

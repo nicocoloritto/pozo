@@ -100,6 +100,18 @@ export function getReportById(id: string): Report | undefined {
   return REPORTS.find((report) => report.id === id);
 }
 
+// Sprint 1 has no backend: creating a report just mutates this in-memory seed array,
+// so "Mis reclamos" and the map reflect what you publish for the rest of the session.
+export function addReport(report: Report): void {
+  REPORTS.unshift(report);
+}
+
+export function generateCaseNumber(): string {
+  const year = new Date().getFullYear().toString().slice(-2);
+  const sequence = Math.floor(10000 + Math.random() * 90000);
+  return `EXP-${year}-${sequence}`;
+}
+
 export type RankingRow = {
   neighborhood: string;
   activeReports: number;
