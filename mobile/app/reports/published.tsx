@@ -1,12 +1,9 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import RubberStamp from '../../components/RubberStamp';
 import { colors, fonts, fontSizes, spacing } from '../../theme';
 
-// Screen 04c of the mockup (design/figma/04c-reclamo-publicado.png). This is a
-// functional placeholder for the "US-05 pantalla B" work: the circular rubber-stamp
-// illustration with curved text still needs to be built (see that story). What matters
-// here for US-06 is that the flow ends somewhere real, with the case number generated
-// by Nuevo reclamo.
+// Screen 04c of the mockup (design/figma/04c-reclamo-publicado.png).
 export default function Published() {
   const router = useRouter();
   const { caseNumber, address, lat, lng } = useLocalSearchParams<{
@@ -16,9 +13,22 @@ export default function Published() {
     lng: string;
   }>();
 
+  const today = new Date().toLocaleDateString('es-AR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Expediente generado</Text>
+      <View style={styles.stampWrap}>
+        <RubberStamp
+          size={190}
+          color={colors.yellow}
+          curvedText="EXPEDIENTE · GENERADO ·"
+          centerLines={['INGRESADO', today]}
+        />
+      </View>
       <Text style={styles.caseNumber}>{caseNumber}</Text>
       {address ? <Text style={styles.address}>{address}</Text> : null}
       <Text style={styles.coords}>
@@ -41,14 +51,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.asphalt,
     padding: spacing.xl,
     justifyContent: 'center',
+    alignItems: 'center',
     gap: spacing.sm,
   },
-  title: {
-    fontFamily: fonts.display,
-    fontSize: fontSizes.lg,
-    color: colors.yellow,
-    textAlign: 'center',
-    marginBottom: spacing.md,
+  stampWrap: {
+    marginBottom: spacing.lg,
   },
   caseNumber: {
     fontFamily: fonts.display,
@@ -70,6 +77,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   button: {
+    alignSelf: 'stretch',
     backgroundColor: colors.yellow,
     padding: spacing.lg,
     alignItems: 'center',
