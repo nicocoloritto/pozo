@@ -2,12 +2,11 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import CategoryChip from './CategoryChip';
 import StatusStamp from './StatusStamp';
 import { categoryLabels } from '../constants/categories';
-import type { Report } from '../types/report';
-import { isUrgent } from '../types/report';
+import type { Reclamo } from '../types/reclamo';
 import { colors, fonts, fontSizes, spacing } from '../theme';
 
-type ReportCardProps = {
-  report: Report;
+type ReclamoCardProps = {
+  reclamo: Reclamo;
   onPress?: () => void;
 };
 
@@ -16,34 +15,33 @@ function daysSince(isoDate: string): number {
   return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)));
 }
 
-// Reused across the map feed, "Mis reclamos" and search results
-// (design/figma/02-mapa.png, 05-mis-reclamos.png).
-export default function ReportCard({ report, onPress }: ReportCardProps) {
-  const urgent = isUrgent(report);
-
+// Reused across el mapa, "Mis reclamos" y resultados de búsqueda
+// (design/pozo-pantallas-hifi.html).
+export default function ReclamoCard({ reclamo, onPress }: ReclamoCardProps) {
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
+      accessibilityLabel={`Reclamo de ${categoryLabels[reclamo.category]} en ${reclamo.address ?? 'ubicación sin resolver'}`}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
-      <Image source={{ uri: report.photoUrl }} style={styles.photo} resizeMode="cover" />
+      <Image source={{ uri: reclamo.photoUrl }} style={styles.photo} resizeMode="cover" />
       <View style={styles.body}>
         <View style={styles.topLine}>
           <Text style={styles.title} numberOfLines={1}>
-            {categoryLabels[report.category]}
+            {categoryLabels[reclamo.category]}
           </Text>
-          <Text style={styles.days}>{daysSince(report.createdAt)}d</Text>
+          <Text style={styles.days}>{daysSince(reclamo.createdAt)}d</Text>
         </View>
         <Text style={styles.address} numberOfLines={1}>
-          {report.address ?? 'Ubicación sin resolver'}
+          {reclamo.address ?? 'Ubicación sin resolver'}
         </Text>
         <View style={styles.footer}>
-          <Text style={styles.confirmations}>{report.confirmations} CONF.</Text>
-          <StatusStamp status={report.status} urgent={urgent} />
+          <Text style={styles.confirmations}>{reclamo.confirmaciones.length} CONF.</Text>
+          <StatusStamp status={reclamo.status} />
         </View>
       </View>
-      <CategoryChip category={report.category} />
+      <CategoryChip category={reclamo.category} />
     </Pressable>
   );
 }

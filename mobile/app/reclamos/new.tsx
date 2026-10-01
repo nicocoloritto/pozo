@@ -12,13 +12,15 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import CategoryChip from '../../components/CategoryChip';
 import PermissionNotice from '../../components/PermissionNotice';
 import { categoryOrder } from '../../constants/categories';
-import { CURRENT_USER_NAME } from '../../constants/currentUser';
 import { severityLabels } from '../../constants/status';
-import { addReport, generateCaseNumber } from '../../data/reports';
-import type { Category, LocationSource, Severity } from '../../types/report';
+import { useAuth } from '../../contexts/AuthContext';
+import { obtenerBarrioPorCoordenadas } from '../../services/estadisticas';
+import { publicarReclamo } from '../../services/reclamos';
+import type { Categoria, OrigenUbicacion, Severidad } from '../../types/reclamo';
 import { colors, fonts, fontSizes, spacing } from '../../theme';
 
 type Coords = {
@@ -32,8 +34,9 @@ const NOTES_MAX_LENGTH = 280;
 // Screen 04 of the mockup (design/figma/04-nuevo-reclamo.png), plus the permission
 // handling of 04b. See docs/diseno-funcional.md for the "foto + coordenadas = evidencia"
 // rule and the locationSource field this screen fills in.
-export default function NewReport() {
+export default function NewReclamo() {
   const router = useRouter();
+  const { user } = useAuth();
   const cameraRef = useRef<CameraView>(null);
 
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
@@ -41,19 +44,19 @@ export default function NewReport() {
   const [torchOn, setTorchOn] = useState(false);
 
   const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const [locationSource, setLocationSource] = useState<LocationSource | null>(null);
+  const [locationSource, setLocationSource] = useState<OrigenUbicacion | null>(null);
   const [coords, setCoords] = useState<Coords | null>(null);
   const [address, setAddress] = useState<string | null>(null);
   const [locatingPhoto, setLocatingPhoto] = useState(false);
 
   // Fetched as soon as the camera opens, so the "GPS FIJADO ±N m" chip is already
-  // showing while the neighbor frames the photo (design/figma/04-nuevo-reclamo.png),
+  // showing while the neighbor frames the photo (design/pozo-pantallas-hifi.html),
   // instead of only starting to look for a fix after the shutter is pressed.
   const [liveCoords, setLiveCoords] = useState<Coords | null>(null);
   const [locatingLive, setLocatingLive] = useState(false);
 
-  const [category, setCategory] = useState<Category | null>(null);
-  const [severity, setSeverity] = useState<Severity | null>(null);
+  const [category, setCategory] = useState<Categoria | null>(null);
+  const [severity, setSeverity] = useState<Severidad | null>(null);
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -167,19 +170,22 @@ export default function NewReport() {
     setLocatingPhoto(false);
   }
 
-  const canSubmit = Boolean(photoUri && coords && category && severity && !submitting);
+  const canSubmit = Boolean(
+    photoUri && coords && category && severity && user?.rol === 'vecino' && !submitting
+  );
 
   async function handleSubmit() {
-    if (!canSubmit || !photoUri || !coords || !category || !severity) return;
+    if (!canSubmit || !photoUri || !coords || !category || !severity || !user || user.rol !== 'vecino') return;
     setSubmitting(true);
-    const caseNumber = generateCaseNumber();
-    const now = new Date().toISOString();
-    addReport({
-      id: caseNumber,
-      caseNumber,
+    // El barrio (y por lo tanto el municipio) se resuelven a partir de las
+    // coordenadas reales del reclamo, no del barrio del perfil del vecino: puede
+    // estar reportando un problema en un barrio distinto al suyo.
+    const barrio = await obtenerBarrioPorCoordenadas(coords.latitude, coords.longitude);
+    const reclamo = await publicarReclamo({
+      autorId: user.id,
+      municipioId: barrio?.municipioId ?? 'caba',
       category,
       severity,
-      status: 'Reported',
       notes: notes.trim() || undefined,
       photoUrl: photoUri,
       latitude: coords.latitude,
@@ -187,23 +193,26 @@ export default function NewReport() {
       accuracyMeters: coords.accuracy ?? undefined,
       locationSource: locationSource ?? 'Manual',
       address: address ?? undefined,
-      confirmations: 0,
-      authorName: CURRENT_USER_NAME,
-      createdAt: now,
-      history: [{ status: 'Reported', description: 'Ingresado', createdAt: now }],
+      neighborhood: barrio?.nombre ?? user.neighborhood,
+      comuna: barrio?.comuna,
     });
     router.replace({
-      pathname: '/reports/published',
-      params: { caseNumber, address: address ?? '', lat: String(coords.latitude), lng: String(coords.longitude) },
+      pathname: '/reclamos/published',
+      params: {
+        caseNumber: reclamo.caseNumber,
+        address: address ?? '',
+        lat: String(coords.latitude),
+        lng: String(coords.longitude),
+      },
     });
   }
 
   if (!cameraPermission) {
-    return <View style={styles.container} />;
+    return <SafeAreaView style={styles.container} edges={['top', 'bottom']} />;
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()}>
           <Text style={styles.cancel}>Cancelar</Text>
@@ -327,7 +336,7 @@ export default function NewReport() {
           3 · Severidad{severity ? ` — ${severityLabels[severity].toUpperCase()}` : ''}
         </Text>
         <View style={styles.severityRow}>
-          {(['Low', 'Medium', 'High'] as Severity[]).map((item) => (
+          {(['Low', 'Medium', 'High'] as Severidad[]).map((item) => (
             <Pressable
               key={item}
               onPress={() => setSeverity(item)}
@@ -363,7 +372,7 @@ export default function NewReport() {
           {notes.length}/{NOTES_MAX_LENGTH}
         </Text>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

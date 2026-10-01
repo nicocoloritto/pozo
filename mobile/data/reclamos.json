@@ -1,0 +1,294 @@
+[
+  {
+    "id": "r1",
+    "caseNumber": "EXP-26-00101",
+    "autorId": "vecino-1",
+    "municipioId": "caba",
+    "category": "Pothole",
+    "severity": "High",
+    "status": "Reportado",
+    "notes": "Pozo grande, ya rompió un amortiguador.",
+    "photoUrl": "https://picsum.photos/id/1071/600/600",
+    "latitude": -34.6187,
+    "longitude": -58.4431,
+    "accuracyMeters": 6,
+    "locationSource": "Device",
+    "address": "Av. Rivadavia 4212, Caballito",
+    "neighborhood": "Caballito",
+    "comuna": 6,
+    "confirmaciones": [],
+    "createdAt": "2026-09-20T09:12:00-03:00",
+    "history": [
+      { "status": "Reportado", "description": "Ingresado", "createdAt": "2026-09-20T09:12:00-03:00", "autor": "vecino-1" }
+    ]
+  },
+  {
+    "id": "r2",
+    "caseNumber": "EXP-26-00102",
+    "autorId": "vecino-1",
+    "municipioId": "caba",
+    "category": "StreetLight",
+    "severity": "Medium",
+    "status": "ConfirmadoPorVecinos",
+    "photoUrl": "https://picsum.photos/id/1059/600/600",
+    "latitude": -34.6151,
+    "longitude": -58.4336,
+    "accuracyMeters": 8,
+    "locationSource": "Device",
+    "address": "Rojas 850, Caballito",
+    "neighborhood": "Caballito",
+    "comuna": 6,
+    "confirmaciones": ["vecino-50", "vecino-51", "vecino-52"],
+    "createdAt": "2026-08-02T10:00:00-03:00",
+    "history": [
+      { "status": "Reportado", "description": "Ingresado", "createdAt": "2026-08-02T10:00:00-03:00", "autor": "vecino-1" },
+      { "status": "ConfirmadoPorVecinos", "description": "Confirmado por 3 vecinos", "createdAt": "2026-08-05T18:30:00-03:00" }
+    ]
+  },
+  {
+    "id": "r3",
+    "caseNumber": "EXP-26-00103",
+    "autorId": "vecino-1",
+    "municipioId": "caba",
+    "category": "Trench",
+    "severity": "Medium",
+    "status": "EnviadoAlMunicipio",
+    "photoUrl": "https://picsum.photos/id/1076/600/600",
+    "latitude": -34.6172,
+    "longitude": -58.4321,
+    "accuracyMeters": 12,
+    "locationSource": "Device",
+    "address": "Av. Rivadavia 4180, Caballito",
+    "neighborhood": "Caballito",
+    "comuna": 6,
+    "confirmaciones": ["vecino-50", "vecino-51", "vecino-52"],
+    "createdAt": "2026-09-27T08:30:00-03:00",
+    "areaAsignada": "servicios-publicos",
+    "fechaEstimada": "2026-10-15T00:00:00-03:00",
+    "notas": [
+      {
+        "fecha": "2026-09-29T11:00:00-03:00",
+        "texto": "Cuadrilla de Servicios Públicos va a inspeccionar la zanja esta semana.",
+        "autor": "admin-caba"
+      }
+    ],
+    "history": [
+      { "status": "Reportado", "description": "Ingresado", "createdAt": "2026-09-27T08:30:00-03:00", "autor": "vecino-1" },
+      { "status": "ConfirmadoPorVecinos", "description": "Confirmado por 3 vecinos", "createdAt": "2026-09-28T12:00:00-03:00" },
+      { "status": "EnviadoAlMunicipio", "description": "Tomado por el municipio", "createdAt": "2026-09-29T09:00:00-03:00", "autor": "admin-caba" }
+    ]
+  },
+  {
+    "id": "r4",
+    "caseNumber": "EXP-26-00104",
+    "autorId": "vecino-1",
+    "municipioId": "caba",
+    "category": "OverflowingBin",
+    "severity": "Low",
+    "status": "Resuelto",
+    "photoUrl": "https://picsum.photos/id/1080/600/600",
+    "latitude": -34.6161,
+    "longitude": -58.4298,
+    "accuracyMeters": 9,
+    "locationSource": "Device",
+    "address": "Scalabrini Ortiz y Guatemala, Caballito",
+    "neighborhood": "Caballito",
+    "comuna": 6,
+    "confirmaciones": ["vecino-50", "vecino-51", "vecino-52"],
+    "createdAt": "2026-06-01T18:22:00-03:00",
+    "areaAsignada": "higiene-urbana",
+    "fotoResolucion": "https://picsum.photos/id/1081/600/600",
+    "notas": [
+      {
+        "fecha": "2026-06-10T09:00:00-03:00",
+        "texto": "Se amplió la frecuencia de recolección en la cuadra.",
+        "autor": "admin-caba"
+      }
+    ],
+    "history": [
+      { "status": "Reportado", "description": "Ingresado", "createdAt": "2026-06-01T18:22:00-03:00", "autor": "vecino-1" },
+      { "status": "ConfirmadoPorVecinos", "description": "Confirmado por 3 vecinos", "createdAt": "2026-06-04T09:00:00-03:00" },
+      { "status": "EnviadoAlMunicipio", "description": "Tomado por el municipio", "createdAt": "2026-06-08T09:00:00-03:00", "autor": "admin-caba" },
+      { "status": "EnReparacion", "description": "En reparación", "createdAt": "2026-06-12T09:00:00-03:00", "autor": "admin-caba" },
+      { "status": "Resuelto", "description": "Resuelto", "createdAt": "2026-06-18T09:00:00-03:00", "autor": "admin-caba" }
+    ]
+  },
+  {
+    "id": "r5",
+    "caseNumber": "EXP-26-00105",
+    "autorId": "vecino-2",
+    "municipioId": "caba",
+    "category": "TrafficLight",
+    "severity": "Medium",
+    "status": "Reportado",
+    "photoUrl": "https://picsum.photos/id/1040/600/600",
+    "latitude": -34.5875,
+    "longitude": -58.4205,
+    "accuracyMeters": 7,
+    "locationSource": "Device",
+    "address": "Av. Santa Fe y Scalabrini Ortiz, Palermo",
+    "neighborhood": "Palermo",
+    "comuna": 14,
+    "confirmaciones": [],
+    "createdAt": "2026-09-25T16:40:00-03:00",
+    "history": [
+      { "status": "Reportado", "description": "Ingresado", "createdAt": "2026-09-25T16:40:00-03:00", "autor": "vecino-2" }
+    ]
+  },
+  {
+    "id": "r6",
+    "caseNumber": "EXP-26-00106",
+    "autorId": "vecino-3",
+    "municipioId": "caba",
+    "category": "BrokenSidewalk",
+    "severity": "Low",
+    "status": "Reportado",
+    "notes": "Baldosas flojas, riesgo de torcedura.",
+    "photoUrl": "https://picsum.photos/id/1041/600/600",
+    "latitude": -34.6333,
+    "longitude": -58.4667,
+    "accuracyMeters": 10,
+    "locationSource": "Device",
+    "address": "Av. Rivadavia 7300, Flores",
+    "neighborhood": "Flores",
+    "comuna": 7,
+    "confirmaciones": ["vecino-2", "vecino-60"],
+    "createdAt": "2026-09-22T11:15:00-03:00",
+    "history": [
+      { "status": "Reportado", "description": "Ingresado", "createdAt": "2026-09-22T11:15:00-03:00", "autor": "vecino-3" }
+    ]
+  },
+  {
+    "id": "r7",
+    "caseNumber": "EXP-26-00107",
+    "autorId": "vecino-201",
+    "municipioId": "caba",
+    "category": "FallenTree",
+    "severity": "High",
+    "status": "EnviadoAlMunicipio",
+    "notes": "Rama grande cruzada en toda la vereda, tapa el paso.",
+    "photoUrl": "https://picsum.photos/id/1042/600/600",
+    "latitude": -34.6345,
+    "longitude": -58.3631,
+    "accuracyMeters": 5,
+    "locationSource": "Device",
+    "address": "Av. Almirante Brown 800, La Boca",
+    "neighborhood": "La Boca",
+    "comuna": 4,
+    "confirmaciones": [],
+    "createdAt": "2026-09-25T07:50:00-03:00",
+    "areaAsignada": "arbolado",
+    "history": [
+      { "status": "Reportado", "description": "Ingresado", "createdAt": "2026-09-25T07:50:00-03:00", "autor": "vecino-201" },
+      { "status": "EnviadoAlMunicipio", "description": "Tomado por el municipio (categoría peligrosa)", "createdAt": "2026-09-25T10:00:00-03:00", "autor": "admin-caba" }
+    ]
+  },
+  {
+    "id": "r8",
+    "caseNumber": "EXP-26-00108",
+    "autorId": "vecino-202",
+    "municipioId": "caba",
+    "category": "Outage",
+    "severity": "Medium",
+    "status": "ConfirmadoPorVecinos",
+    "photoUrl": "https://picsum.photos/id/1043/600/600",
+    "latitude": -34.6083,
+    "longitude": -58.4205,
+    "accuracyMeters": 11,
+    "locationSource": "Device",
+    "address": "Av. Rivadavia 4600, Almagro",
+    "neighborhood": "Almagro",
+    "comuna": 5,
+    "confirmaciones": ["vecino-2", "vecino-3", "vecino-60"],
+    "createdAt": "2026-08-15T19:05:00-03:00",
+    "history": [
+      { "status": "Reportado", "description": "Ingresado", "createdAt": "2026-08-15T19:05:00-03:00", "autor": "vecino-202" },
+      { "status": "ConfirmadoPorVecinos", "description": "Confirmado por 3 vecinos", "createdAt": "2026-08-17T20:00:00-03:00" }
+    ]
+  },
+  {
+    "id": "r9",
+    "caseNumber": "EXP-26-00109",
+    "autorId": "vecino-203",
+    "municipioId": "caba",
+    "category": "Pothole",
+    "severity": "High",
+    "status": "EnReparacion",
+    "photoUrl": "https://picsum.photos/id/1044/600/600",
+    "latitude": -34.6252,
+    "longitude": -58.3819,
+    "accuracyMeters": 6,
+    "locationSource": "Device",
+    "address": "Av. Juan de Garay 1200, Constitución",
+    "neighborhood": "Constitución",
+    "comuna": 1,
+    "confirmaciones": ["vecino-2", "vecino-3", "vecino-60"],
+    "createdAt": "2026-09-19T13:00:00-03:00",
+    "areaAsignada": "bacheo-veredas",
+    "fechaEstimada": "2026-10-05T00:00:00-03:00",
+    "notas": [
+      {
+        "fecha": "2026-09-22T10:00:00-03:00",
+        "texto": "Se consiguió el asfalto, arranca la obra la semana que viene.",
+        "autor": "admin-caba"
+      }
+    ],
+    "history": [
+      { "status": "Reportado", "description": "Ingresado", "createdAt": "2026-09-19T13:00:00-03:00", "autor": "vecino-203" },
+      { "status": "ConfirmadoPorVecinos", "description": "Confirmado por 3 vecinos", "createdAt": "2026-09-20T09:00:00-03:00" },
+      { "status": "EnviadoAlMunicipio", "description": "Tomado por el municipio", "createdAt": "2026-09-21T09:00:00-03:00", "autor": "admin-caba" },
+      { "status": "EnReparacion", "description": "En reparación", "createdAt": "2026-09-24T09:00:00-03:00", "autor": "admin-caba" }
+    ]
+  },
+  {
+    "id": "r10",
+    "caseNumber": "EXP-26-00110",
+    "autorId": "vecino-2",
+    "municipioId": "caba",
+    "category": "StreetLight",
+    "severity": "Low",
+    "status": "Rechazado",
+    "photoUrl": "https://picsum.photos/id/1045/600/600",
+    "latitude": -34.5875,
+    "longitude": -58.4205,
+    "accuracyMeters": 8,
+    "locationSource": "Device",
+    "address": "Av. Córdoba 5200, Palermo",
+    "neighborhood": "Palermo",
+    "comuna": 14,
+    "confirmaciones": ["vecino-1", "vecino-3", "vecino-60"],
+    "createdAt": "2026-05-10T09:00:00-03:00",
+    "motivoRechazo": "La luminaria ya estaba reparada al momento de la inspección.",
+    "history": [
+      { "status": "Reportado", "description": "Ingresado", "createdAt": "2026-05-10T09:00:00-03:00", "autor": "vecino-2" },
+      { "status": "ConfirmadoPorVecinos", "description": "Confirmado por 3 vecinos", "createdAt": "2026-05-12T09:00:00-03:00" },
+      { "status": "EnviadoAlMunicipio", "description": "Tomado por el municipio", "createdAt": "2026-05-15T09:00:00-03:00", "autor": "admin-caba" },
+      { "status": "Rechazado", "description": "Rechazado: La luminaria ya estaba reparada al momento de la inspección.", "createdAt": "2026-05-16T09:00:00-03:00", "autor": "admin-caba" }
+    ]
+  },
+  {
+    "id": "r11",
+    "caseNumber": "EXP-26-00111",
+    "autorId": "vecino-204",
+    "municipioId": "caba",
+    "category": "FallenPole",
+    "severity": "High",
+    "status": "EnviadoAlMunicipio",
+    "notes": "Poste de alumbrado inclinado, a punto de caerse sobre la calle.",
+    "photoUrl": "https://picsum.photos/id/1046/600/600",
+    "latitude": -34.6083,
+    "longitude": -58.4178,
+    "accuracyMeters": 6,
+    "locationSource": "Device",
+    "address": "Boedo 1500, Boedo",
+    "neighborhood": "Boedo",
+    "comuna": 5,
+    "confirmaciones": [],
+    "createdAt": "2026-08-01T08:00:00-03:00",
+    "areaAsignada": "alumbrado",
+    "history": [
+      { "status": "Reportado", "description": "Ingresado", "createdAt": "2026-08-01T08:00:00-03:00", "autor": "vecino-204" },
+      { "status": "EnviadoAlMunicipio", "description": "Tomado por el municipio (categoría peligrosa)", "createdAt": "2026-08-01T11:00:00-03:00", "autor": "admin-caba" }
+    ]
+  }
+]

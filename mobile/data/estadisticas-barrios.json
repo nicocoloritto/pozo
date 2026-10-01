@@ -1,0 +1,2498 @@
+{
+  "retiro": {
+    "barrioId": "retiro",
+    "totalReclamos": 363,
+    "resueltos": 173,
+    "porcentajeResolucion": 47.6,
+    "tiempoPromedioResolucionDias": 27.7,
+    "porCategoria": {
+      "Pothole": 54,
+      "BrokenSidewalk": 25,
+      "TrafficLight": 44,
+      "StreetLight": 25,
+      "FallenPole": 43,
+      "FallenTree": 48,
+      "Trench": 31,
+      "Outage": 45,
+      "OverflowingBin": 48
+    },
+    "porEstado": {
+      "Reportado": 57,
+      "ConfirmadoPorVecinos": 42,
+      "EnviadoAlMunicipio": 38,
+      "EnReparacion": 34,
+      "Rechazado": 19,
+      "Resuelto": 173
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 97
+      },
+      {
+        "mes": "May",
+        "reclamos": 55
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 64
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 104
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 71
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 79
+      }
+    ]
+  },
+  "san-nicolas": {
+    "barrioId": "san-nicolas",
+    "totalReclamos": 90,
+    "resueltos": 35,
+    "porcentajeResolucion": 39.4,
+    "tiempoPromedioResolucionDias": 11,
+    "porCategoria": {
+      "Pothole": 12,
+      "BrokenSidewalk": 10,
+      "TrafficLight": 9,
+      "StreetLight": 8,
+      "FallenPole": 11,
+      "FallenTree": 10,
+      "Trench": 9,
+      "Outage": 11,
+      "OverflowingBin": 10
+    },
+    "porEstado": {
+      "Reportado": 17,
+      "ConfirmadoPorVecinos": 12,
+      "EnviadoAlMunicipio": 11,
+      "EnReparacion": 10,
+      "Rechazado": 5,
+      "Resuelto": 35
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 12
+      },
+      {
+        "mes": "May",
+        "reclamos": 13
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 15
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 18
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 18
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 19
+      }
+    ]
+  },
+  "puerto-madero": {
+    "barrioId": "puerto-madero",
+    "totalReclamos": 467,
+    "resueltos": 320,
+    "porcentajeResolucion": 68.5,
+    "tiempoPromedioResolucionDias": 22.3,
+    "porCategoria": {
+      "Pothole": 30,
+      "BrokenSidewalk": 59,
+      "TrafficLight": 73,
+      "StreetLight": 58,
+      "FallenPole": 46,
+      "FallenTree": 67,
+      "Trench": 44,
+      "Outage": 55,
+      "OverflowingBin": 35
+    },
+    "porEstado": {
+      "Reportado": 44,
+      "ConfirmadoPorVecinos": 32,
+      "EnviadoAlMunicipio": 29,
+      "EnReparacion": 26,
+      "Rechazado": 16,
+      "Resuelto": 320
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 93
+      },
+      {
+        "mes": "May",
+        "reclamos": 120
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 71
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 136
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 134
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 64
+      }
+    ]
+  },
+  "san-telmo": {
+    "barrioId": "san-telmo",
+    "totalReclamos": 92,
+    "resueltos": 78,
+    "porcentajeResolucion": 85.1,
+    "tiempoPromedioResolucionDias": 22.9,
+    "porCategoria": {
+      "Pothole": 15,
+      "BrokenSidewalk": 11,
+      "TrafficLight": 9,
+      "StreetLight": 11,
+      "FallenPole": 10,
+      "FallenTree": 6,
+      "Trench": 18,
+      "Outage": 7,
+      "OverflowingBin": 5
+    },
+    "porEstado": {
+      "Reportado": 4,
+      "ConfirmadoPorVecinos": 3,
+      "EnviadoAlMunicipio": 3,
+      "EnReparacion": 3,
+      "Rechazado": 1,
+      "Resuelto": 78
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 14
+      },
+      {
+        "mes": "May",
+        "reclamos": 12
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 12
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 23
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 17
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 22
+      }
+    ]
+  },
+  "monserrat": {
+    "barrioId": "monserrat",
+    "totalReclamos": 493,
+    "resueltos": 334,
+    "porcentajeResolucion": 67.8,
+    "tiempoPromedioResolucionDias": 26,
+    "porCategoria": {
+      "Pothole": 25,
+      "BrokenSidewalk": 52,
+      "TrafficLight": 86,
+      "StreetLight": 29,
+      "FallenPole": 80,
+      "FallenTree": 81,
+      "Trench": 31,
+      "Outage": 60,
+      "OverflowingBin": 49
+    },
+    "porEstado": {
+      "Reportado": 48,
+      "ConfirmadoPorVecinos": 35,
+      "EnviadoAlMunicipio": 32,
+      "EnReparacion": 29,
+      "Rechazado": 15,
+      "Resuelto": 334
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 78
+      },
+      {
+        "mes": "May",
+        "reclamos": 106
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 135
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 90
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 122
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 111
+      }
+    ]
+  },
+  "constitucion": {
+    "barrioId": "constitucion",
+    "totalReclamos": 320,
+    "resueltos": 224,
+    "porcentajeResolucion": 70,
+    "tiempoPromedioResolucionDias": 22.2,
+    "porCategoria": {
+      "Pothole": 51,
+      "BrokenSidewalk": 57,
+      "TrafficLight": 20,
+      "StreetLight": 46,
+      "FallenPole": 35,
+      "FallenTree": 37,
+      "Trench": 40,
+      "Outage": 18,
+      "OverflowingBin": 16
+    },
+    "porEstado": {
+      "Reportado": 29,
+      "ConfirmadoPorVecinos": 21,
+      "EnviadoAlMunicipio": 19,
+      "EnReparacion": 17,
+      "Rechazado": 10,
+      "Resuelto": 224
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 62
+      },
+      {
+        "mes": "May",
+        "reclamos": 51
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 54
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 52
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 50
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 73
+      }
+    ]
+  },
+  "recoleta": {
+    "barrioId": "recoleta",
+    "totalReclamos": 101,
+    "resueltos": 53,
+    "porcentajeResolucion": 52.1,
+    "tiempoPromedioResolucionDias": 9.9,
+    "porCategoria": {
+      "Pothole": 8,
+      "BrokenSidewalk": 9,
+      "TrafficLight": 13,
+      "StreetLight": 7,
+      "FallenPole": 12,
+      "FallenTree": 16,
+      "Trench": 8,
+      "Outage": 21,
+      "OverflowingBin": 7
+    },
+    "porEstado": {
+      "Reportado": 14,
+      "ConfirmadoPorVecinos": 11,
+      "EnviadoAlMunicipio": 10,
+      "EnReparacion": 9,
+      "Rechazado": 4,
+      "Resuelto": 53
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 27
+      },
+      {
+        "mes": "May",
+        "reclamos": 27
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 22
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 25
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 14
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 16
+      }
+    ]
+  },
+  "balvanera": {
+    "barrioId": "balvanera",
+    "totalReclamos": 446,
+    "resueltos": 183,
+    "porcentajeResolucion": 41.1,
+    "tiempoPromedioResolucionDias": 14.8,
+    "porCategoria": {
+      "Pothole": 89,
+      "BrokenSidewalk": 56,
+      "TrafficLight": 23,
+      "StreetLight": 32,
+      "FallenPole": 27,
+      "FallenTree": 57,
+      "Trench": 82,
+      "Outage": 54,
+      "OverflowingBin": 26
+    },
+    "porEstado": {
+      "Reportado": 79,
+      "ConfirmadoPorVecinos": 58,
+      "EnviadoAlMunicipio": 53,
+      "EnReparacion": 47,
+      "Rechazado": 26,
+      "Resuelto": 183
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 89
+      },
+      {
+        "mes": "May",
+        "reclamos": 75
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 97
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 100
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 129
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 60
+      }
+    ]
+  },
+  "san-cristobal": {
+    "barrioId": "san-cristobal",
+    "totalReclamos": 81,
+    "resueltos": 48,
+    "porcentajeResolucion": 59.1,
+    "tiempoPromedioResolucionDias": 9.8,
+    "porCategoria": {
+      "Pothole": 9,
+      "BrokenSidewalk": 8,
+      "TrafficLight": 13,
+      "StreetLight": 12,
+      "FallenPole": 8,
+      "FallenTree": 8,
+      "Trench": 9,
+      "Outage": 9,
+      "OverflowingBin": 5
+    },
+    "porEstado": {
+      "Reportado": 10,
+      "ConfirmadoPorVecinos": 7,
+      "EnviadoAlMunicipio": 7,
+      "EnReparacion": 6,
+      "Rechazado": 3,
+      "Resuelto": 48
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 15
+      },
+      {
+        "mes": "May",
+        "reclamos": 20
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 17
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 24
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 21
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 12
+      }
+    ]
+  },
+  "la-boca": {
+    "barrioId": "la-boca",
+    "totalReclamos": 300,
+    "resueltos": 112,
+    "porcentajeResolucion": 37.3,
+    "tiempoPromedioResolucionDias": 28.4,
+    "porCategoria": {
+      "Pothole": 27,
+      "BrokenSidewalk": 25,
+      "TrafficLight": 52,
+      "StreetLight": 16,
+      "FallenPole": 32,
+      "FallenTree": 57,
+      "Trench": 38,
+      "Outage": 33,
+      "OverflowingBin": 20
+    },
+    "porEstado": {
+      "Reportado": 56,
+      "ConfirmadoPorVecinos": 41,
+      "EnviadoAlMunicipio": 38,
+      "EnReparacion": 34,
+      "Rechazado": 19,
+      "Resuelto": 112
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 86
+      },
+      {
+        "mes": "May",
+        "reclamos": 45
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 54
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 46
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 43
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 40
+      }
+    ]
+  },
+  "barracas": {
+    "barrioId": "barracas",
+    "totalReclamos": 466,
+    "resueltos": 280,
+    "porcentajeResolucion": 60,
+    "tiempoPromedioResolucionDias": 9.1,
+    "porCategoria": {
+      "Pothole": 66,
+      "BrokenSidewalk": 35,
+      "TrafficLight": 20,
+      "StreetLight": 53,
+      "FallenPole": 58,
+      "FallenTree": 75,
+      "Trench": 74,
+      "Outage": 55,
+      "OverflowingBin": 30
+    },
+    "porEstado": {
+      "Reportado": 56,
+      "ConfirmadoPorVecinos": 41,
+      "EnviadoAlMunicipio": 37,
+      "EnReparacion": 33,
+      "Rechazado": 19,
+      "Resuelto": 280
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 64
+      },
+      {
+        "mes": "May",
+        "reclamos": 84
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 134
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 70
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 69
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 116
+      }
+    ]
+  },
+  "parque-patricios": {
+    "barrioId": "parque-patricios",
+    "totalReclamos": 370,
+    "resueltos": 240,
+    "porcentajeResolucion": 64.9,
+    "tiempoPromedioResolucionDias": 9.2,
+    "porCategoria": {
+      "Pothole": 63,
+      "BrokenSidewalk": 35,
+      "TrafficLight": 57,
+      "StreetLight": 23,
+      "FallenPole": 41,
+      "FallenTree": 31,
+      "Trench": 53,
+      "Outage": 25,
+      "OverflowingBin": 42
+    },
+    "porEstado": {
+      "Reportado": 39,
+      "ConfirmadoPorVecinos": 29,
+      "EnviadoAlMunicipio": 26,
+      "EnReparacion": 23,
+      "Rechazado": 13,
+      "Resuelto": 240
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 107
+      },
+      {
+        "mes": "May",
+        "reclamos": 92
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 49
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 59
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 97
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 102
+      }
+    ]
+  },
+  "nueva-pompeya": {
+    "barrioId": "nueva-pompeya",
+    "totalReclamos": 167,
+    "resueltos": 87,
+    "porcentajeResolucion": 52.2,
+    "tiempoPromedioResolucionDias": 23.6,
+    "porCategoria": {
+      "Pothole": 16,
+      "BrokenSidewalk": 16,
+      "TrafficLight": 21,
+      "StreetLight": 12,
+      "FallenPole": 20,
+      "FallenTree": 25,
+      "Trench": 17,
+      "Outage": 14,
+      "OverflowingBin": 26
+    },
+    "porEstado": {
+      "Reportado": 24,
+      "ConfirmadoPorVecinos": 18,
+      "EnviadoAlMunicipio": 16,
+      "EnReparacion": 14,
+      "Rechazado": 8,
+      "Resuelto": 87
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 25
+      },
+      {
+        "mes": "May",
+        "reclamos": 48
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 47
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 33
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 46
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 42
+      }
+    ]
+  },
+  "almagro": {
+    "barrioId": "almagro",
+    "totalReclamos": 367,
+    "resueltos": 303,
+    "porcentajeResolucion": 82.5,
+    "tiempoPromedioResolucionDias": 16.8,
+    "porCategoria": {
+      "Pothole": 63,
+      "BrokenSidewalk": 47,
+      "TrafficLight": 36,
+      "StreetLight": 38,
+      "FallenPole": 43,
+      "FallenTree": 44,
+      "Trench": 21,
+      "Outage": 48,
+      "OverflowingBin": 27
+    },
+    "porEstado": {
+      "Reportado": 19,
+      "ConfirmadoPorVecinos": 14,
+      "EnviadoAlMunicipio": 13,
+      "EnReparacion": 12,
+      "Rechazado": 6,
+      "Resuelto": 303
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 98
+      },
+      {
+        "mes": "May",
+        "reclamos": 81
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 92
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 64
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 98
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 68
+      }
+    ]
+  },
+  "boedo": {
+    "barrioId": "boedo",
+    "totalReclamos": 162,
+    "resueltos": 102,
+    "porcentajeResolucion": 63.2,
+    "tiempoPromedioResolucionDias": 29.5,
+    "porCategoria": {
+      "Pothole": 16,
+      "BrokenSidewalk": 6,
+      "TrafficLight": 22,
+      "StreetLight": 18,
+      "FallenPole": 20,
+      "FallenTree": 24,
+      "Trench": 22,
+      "Outage": 9,
+      "OverflowingBin": 25
+    },
+    "porEstado": {
+      "Reportado": 18,
+      "ConfirmadoPorVecinos": 13,
+      "EnviadoAlMunicipio": 12,
+      "EnReparacion": 11,
+      "Rechazado": 6,
+      "Resuelto": 102
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 35
+      },
+      {
+        "mes": "May",
+        "reclamos": 31
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 36
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 24
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 24
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 23
+      }
+    ]
+  },
+  "caballito": {
+    "barrioId": "caballito",
+    "totalReclamos": 83,
+    "resueltos": 55,
+    "porcentajeResolucion": 66.5,
+    "tiempoPromedioResolucionDias": 8.1,
+    "porCategoria": {
+      "Pothole": 14,
+      "BrokenSidewalk": 10,
+      "TrafficLight": 12,
+      "StreetLight": 10,
+      "FallenPole": 9,
+      "FallenTree": 8,
+      "Trench": 9,
+      "Outage": 6,
+      "OverflowingBin": 5
+    },
+    "porEstado": {
+      "Reportado": 8,
+      "ConfirmadoPorVecinos": 6,
+      "EnviadoAlMunicipio": 6,
+      "EnReparacion": 5,
+      "Rechazado": 3,
+      "Resuelto": 55
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 11
+      },
+      {
+        "mes": "May",
+        "reclamos": 13
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 13
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 15
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 16
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 20
+      }
+    ]
+  },
+  "flores": {
+    "barrioId": "flores",
+    "totalReclamos": 413,
+    "resueltos": 347,
+    "porcentajeResolucion": 83.9,
+    "tiempoPromedioResolucionDias": 28.3,
+    "porCategoria": {
+      "Pothole": 35,
+      "BrokenSidewalk": 33,
+      "TrafficLight": 31,
+      "StreetLight": 73,
+      "FallenPole": 46,
+      "FallenTree": 67,
+      "Trench": 56,
+      "Outage": 53,
+      "OverflowingBin": 19
+    },
+    "porEstado": {
+      "Reportado": 20,
+      "ConfirmadoPorVecinos": 15,
+      "EnviadoAlMunicipio": 13,
+      "EnReparacion": 12,
+      "Rechazado": 6,
+      "Resuelto": 347
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 89
+      },
+      {
+        "mes": "May",
+        "reclamos": 93
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 113
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 118
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 72
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 61
+      }
+    ]
+  },
+  "parque-chacabuco": {
+    "barrioId": "parque-chacabuco",
+    "totalReclamos": 472,
+    "resueltos": 352,
+    "porcentajeResolucion": 74.6,
+    "tiempoPromedioResolucionDias": 12.1,
+    "porCategoria": {
+      "Pothole": 87,
+      "BrokenSidewalk": 29,
+      "TrafficLight": 50,
+      "StreetLight": 44,
+      "FallenPole": 61,
+      "FallenTree": 91,
+      "Trench": 45,
+      "Outage": 39,
+      "OverflowingBin": 26
+    },
+    "porEstado": {
+      "Reportado": 36,
+      "ConfirmadoPorVecinos": 26,
+      "EnviadoAlMunicipio": 24,
+      "EnReparacion": 22,
+      "Rechazado": 12,
+      "Resuelto": 352
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 106
+      },
+      {
+        "mes": "May",
+        "reclamos": 64
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 109
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 63
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 84
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 122
+      }
+    ]
+  },
+  "villa-soldati": {
+    "barrioId": "villa-soldati",
+    "totalReclamos": 495,
+    "resueltos": 328,
+    "porcentajeResolucion": 66.3,
+    "tiempoPromedioResolucionDias": 20.3,
+    "porCategoria": {
+      "Pothole": 73,
+      "BrokenSidewalk": 41,
+      "TrafficLight": 45,
+      "StreetLight": 65,
+      "FallenPole": 54,
+      "FallenTree": 49,
+      "Trench": 36,
+      "Outage": 68,
+      "OverflowingBin": 64
+    },
+    "porEstado": {
+      "Reportado": 50,
+      "ConfirmadoPorVecinos": 37,
+      "EnviadoAlMunicipio": 33,
+      "EnReparacion": 30,
+      "Rechazado": 17,
+      "Resuelto": 328
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 92
+      },
+      {
+        "mes": "May",
+        "reclamos": 121
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 86
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 63
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 101
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 129
+      }
+    ]
+  },
+  "villa-riachuelo": {
+    "barrioId": "villa-riachuelo",
+    "totalReclamos": 279,
+    "resueltos": 151,
+    "porcentajeResolucion": 54.2,
+    "tiempoPromedioResolucionDias": 20.2,
+    "porCategoria": {
+      "Pothole": 35,
+      "BrokenSidewalk": 38,
+      "TrafficLight": 29,
+      "StreetLight": 22,
+      "FallenPole": 12,
+      "FallenTree": 35,
+      "Trench": 45,
+      "Outage": 22,
+      "OverflowingBin": 41
+    },
+    "porEstado": {
+      "Reportado": 38,
+      "ConfirmadoPorVecinos": 28,
+      "EnviadoAlMunicipio": 26,
+      "EnReparacion": 23,
+      "Rechazado": 13,
+      "Resuelto": 151
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 56
+      },
+      {
+        "mes": "May",
+        "reclamos": 72
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 77
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 35
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 43
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 81
+      }
+    ]
+  },
+  "villa-lugano": {
+    "barrioId": "villa-lugano",
+    "totalReclamos": 426,
+    "resueltos": 362,
+    "porcentajeResolucion": 84.9,
+    "tiempoPromedioResolucionDias": 16.3,
+    "porCategoria": {
+      "Pothole": 55,
+      "BrokenSidewalk": 39,
+      "TrafficLight": 65,
+      "StreetLight": 44,
+      "FallenPole": 30,
+      "FallenTree": 22,
+      "Trench": 47,
+      "Outage": 79,
+      "OverflowingBin": 45
+    },
+    "porEstado": {
+      "Reportado": 19,
+      "ConfirmadoPorVecinos": 14,
+      "EnviadoAlMunicipio": 13,
+      "EnReparacion": 12,
+      "Rechazado": 6,
+      "Resuelto": 362
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 113
+      },
+      {
+        "mes": "May",
+        "reclamos": 55
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 58
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 112
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 73
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 70
+      }
+    ]
+  },
+  "liniers": {
+    "barrioId": "liniers",
+    "totalReclamos": 408,
+    "resueltos": 143,
+    "porcentajeResolucion": 35.1,
+    "tiempoPromedioResolucionDias": 26.5,
+    "porCategoria": {
+      "Pothole": 51,
+      "BrokenSidewalk": 48,
+      "TrafficLight": 42,
+      "StreetLight": 63,
+      "FallenPole": 32,
+      "FallenTree": 39,
+      "Trench": 36,
+      "Outage": 37,
+      "OverflowingBin": 60
+    },
+    "porEstado": {
+      "Reportado": 80,
+      "ConfirmadoPorVecinos": 58,
+      "EnviadoAlMunicipio": 53,
+      "EnReparacion": 48,
+      "Rechazado": 26,
+      "Resuelto": 143
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 79
+      },
+      {
+        "mes": "May",
+        "reclamos": 99
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 110
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 82
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 76
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 110
+      }
+    ]
+  },
+  "mataderos": {
+    "barrioId": "mataderos",
+    "totalReclamos": 271,
+    "resueltos": 230,
+    "porcentajeResolucion": 85,
+    "tiempoPromedioResolucionDias": 18.6,
+    "porCategoria": {
+      "Pothole": 48,
+      "BrokenSidewalk": 30,
+      "TrafficLight": 43,
+      "StreetLight": 26,
+      "FallenPole": 49,
+      "FallenTree": 21,
+      "Trench": 22,
+      "Outage": 13,
+      "OverflowingBin": 19
+    },
+    "porEstado": {
+      "Reportado": 12,
+      "ConfirmadoPorVecinos": 9,
+      "EnviadoAlMunicipio": 8,
+      "EnReparacion": 7,
+      "Rechazado": 5,
+      "Resuelto": 230
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 41
+      },
+      {
+        "mes": "May",
+        "reclamos": 53
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 74
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 42
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 74
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 45
+      }
+    ]
+  },
+  "parque-avellaneda": {
+    "barrioId": "parque-avellaneda",
+    "totalReclamos": 461,
+    "resueltos": 171,
+    "porcentajeResolucion": 37,
+    "tiempoPromedioResolucionDias": 29.8,
+    "porCategoria": {
+      "Pothole": 42,
+      "BrokenSidewalk": 58,
+      "TrafficLight": 34,
+      "StreetLight": 33,
+      "FallenPole": 63,
+      "FallenTree": 77,
+      "Trench": 34,
+      "Outage": 48,
+      "OverflowingBin": 72
+    },
+    "porEstado": {
+      "Reportado": 87,
+      "ConfirmadoPorVecinos": 64,
+      "EnviadoAlMunicipio": 58,
+      "EnReparacion": 52,
+      "Rechazado": 29,
+      "Resuelto": 171
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 71
+      },
+      {
+        "mes": "May",
+        "reclamos": 59
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 100
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 82
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 89
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 70
+      }
+    ]
+  },
+  "villa-real": {
+    "barrioId": "villa-real",
+    "totalReclamos": 476,
+    "resueltos": 347,
+    "porcentajeResolucion": 72.9,
+    "tiempoPromedioResolucionDias": 25.4,
+    "porCategoria": {
+      "Pothole": 57,
+      "BrokenSidewalk": 71,
+      "TrafficLight": 37,
+      "StreetLight": 40,
+      "FallenPole": 68,
+      "FallenTree": 21,
+      "Trench": 59,
+      "Outage": 69,
+      "OverflowingBin": 54
+    },
+    "porEstado": {
+      "Reportado": 39,
+      "ConfirmadoPorVecinos": 28,
+      "EnviadoAlMunicipio": 26,
+      "EnReparacion": 23,
+      "Rechazado": 13,
+      "Resuelto": 347
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 67
+      },
+      {
+        "mes": "May",
+        "reclamos": 131
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 128
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 69
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 111
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 85
+      }
+    ]
+  },
+  "monte-castro": {
+    "barrioId": "monte-castro",
+    "totalReclamos": 127,
+    "resueltos": 74,
+    "porcentajeResolucion": 58.2,
+    "tiempoPromedioResolucionDias": 16.5,
+    "porCategoria": {
+      "Pothole": 8,
+      "BrokenSidewalk": 22,
+      "TrafficLight": 18,
+      "StreetLight": 13,
+      "FallenPole": 23,
+      "FallenTree": 7,
+      "Trench": 20,
+      "Outage": 6,
+      "OverflowingBin": 10
+    },
+    "porEstado": {
+      "Reportado": 16,
+      "ConfirmadoPorVecinos": 12,
+      "EnviadoAlMunicipio": 11,
+      "EnReparacion": 10,
+      "Rechazado": 4,
+      "Resuelto": 74
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 19
+      },
+      {
+        "mes": "May",
+        "reclamos": 16
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 20
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 17
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 31
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 25
+      }
+    ]
+  },
+  "versalles": {
+    "barrioId": "versalles",
+    "totalReclamos": 275,
+    "resueltos": 205,
+    "porcentajeResolucion": 74.5,
+    "tiempoPromedioResolucionDias": 29.3,
+    "porCategoria": {
+      "Pothole": 28,
+      "BrokenSidewalk": 19,
+      "TrafficLight": 45,
+      "StreetLight": 41,
+      "FallenPole": 30,
+      "FallenTree": 41,
+      "Trench": 42,
+      "Outage": 17,
+      "OverflowingBin": 12
+    },
+    "porEstado": {
+      "Reportado": 21,
+      "ConfirmadoPorVecinos": 15,
+      "EnviadoAlMunicipio": 14,
+      "EnReparacion": 13,
+      "Rechazado": 7,
+      "Resuelto": 205
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 77
+      },
+      {
+        "mes": "May",
+        "reclamos": 38
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 53
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 43
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 42
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 65
+      }
+    ]
+  },
+  "floresta": {
+    "barrioId": "floresta",
+    "totalReclamos": 427,
+    "resueltos": 342,
+    "porcentajeResolucion": 80,
+    "tiempoPromedioResolucionDias": 21.9,
+    "porCategoria": {
+      "Pothole": 24,
+      "BrokenSidewalk": 69,
+      "TrafficLight": 26,
+      "StreetLight": 87,
+      "FallenPole": 59,
+      "FallenTree": 70,
+      "Trench": 41,
+      "Outage": 29,
+      "OverflowingBin": 22
+    },
+    "porEstado": {
+      "Reportado": 26,
+      "ConfirmadoPorVecinos": 19,
+      "EnviadoAlMunicipio": 17,
+      "EnReparacion": 15,
+      "Rechazado": 8,
+      "Resuelto": 342
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 59
+      },
+      {
+        "mes": "May",
+        "reclamos": 119
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 53
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 59
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 90
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 102
+      }
+    ]
+  },
+  "velez-sarsfield": {
+    "barrioId": "velez-sarsfield",
+    "totalReclamos": 97,
+    "resueltos": 59,
+    "porcentajeResolucion": 61,
+    "tiempoPromedioResolucionDias": 22.3,
+    "porCategoria": {
+      "Pothole": 14,
+      "BrokenSidewalk": 8,
+      "TrafficLight": 4,
+      "StreetLight": 13,
+      "FallenPole": 13,
+      "FallenTree": 14,
+      "Trench": 10,
+      "Outage": 12,
+      "OverflowingBin": 9
+    },
+    "porEstado": {
+      "Reportado": 11,
+      "ConfirmadoPorVecinos": 8,
+      "EnviadoAlMunicipio": 8,
+      "EnReparacion": 7,
+      "Rechazado": 4,
+      "Resuelto": 59
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 21
+      },
+      {
+        "mes": "May",
+        "reclamos": 23
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 27
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 19
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 26
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 20
+      }
+    ]
+  },
+  "villa-luro": {
+    "barrioId": "villa-luro",
+    "totalReclamos": 403,
+    "resueltos": 190,
+    "porcentajeResolucion": 47.2,
+    "tiempoPromedioResolucionDias": 15,
+    "porCategoria": {
+      "Pothole": 36,
+      "BrokenSidewalk": 69,
+      "TrafficLight": 40,
+      "StreetLight": 51,
+      "FallenPole": 39,
+      "FallenTree": 27,
+      "Trench": 27,
+      "Outage": 61,
+      "OverflowingBin": 53
+    },
+    "porEstado": {
+      "Reportado": 64,
+      "ConfirmadoPorVecinos": 47,
+      "EnviadoAlMunicipio": 43,
+      "EnReparacion": 38,
+      "Rechazado": 21,
+      "Resuelto": 190
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 71
+      },
+      {
+        "mes": "May",
+        "reclamos": 103
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 78
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 89
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 98
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 52
+      }
+    ]
+  },
+  "villa-general-mitre": {
+    "barrioId": "villa-general-mitre",
+    "totalReclamos": 228,
+    "resueltos": 168,
+    "porcentajeResolucion": 73.7,
+    "tiempoPromedioResolucionDias": 16.7,
+    "porCategoria": {
+      "Pothole": 21,
+      "BrokenSidewalk": 23,
+      "TrafficLight": 11,
+      "StreetLight": 37,
+      "FallenPole": 36,
+      "FallenTree": 24,
+      "Trench": 9,
+      "Outage": 36,
+      "OverflowingBin": 31
+    },
+    "porEstado": {
+      "Reportado": 18,
+      "ConfirmadoPorVecinos": 13,
+      "EnviadoAlMunicipio": 12,
+      "EnReparacion": 11,
+      "Rechazado": 6,
+      "Resuelto": 168
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 53
+      },
+      {
+        "mes": "May",
+        "reclamos": 61
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 48
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 34
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 39
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 33
+      }
+    ]
+  },
+  "villa-devoto": {
+    "barrioId": "villa-devoto",
+    "totalReclamos": 432,
+    "resueltos": 321,
+    "porcentajeResolucion": 74.4,
+    "tiempoPromedioResolucionDias": 23.9,
+    "porCategoria": {
+      "Pothole": 58,
+      "BrokenSidewalk": 71,
+      "TrafficLight": 52,
+      "StreetLight": 21,
+      "FallenPole": 21,
+      "FallenTree": 58,
+      "Trench": 53,
+      "Outage": 48,
+      "OverflowingBin": 50
+    },
+    "porEstado": {
+      "Reportado": 33,
+      "ConfirmadoPorVecinos": 24,
+      "EnviadoAlMunicipio": 22,
+      "EnReparacion": 20,
+      "Rechazado": 12,
+      "Resuelto": 321
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 84
+      },
+      {
+        "mes": "May",
+        "reclamos": 58
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 81
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 82
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 58
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 70
+      }
+    ]
+  },
+  "villa-del-parque": {
+    "barrioId": "villa-del-parque",
+    "totalReclamos": 368,
+    "resueltos": 134,
+    "porcentajeResolucion": 36.5,
+    "tiempoPromedioResolucionDias": 15.4,
+    "porCategoria": {
+      "Pothole": 24,
+      "BrokenSidewalk": 16,
+      "TrafficLight": 62,
+      "StreetLight": 33,
+      "FallenPole": 61,
+      "FallenTree": 24,
+      "Trench": 52,
+      "Outage": 57,
+      "OverflowingBin": 39
+    },
+    "porEstado": {
+      "Reportado": 70,
+      "ConfirmadoPorVecinos": 51,
+      "EnviadoAlMunicipio": 47,
+      "EnReparacion": 42,
+      "Rechazado": 24,
+      "Resuelto": 134
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 107
+      },
+      {
+        "mes": "May",
+        "reclamos": 65
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 53
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 97
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 50
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 78
+      }
+    ]
+  },
+  "villa-santa-rita": {
+    "barrioId": "villa-santa-rita",
+    "totalReclamos": 276,
+    "resueltos": 142,
+    "porcentajeResolucion": 51.4,
+    "tiempoPromedioResolucionDias": 20.6,
+    "porCategoria": {
+      "Pothole": 28,
+      "BrokenSidewalk": 31,
+      "TrafficLight": 35,
+      "StreetLight": 33,
+      "FallenPole": 13,
+      "FallenTree": 33,
+      "Trench": 27,
+      "Outage": 37,
+      "OverflowingBin": 39
+    },
+    "porEstado": {
+      "Reportado": 40,
+      "ConfirmadoPorVecinos": 29,
+      "EnviadoAlMunicipio": 27,
+      "EnReparacion": 24,
+      "Rechazado": 14,
+      "Resuelto": 142
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 64
+      },
+      {
+        "mes": "May",
+        "reclamos": 69
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 67
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 60
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 56
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 51
+      }
+    ]
+  },
+  "coghlan": {
+    "barrioId": "coghlan",
+    "totalReclamos": 482,
+    "resueltos": 240,
+    "porcentajeResolucion": 49.8,
+    "tiempoPromedioResolucionDias": 9,
+    "porCategoria": {
+      "Pothole": 29,
+      "BrokenSidewalk": 29,
+      "TrafficLight": 72,
+      "StreetLight": 63,
+      "FallenPole": 48,
+      "FallenTree": 38,
+      "Trench": 52,
+      "Outage": 75,
+      "OverflowingBin": 76
+    },
+    "porEstado": {
+      "Reportado": 73,
+      "ConfirmadoPorVecinos": 53,
+      "EnviadoAlMunicipio": 48,
+      "EnReparacion": 44,
+      "Rechazado": 24,
+      "Resuelto": 240
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 75
+      },
+      {
+        "mes": "May",
+        "reclamos": 101
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 121
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 62
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 97
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 135
+      }
+    ]
+  },
+  "saavedra": {
+    "barrioId": "saavedra",
+    "totalReclamos": 155,
+    "resueltos": 78,
+    "porcentajeResolucion": 50.2,
+    "tiempoPromedioResolucionDias": 18.6,
+    "porCategoria": {
+      "Pothole": 10,
+      "BrokenSidewalk": 17,
+      "TrafficLight": 21,
+      "StreetLight": 25,
+      "FallenPole": 15,
+      "FallenTree": 7,
+      "Trench": 19,
+      "Outage": 18,
+      "OverflowingBin": 23
+    },
+    "porEstado": {
+      "Reportado": 23,
+      "ConfirmadoPorVecinos": 17,
+      "EnviadoAlMunicipio": 15,
+      "EnReparacion": 14,
+      "Rechazado": 8,
+      "Resuelto": 78
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 28
+      },
+      {
+        "mes": "May",
+        "reclamos": 31
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 25
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 38
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 41
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 41
+      }
+    ]
+  },
+  "villa-urquiza": {
+    "barrioId": "villa-urquiza",
+    "totalReclamos": 488,
+    "resueltos": 196,
+    "porcentajeResolucion": 40.1,
+    "tiempoPromedioResolucionDias": 9.2,
+    "porCategoria": {
+      "Pothole": 79,
+      "BrokenSidewalk": 66,
+      "TrafficLight": 59,
+      "StreetLight": 22,
+      "FallenPole": 66,
+      "FallenTree": 20,
+      "Trench": 36,
+      "Outage": 69,
+      "OverflowingBin": 71
+    },
+    "porEstado": {
+      "Reportado": 88,
+      "ConfirmadoPorVecinos": 64,
+      "EnviadoAlMunicipio": 58,
+      "EnReparacion": 53,
+      "Rechazado": 29,
+      "Resuelto": 196
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 108
+      },
+      {
+        "mes": "May",
+        "reclamos": 75
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 77
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 134
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 105
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 142
+      }
+    ]
+  },
+  "villa-pueyrredon": {
+    "barrioId": "villa-pueyrredon",
+    "totalReclamos": 409,
+    "resueltos": 178,
+    "porcentajeResolucion": 43.5,
+    "tiempoPromedioResolucionDias": 19.4,
+    "porCategoria": {
+      "Pothole": 52,
+      "BrokenSidewalk": 45,
+      "TrafficLight": 52,
+      "StreetLight": 34,
+      "FallenPole": 47,
+      "FallenTree": 40,
+      "Trench": 40,
+      "Outage": 42,
+      "OverflowingBin": 57
+    },
+    "porEstado": {
+      "Reportado": 69,
+      "ConfirmadoPorVecinos": 51,
+      "EnviadoAlMunicipio": 46,
+      "EnReparacion": 42,
+      "Rechazado": 23,
+      "Resuelto": 178
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 110
+      },
+      {
+        "mes": "May",
+        "reclamos": 88
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 87
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 84
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 91
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 65
+      }
+    ]
+  },
+  "nunez": {
+    "barrioId": "nunez",
+    "totalReclamos": 158,
+    "resueltos": 130,
+    "porcentajeResolucion": 82.4,
+    "tiempoPromedioResolucionDias": 25.5,
+    "porCategoria": {
+      "Pothole": 6,
+      "BrokenSidewalk": 25,
+      "TrafficLight": 8,
+      "StreetLight": 26,
+      "FallenPole": 26,
+      "FallenTree": 26,
+      "Trench": 19,
+      "Outage": 11,
+      "OverflowingBin": 11
+    },
+    "porEstado": {
+      "Reportado": 8,
+      "ConfirmadoPorVecinos": 6,
+      "EnviadoAlMunicipio": 6,
+      "EnReparacion": 5,
+      "Rechazado": 3,
+      "Resuelto": 130
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 29
+      },
+      {
+        "mes": "May",
+        "reclamos": 33
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 42
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 44
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 32
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 24
+      }
+    ]
+  },
+  "belgrano": {
+    "barrioId": "belgrano",
+    "totalReclamos": 476,
+    "resueltos": 333,
+    "porcentajeResolucion": 70,
+    "tiempoPromedioResolucionDias": 29.7,
+    "porCategoria": {
+      "Pothole": 56,
+      "BrokenSidewalk": 50,
+      "TrafficLight": 54,
+      "StreetLight": 28,
+      "FallenPole": 61,
+      "FallenTree": 50,
+      "Trench": 62,
+      "Outage": 54,
+      "OverflowingBin": 61
+    },
+    "porEstado": {
+      "Reportado": 43,
+      "ConfirmadoPorVecinos": 31,
+      "EnviadoAlMunicipio": 29,
+      "EnReparacion": 26,
+      "Rechazado": 14,
+      "Resuelto": 333
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 64
+      },
+      {
+        "mes": "May",
+        "reclamos": 103
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 135
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 129
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 75
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 69
+      }
+    ]
+  },
+  "colegiales": {
+    "barrioId": "colegiales",
+    "totalReclamos": 136,
+    "resueltos": 86,
+    "porcentajeResolucion": 63.1,
+    "tiempoPromedioResolucionDias": 29.3,
+    "porCategoria": {
+      "Pothole": 23,
+      "BrokenSidewalk": 13,
+      "TrafficLight": 8,
+      "StreetLight": 21,
+      "FallenPole": 12,
+      "FallenTree": 21,
+      "Trench": 6,
+      "Outage": 23,
+      "OverflowingBin": 9
+    },
+    "porEstado": {
+      "Reportado": 15,
+      "ConfirmadoPorVecinos": 11,
+      "EnviadoAlMunicipio": 10,
+      "EnReparacion": 9,
+      "Rechazado": 5,
+      "Resuelto": 86
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 32
+      },
+      {
+        "mes": "May",
+        "reclamos": 29
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 21
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 33
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 33
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 24
+      }
+    ]
+  },
+  "palermo": {
+    "barrioId": "palermo",
+    "totalReclamos": 279,
+    "resueltos": 134,
+    "porcentajeResolucion": 48.2,
+    "tiempoPromedioResolucionDias": 22.5,
+    "porCategoria": {
+      "Pothole": 45,
+      "BrokenSidewalk": 39,
+      "TrafficLight": 33,
+      "StreetLight": 20,
+      "FallenPole": 20,
+      "FallenTree": 47,
+      "Trench": 14,
+      "Outage": 18,
+      "OverflowingBin": 43
+    },
+    "porEstado": {
+      "Reportado": 44,
+      "ConfirmadoPorVecinos": 32,
+      "EnviadoAlMunicipio": 29,
+      "EnReparacion": 26,
+      "Rechazado": 14,
+      "Resuelto": 134
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 68
+      },
+      {
+        "mes": "May",
+        "reclamos": 63
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 58
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 79
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 60
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 52
+      }
+    ]
+  },
+  "chacarita": {
+    "barrioId": "chacarita",
+    "totalReclamos": 281,
+    "resueltos": 120,
+    "porcentajeResolucion": 42.7,
+    "tiempoPromedioResolucionDias": 12.5,
+    "porCategoria": {
+      "Pothole": 50,
+      "BrokenSidewalk": 22,
+      "TrafficLight": 32,
+      "StreetLight": 24,
+      "FallenPole": 43,
+      "FallenTree": 22,
+      "Trench": 23,
+      "Outage": 49,
+      "OverflowingBin": 16
+    },
+    "porEstado": {
+      "Reportado": 48,
+      "ConfirmadoPorVecinos": 35,
+      "EnviadoAlMunicipio": 32,
+      "EnReparacion": 29,
+      "Rechazado": 17,
+      "Resuelto": 120
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 78
+      },
+      {
+        "mes": "May",
+        "reclamos": 37
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 37
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 45
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 42
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 55
+      }
+    ]
+  },
+  "villa-crespo": {
+    "barrioId": "villa-crespo",
+    "totalReclamos": 476,
+    "resueltos": 398,
+    "porcentajeResolucion": 83.6,
+    "tiempoPromedioResolucionDias": 17.6,
+    "porCategoria": {
+      "Pothole": 58,
+      "BrokenSidewalk": 81,
+      "TrafficLight": 70,
+      "StreetLight": 31,
+      "FallenPole": 53,
+      "FallenTree": 77,
+      "Trench": 28,
+      "Outage": 55,
+      "OverflowingBin": 23
+    },
+    "porEstado": {
+      "Reportado": 23,
+      "ConfirmadoPorVecinos": 17,
+      "EnviadoAlMunicipio": 16,
+      "EnReparacion": 14,
+      "Rechazado": 8,
+      "Resuelto": 398
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 104
+      },
+      {
+        "mes": "May",
+        "reclamos": 77
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 137
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 69
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 137
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 131
+      }
+    ]
+  },
+  "la-paternal": {
+    "barrioId": "la-paternal",
+    "totalReclamos": 155,
+    "resueltos": 92,
+    "porcentajeResolucion": 59.5,
+    "tiempoPromedioResolucionDias": 29.6,
+    "porCategoria": {
+      "Pothole": 30,
+      "BrokenSidewalk": 14,
+      "TrafficLight": 12,
+      "StreetLight": 19,
+      "FallenPole": 25,
+      "FallenTree": 21,
+      "Trench": 9,
+      "Outage": 14,
+      "OverflowingBin": 11
+    },
+    "porEstado": {
+      "Reportado": 19,
+      "ConfirmadoPorVecinos": 14,
+      "EnviadoAlMunicipio": 13,
+      "EnReparacion": 11,
+      "Rechazado": 6,
+      "Resuelto": 92
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 23
+      },
+      {
+        "mes": "May",
+        "reclamos": 38
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 44
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 29
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 41
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 20
+      }
+    ]
+  },
+  "villa-ortuzar": {
+    "barrioId": "villa-ortuzar",
+    "totalReclamos": 412,
+    "resueltos": 319,
+    "porcentajeResolucion": 77.5,
+    "tiempoPromedioResolucionDias": 18.3,
+    "porCategoria": {
+      "Pothole": 84,
+      "BrokenSidewalk": 37,
+      "TrafficLight": 43,
+      "StreetLight": 26,
+      "FallenPole": 36,
+      "FallenTree": 63,
+      "Trench": 77,
+      "Outage": 22,
+      "OverflowingBin": 24
+    },
+    "porEstado": {
+      "Reportado": 28,
+      "ConfirmadoPorVecinos": 20,
+      "EnviadoAlMunicipio": 19,
+      "EnReparacion": 17,
+      "Rechazado": 9,
+      "Resuelto": 319
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 63
+      },
+      {
+        "mes": "May",
+        "reclamos": 97
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 118
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 109
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 117
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 74
+      }
+    ]
+  },
+  "agronomia": {
+    "barrioId": "agronomia",
+    "totalReclamos": 412,
+    "resueltos": 313,
+    "porcentajeResolucion": 75.9,
+    "tiempoPromedioResolucionDias": 12.9,
+    "porCategoria": {
+      "Pothole": 56,
+      "BrokenSidewalk": 21,
+      "TrafficLight": 37,
+      "StreetLight": 44,
+      "FallenPole": 43,
+      "FallenTree": 44,
+      "Trench": 46,
+      "Outage": 63,
+      "OverflowingBin": 58
+    },
+    "porEstado": {
+      "Reportado": 30,
+      "ConfirmadoPorVecinos": 22,
+      "EnviadoAlMunicipio": 20,
+      "EnReparacion": 18,
+      "Rechazado": 9,
+      "Resuelto": 313
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 66
+      },
+      {
+        "mes": "May",
+        "reclamos": 93
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 90
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 112
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 63
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 86
+      }
+    ]
+  },
+  "parque-chas": {
+    "barrioId": "parque-chas",
+    "totalReclamos": 495,
+    "resueltos": 268,
+    "porcentajeResolucion": 54.1,
+    "tiempoPromedioResolucionDias": 27.2,
+    "porCategoria": {
+      "Pothole": 70,
+      "BrokenSidewalk": 58,
+      "TrafficLight": 63,
+      "StreetLight": 35,
+      "FallenPole": 33,
+      "FallenTree": 79,
+      "Trench": 34,
+      "Outage": 65,
+      "OverflowingBin": 58
+    },
+    "porEstado": {
+      "Reportado": 68,
+      "ConfirmadoPorVecinos": 50,
+      "EnviadoAlMunicipio": 45,
+      "EnReparacion": 41,
+      "Rechazado": 23,
+      "Resuelto": 268
+    },
+    "evolucionUltimos6Meses": [
+      {
+        "mes": "Abr",
+        "reclamos": 105
+      },
+      {
+        "mes": "May",
+        "reclamos": 90
+      },
+      {
+        "mes": "Jun",
+        "reclamos": 79
+      },
+      {
+        "mes": "Jul",
+        "reclamos": 117
+      },
+      {
+        "mes": "Ago",
+        "reclamos": 83
+      },
+      {
+        "mes": "Sep",
+        "reclamos": 104
+      }
+    ]
+  }
+}

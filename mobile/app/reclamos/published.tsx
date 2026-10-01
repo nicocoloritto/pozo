@@ -1,5 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import RubberStamp from '../../components/RubberStamp';
 import { colors, fonts, fontSizes, spacing } from '../../theme';
 
@@ -20,7 +22,8 @@ export default function Published() {
   });
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <StatusBar style="light" />
       <View style={styles.stampWrap}>
         <RubberStamp
           size={190}
@@ -41,7 +44,7 @@ export default function Published() {
         <Text style={styles.buttonText}>Ver en el mapa</Text>
       </Pressable>
       <Text style={styles.footer}>Tu expediente es público para la comunidad</Text>
-    </View>
+    </SafeAreaView>
   );
 }
 
