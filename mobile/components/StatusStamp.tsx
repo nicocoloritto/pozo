@@ -1,22 +1,19 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { statusColors, statusLabels } from '../constants/status';
-import type { ReportStatus } from '../types/report';
-import { colors, fonts, fontSizes, spacing } from '../theme';
+import { statusColors, statusLabels, statusTextColors } from '../constants/status';
+import type { EstadoReclamo } from '../types/reclamo';
+import { fonts, fontSizes, spacing } from '../theme';
 
 type StatusStampProps = {
-  status: ReportStatus;
-  urgent?: boolean;
+  status: EstadoReclamo;
 };
 
-// Flat tag used on report cards and lists (design/figma/05-mis-reclamos.png). The
+// Flat tag used on report cards and lists (design/pozo-pantallas-hifi.html). The
 // circular "sello" version for the detail screen lives with that screen: this one is
 // the compact, reusable piece.
-export default function StatusStamp({ status, urgent = false }: StatusStampProps) {
-  const color = urgent ? colors.rust : statusColors[status];
-
+export default function StatusStamp({ status }: StatusStampProps) {
   return (
-    <View style={[styles.tag, { backgroundColor: color }]}>
-      <Text style={styles.text}>{urgent ? 'Urgente' : statusLabels[status]}</Text>
+    <View style={[styles.tag, { backgroundColor: statusColors[status] }]}>
+      <Text style={[styles.text, { color: statusTextColors[status] }]}>{statusLabels[status]}</Text>
     </View>
   );
 }
@@ -31,6 +28,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.asphalt,
   },
 });

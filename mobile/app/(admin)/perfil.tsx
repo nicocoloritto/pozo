@@ -1,16 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import municipios from '../../data/municipios.json';
 import { useAuth } from '../../contexts/AuthContext';
 import { colors, fonts, fontSizes, spacing } from '../../theme';
-
-// Enmascara el DNI dejando solo los últimos 3 dígitos visibles: **.***.123.
-function enmascararDni(documentNumber: string): string {
-  const digitos = documentNumber.replace(/\D/g, '');
-  if (digitos.length <= 3) return documentNumber;
-  const visibles = digitos.slice(-3);
-  return `**.***.${visibles}`;
-}
 
 type DatoProps = { etiqueta: string; valor: string };
 
@@ -23,12 +16,13 @@ function Dato({ etiqueta, valor }: DatoProps) {
   );
 }
 
-export default function ProfileScreen() {
+export default function PerfilAdminScreen() {
   const { user, cerrarSesion } = useAuth();
 
-  if (!user || user.rol !== 'vecino') return null;
+  if (!user || user.rol !== 'admin') return null;
 
-  const iniciales = `${user.firstName[0] ?? ''}${user.lastName[0] ?? ''}`.toUpperCase();
+  const municipio = municipios.find((item) => item.id === user.municipioId);
+  const iniciales = user.firstName.slice(0, 2).toUpperCase();
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -37,21 +31,17 @@ export default function ProfileScreen() {
         <View style={styles.avatar} accessibilityElementsHidden>
           <Text style={styles.avatarText}>{iniciales}</Text>
         </View>
-        <Text style={styles.nombre}>
-          {user.firstName} {user.lastName}
-        </Text>
+        <Text style={styles.nombre}>{user.firstName}</Text>
         <Text style={styles.email}>{user.email}</Text>
       </View>
 
       <View style={styles.body}>
-        <Text style={styles.sectionTitle}>Datos personales</Text>
+        <Text style={styles.sectionTitle}>Datos</Text>
         <View style={styles.card}>
-          <Dato etiqueta="Nombre" valor={user.firstName} />
-          <Dato etiqueta="Apellido" valor={user.lastName} />
-          <Dato etiqueta="DNI" valor={enmascararDni(user.documentNumber)} />
-          <Dato etiqueta="Fecha de nacimiento" valor={user.birthDate} />
+          <Dato etiqueta="Admin" valor={user.firstName} />
           <Dato etiqueta="Email" valor={user.email} />
-          <Dato etiqueta="Barrio" valor={user.neighborhood ?? 'Sin especificar'} />
+          <Dato etiqueta="Municipio" valor={municipio?.nombre ?? user.municipioId} />
+          <Dato etiqueta="Sigla" valor={municipio?.sigla ?? '—'} />
         </View>
       </View>
 
