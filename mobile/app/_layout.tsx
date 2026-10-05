@@ -26,7 +26,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 // Hard backstop for font loading: if useFonts never settles (loaded or errored), we
 // still have to let the splash go away eventually. AuthContext has its own matching
 // 5s backstop for the session/seed side; together they guarantee
-// `fontsReady && authReady` becomes true no matter what.
+// `fontsReady && isHydrated` becomes true no matter what.
 const FONTS_SAFETY_TIMEOUT_MS = 5000;
 
 const AUTH_ROUTES = ['login', 'register'];
@@ -40,12 +40,12 @@ const ADMIN_ROUTE_SEGMENTS = ['(admin)', 'admin-reclamo'];
 // navega con un link directo, porque esto se re-evalúa en cada cambio de `segments`.
 // Es un efecto que corre DESPUÉS de montado el navegador de abajo, nunca lo reemplaza.
 function AuthGate() {
-  const { user, authReady } = useAuth();
+  const { user, isHydrated } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
-    if (!authReady) return;
+    if (!isHydrated) return;
 
     const from = `/${segments.join('/')}`;
     // "/" (app/index.tsx) is only ever a brief handoff — it has no content of its own
@@ -69,25 +69,25 @@ function AuthGate() {
     } else {
       devLog('AuthGate:queda en', from);
     }
-  }, [user, authReady, segments, router]);
+  }, [user, isHydrated, segments, router]);
 
   return null;
 }
 
 function AppNavigator({ fontsReady }: { fontsReady: boolean }) {
-  const { authReady } = useAuth();
+  const { isHydrated } = useAuth();
 
   useEffect(() => {
-    if (!fontsReady || !authReady) return;
-    devLog('splash:hideAsync', { fontsReady, authReady });
+    if (!fontsReady || !isHydrated) return;
+    devLog('splash:hideAsync', { fontsReady, isHydrated });
     SplashScreen.hideAsync().catch(() => {});
-  }, [fontsReady, authReady]);
+  }, [fontsReady, isHydrated]);
 
   // expo-router requires the root layout to always render the navigator on the very
   // first render — returning null/undefined (or anything else) in its place leaves the
   // router's internal state uninitialized, so even mounting the <Stack /> later never
   // recovers: the splash goes away but no screen appears. That's exactly what was
-  // happening here while we waited on `authReady` before rendering <Stack />. The real
+  // happening here while we waited on `isHydrated` before rendering <Stack />. The real
   // wait now lives only in AuthGate, as an effect that runs after this is mounted.
   return (
     <>

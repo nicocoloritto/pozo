@@ -15,12 +15,17 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CategoryChip from '../../components/CategoryChip';
 import PermissionNotice from '../../components/PermissionNotice';
-import { categoryOrder } from '../../constants/categories';
+import SheetModal from '../../components/SheetModal';
+import StatusStamp from '../../components/StatusStamp';
+import { categoryLabels, categoryOrder } from '../../constants/categories';
 import { severityLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
+import { encontrarReclamoCercano } from '../../lib/distancia';
+import { fotoSource } from '../../lib/fotoReclamo';
 import { obtenerBarrioPorCoordenadas } from '../../services/estadisticas';
-import { publicarReclamo } from '../../services/reclamos';
-import type { Categoria, OrigenUbicacion, Severidad } from '../../types/reclamo';
+import { borrarFotoPermanente, guardarFotoPermanente } from '../../services/fotos';
+import { confirmarReclamo, obtenerReclamos, publicarReclamo, ReclamoError } from '../../services/reclamos';
+import type { Categoria, OrigenUbicacion, Reclamo, Severidad } from '../../types/reclamo';
 import { colors, fonts, fontSizes, spacing } from '../../theme';
 
 type Coords = {
@@ -59,6 +64,13 @@ export default function NewReclamo() {
   const [severity, setSeverity] = useState<Severidad | null>(null);
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  // Reclamo abierto de la misma categoría a menos de 50 m: se avisa antes de publicar.
+  const [cercano, setCercano] = useState<Reclamo | null>(null);
+  const [confirmandoCercano, setConfirmandoCercano] = useState(false);
+  const [errorCercano, setErrorCercano] = useState<string | null>(null);
+  // Mensaje de error de la acción en curso (foto, ubicación o guardado). Nunca borra lo que
+  // la persona ya cargó: foto, categoría, severidad y notas quedan como estaban.
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   async function resolveCurrentLocation(): Promise<Coords | null> {
     const permission = await Location.requestForegroundPermissionsAsync();
@@ -67,9 +79,15 @@ export default function NewReclamo() {
       return null;
     }
     setLocationDenied(false);
-    const position = await Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.High,
-    });
+    let position: Location.LocationObject;
+    try {
+      position = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+      });
+    } catch {
+      setErrorMsg('No pudimos obtener tu ubicación. Revisá que el GPS esté activado y reintentá.');
+      return null;
+    }
     const found: Coords = {
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,
@@ -122,7 +140,14 @@ export default function NewReclamo() {
   }
 
   async function handleTakePhoto() {
-    const picture = await cameraRef.current?.takePictureAsync({ quality: 0.7 });
+    setErrorMsg(null);
+    let picture: Awaited<ReturnType<CameraView['takePictureAsync']>> | undefined;
+    try {
+      picture = await cameraRef.current?.takePictureAsync({ quality: 0.7 });
+    } catch {
+      setErrorMsg('No pudimos sacar la foto. Probá de nuevo.');
+      return;
+    }
     if (!picture) return;
     setPhotoUri(picture.uri);
     setLocationSource('Device');
@@ -139,14 +164,23 @@ export default function NewReclamo() {
   }
 
   async function handlePickFromGallery() {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) return;
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      exif: true,
-      quality: 0.7,
-    });
+    setErrorMsg(null);
+    let result: ImagePicker.ImagePickerResult;
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        setErrorMsg('Sin permiso para ver tus fotos. Podés activarlo desde los ajustes del teléfono.');
+        return;
+      }
+      result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        exif: true,
+        quality: 0.7,
+      });
+    } catch {
+      setErrorMsg('No pudimos abrir la galería. Probá de nuevo.');
+      return;
+    }
     if (result.canceled || !result.assets[0]) return;
 
     const asset = result.assets[0];
@@ -174,37 +208,112 @@ export default function NewReclamo() {
     photoUri && coords && category && severity && user?.rol === 'vecino' && !submitting
   );
 
+  // Antes de publicar se busca un reclamo parecido cerca. Si hay, se muestra la tarjeta
+  // de aviso y la publicación espera a que la persona elija; si no, se publica directo.
   async function handleSubmit() {
-    if (!canSubmit || !photoUri || !coords || !category || !severity || !user || user.rol !== 'vecino') return;
+    if (!canSubmit || !coords || !category) return;
     setSubmitting(true);
-    // El barrio (y por lo tanto el municipio) se resuelven a partir de las
-    // coordenadas reales del reclamo, no del barrio del perfil del vecino: puede
-    // estar reportando un problema en un barrio distinto al suyo.
-    const barrio = await obtenerBarrioPorCoordenadas(coords.latitude, coords.longitude);
-    const reclamo = await publicarReclamo({
-      autorId: user.id,
-      municipioId: barrio?.municipioId ?? 'caba',
-      category,
-      severity,
-      notes: notes.trim() || undefined,
-      photoUrl: photoUri,
-      latitude: coords.latitude,
-      longitude: coords.longitude,
-      accuracyMeters: coords.accuracy ?? undefined,
-      locationSource: locationSource ?? 'Manual',
-      address: address ?? undefined,
-      neighborhood: barrio?.nombre ?? user.neighborhood,
-      comuna: barrio?.comuna,
-    });
-    router.replace({
-      pathname: '/reclamos/published',
-      params: {
-        caseNumber: reclamo.caseNumber,
-        address: address ?? '',
-        lat: String(coords.latitude),
-        lng: String(coords.longitude),
-      },
-    });
+    setErrorMsg(null);
+    try {
+      const hallado = encontrarReclamoCercano(await obtenerReclamos(), {
+        category,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+      });
+      if (hallado) {
+        setErrorCercano(null);
+        setCercano(hallado.reclamo);
+        setSubmitting(false);
+        return;
+      }
+    } catch {
+      // Si no se puede revisar si hay uno cerca, no se bloquea la publicación.
+    }
+    await publicar();
+  }
+
+  async function handleConfirmarCercano() {
+    if (!cercano || !user) return;
+    setConfirmandoCercano(true);
+    setErrorCercano(null);
+    try {
+      await confirmarReclamo(cercano.id, user.id);
+      router.replace(`/reclamos/${cercano.id}`);
+    } catch (err) {
+      if (err instanceof ReclamoError && err.code === 'ALREADY_CONFIRMED') {
+        // Ya lo había confirmado: lo llevamos igual a su Detalle.
+        router.replace(`/reclamos/${cercano.id}`);
+      } else {
+        setErrorCercano(err instanceof ReclamoError ? err.message : 'No pudimos confirmar el reclamo. Probá de nuevo.');
+      }
+    } finally {
+      setConfirmandoCercano(false);
+    }
+  }
+
+  async function handlePublicarIgual() {
+    setCercano(null);
+    setSubmitting(true);
+    await publicar();
+  }
+
+  // Pasos: copiar la foto a la carpeta permanente → resolver el barrio → guardar el reclamo
+  // (autor = usuario de la sesión, estado Reportado y primer cambio del historial los pone
+  // services/reclamos.ts). Si algo falla se muestra el motivo y se queda en esta pantalla
+  // con todo lo cargado, para poder reintentar.
+  async function publicar() {
+    if (!photoUri || !coords || !category || !severity || !user || user.rol !== 'vecino') {
+      setSubmitting(false);
+      return;
+    }
+    setErrorMsg(null);
+
+    let fotoGuardada: string;
+    try {
+      fotoGuardada = await guardarFotoPermanente(photoUri);
+    } catch (err) {
+      console.warn('[nuevo-reclamo] No se pudo copiar la foto', err);
+      setErrorMsg('No pudimos guardar la foto en el teléfono. Revisá que tengas espacio y probá de nuevo.');
+      setSubmitting(false);
+      return;
+    }
+
+    try {
+      // El barrio (y por lo tanto el municipio) se resuelven a partir de las
+      // coordenadas reales del reclamo, no del barrio del perfil del vecino: puede
+      // estar reportando un problema en un barrio distinto al suyo.
+      const barrio = await obtenerBarrioPorCoordenadas(coords.latitude, coords.longitude);
+      const reclamo = await publicarReclamo({
+        autorId: user.id,
+        municipioId: barrio?.municipioId ?? 'caba',
+        category,
+        severity,
+        notes: notes.trim() || undefined,
+        photoUrl: fotoGuardada,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        accuracyMeters: coords.accuracy ?? undefined,
+        locationSource: locationSource ?? 'Manual',
+        address: address ?? undefined,
+        neighborhood: barrio?.nombre ?? user.neighborhood,
+        comuna: barrio?.comuna,
+      });
+      router.replace({
+        pathname: '/reclamos/published',
+        params: {
+          caseNumber: reclamo.caseNumber,
+          address: address ?? '',
+          lat: String(coords.latitude),
+          lng: String(coords.longitude),
+        },
+      });
+    } catch (err) {
+      console.warn('[nuevo-reclamo] No se pudo publicar', err);
+      // La copia ya no sirve: se borra para no dejar fotos huérfanas.
+      borrarFotoPermanente(fotoGuardada);
+      setErrorMsg('No pudimos guardar el reclamo. Tus datos siguen acá: probá publicar de nuevo.');
+      setSubmitting(false);
+    }
   }
 
   if (!cameraPermission) {
@@ -319,6 +428,26 @@ export default function NewReclamo() {
         </View>
       )}
 
+      {errorMsg && (
+        <View style={styles.errorBox}>
+          <Text style={styles.errorText}>{errorMsg}</Text>
+          {photoUri && !coords && !locatingPhoto && !locationDenied && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Reintentar ubicación"
+              onPress={async () => {
+                setErrorMsg(null);
+                setLocatingPhoto(true);
+                setCoords(await resolveCurrentLocation());
+                setLocatingPhoto(false);
+              }}
+            >
+              <Text style={styles.errorRetry}>Reintentar ubicación</Text>
+            </Pressable>
+          )}
+        </View>
+      )}
+
       <ScrollView style={styles.form} contentContainerStyle={styles.formContent}>
         <Text style={styles.lbl}>2 · Categoría</Text>
         <View style={styles.categoryGrid}>
@@ -372,11 +501,154 @@ export default function NewReclamo() {
           {notes.length}/{NOTES_MAX_LENGTH}
         </Text>
       </ScrollView>
+
+      <SheetModal
+        visible={cercano !== null}
+        onClose={() => setCercano(null)}
+        title="Ya hay un reclamo parecido acá cerca"
+        fill={false}
+      >
+        {cercano && (
+          <View style={styles.nearbyBody}>
+            <View style={styles.nearbyCard}>
+              <Image source={fotoSource(cercano)} style={styles.nearbyPhoto} resizeMode="cover" />
+              <View style={styles.nearbyInfo}>
+                <Text style={styles.nearbyTitle}>{categoryLabels[cercano.category]}</Text>
+                <Text style={styles.nearbyAddress} numberOfLines={2}>
+                  {cercano.address ?? 'Ubicación sin resolver'}
+                </Text>
+                <StatusStamp status={cercano.status} />
+              </View>
+            </View>
+
+            {cercano.autorId === user?.id ? (
+              <Text style={styles.nearbyText}>Ya reportaste este problema vos. No hace falta que lo cargues de nuevo.</Text>
+            ) : (
+              <Text style={styles.nearbyText}>
+                Si es el mismo problema, confirmalo: con más confirmaciones el municipio lo atiende antes.
+              </Text>
+            )}
+            {errorCercano && <Text style={styles.nearbyError}>{errorCercano}</Text>}
+
+            {cercano.autorId === user?.id ? (
+              <Pressable
+                style={({ pressed }) => [styles.nearbyPrimary, pressed && styles.pressed]}
+                onPress={() => router.replace(`/reclamos/${cercano.id}`)}
+                accessibilityRole="button"
+                accessibilityLabel="Ver mi reclamo"
+              >
+                <Text style={styles.nearbyPrimaryText}>Ver mi reclamo</Text>
+              </Pressable>
+            ) : (
+              <Pressable
+                style={({ pressed }) => [styles.nearbyPrimary, pressed && styles.pressed]}
+                onPress={handleConfirmarCercano}
+                disabled={confirmandoCercano}
+                accessibilityRole="button"
+                accessibilityLabel="Confirmar ese reclamo"
+              >
+                <Text style={styles.nearbyPrimaryText}>{confirmandoCercano ? 'Confirmando…' : 'Confirmar ese'}</Text>
+              </Pressable>
+            )}
+            <Pressable
+              style={({ pressed }) => [styles.nearbySecondary, pressed && styles.pressed]}
+              onPress={handlePublicarIgual}
+              disabled={confirmandoCercano}
+              accessibilityRole="button"
+              accessibilityLabel="Es otro problema, publicar igual"
+            >
+              <Text style={styles.nearbySecondaryText}>Es otro problema, publicar igual</Text>
+            </Pressable>
+          </View>
+        )}
+      </SheetModal>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  errorBox: {
+    backgroundColor: colors.chalk2,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.rust,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    gap: spacing.xs,
+  },
+  errorText: {
+    fontFamily: fonts.body,
+    fontSize: fontSizes.sm,
+    color: colors.rust,
+  },
+  errorRetry: {
+    fontFamily: fonts.monoSemiBold,
+    fontSize: fontSizes.xs,
+    textTransform: 'uppercase',
+    color: colors.asphalt,
+  },
+  nearbyBody: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
+    gap: spacing.md,
+  },
+  nearbyCard: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    backgroundColor: colors.chalk2,
+    padding: spacing.sm,
+  },
+  nearbyPhoto: {
+    width: 84,
+    height: 84,
+    backgroundColor: colors.concreteLight,
+  },
+  nearbyInfo: {
+    flex: 1,
+    gap: 4,
+    justifyContent: 'center',
+  },
+  nearbyTitle: {
+    fontFamily: fonts.bodyBold,
+    fontSize: fontSizes.md,
+    color: colors.asphalt,
+  },
+  nearbyAddress: {
+    fontFamily: fonts.body,
+    fontSize: fontSizes.sm,
+    color: colors.concrete,
+  },
+  nearbyText: {
+    fontFamily: fonts.body,
+    fontSize: fontSizes.sm,
+    color: colors.asphalt,
+  },
+  nearbyError: {
+    fontFamily: fonts.body,
+    fontSize: fontSizes.sm,
+    color: colors.rust,
+  },
+  nearbyPrimary: {
+    backgroundColor: colors.yellow,
+    padding: spacing.md,
+    alignItems: 'center',
+  },
+  nearbyPrimaryText: {
+    fontFamily: fonts.bodyBold,
+    fontSize: fontSizes.sm,
+    textTransform: 'uppercase',
+    color: colors.asphalt,
+  },
+  nearbySecondary: {
+    borderWidth: 1,
+    borderColor: colors.asphalt,
+    padding: spacing.md,
+    alignItems: 'center',
+  },
+  nearbySecondaryText: {
+    fontFamily: fonts.bodyBold,
+    fontSize: fontSizes.sm,
+    color: colors.asphalt,
+  },
   container: {
     flex: 1,
     backgroundColor: colors.chalk,

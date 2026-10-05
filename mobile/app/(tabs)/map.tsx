@@ -1,73 +1,63 @@
-import { Ionicons } from '@expo/vector-icons';
-import * as Location from 'expo-location';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import type { Region } from 'react-native-maps';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import ReclamoMarker from '../../components/ReclamoMarker';
-import StatusStamp from '../../components/StatusStamp';
+import ReclamosMap from '../../components/ReclamosMap';
 import { categoryLabels, categoryOrder } from '../../constants/categories';
 import { statusLabels } from '../../constants/status';
 import { ESTADOS_RECLAMO, obtenerReclamos } from '../../services/reclamos';
 import type { Categoria, EstadoReclamo, Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, spacing } from '../../theme';
 
-// Centro aproximado de CABA (Obelisco), usado cuando no hay permiso de ubicación.
-const CABA_REGION: Region = {
-  latitude: -34.6037,
-  longitude: -58.3816,
-  latitudeDelta: 0.12,
-  longitudeDelta: 0.12,
-};
-
 export default function MapScreen() {
   const router = useRouter();
-  const mapRef = useRef<MapView>(null);
+  // Viene del mini mapa de un Detalle: el reclamo que hay que mostrar centrado.
+  const { reclamoId } = useLocalSearchParams<{ reclamoId?: string }>();
+  const reclamoIdRef = useRef(reclamoId);
+  reclamoIdRef.current = reclamoId;
 
+  const [avisoFiltros, setAvisoFiltros] = useState(false);
   const [reclamos, setReclamos] = useState<Reclamo[] | null>(null);
-  const [userCoords, setUserCoords] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [locationDenied, setLocationDenied] = useState(false);
-  const [selected, setSelected] = useState<Reclamo | null>(null);
-
   const [categoriaFiltro, setCategoriaFiltro] = useState<Set<Categoria>>(new Set());
   const [estadoFiltro, setEstadoFiltro] = useState<Set<EstadoReclamo>>(new Set());
 
+  // Se recarga cada vez que la tab vuelve a estar en foco: así se ven los reclamos
+  // recién publicados o confirmados.
+  useFocusEffect(
+    useCallback(() => {
+      obtenerReclamos().then((lista) => {
+        setReclamos(lista);
+        // Con la lista recién leída: si el reclamo pedido ya no existe, se descarta el
+        // parámetro para que no quede pendiente.
+        const pedido = reclamoIdRef.current;
+        if (pedido && !lista.some((r) => r.id === pedido)) router.setParams({ reclamoId: undefined });
+      });
+    }, [router])
+  );
+
+  // Si el reclamo pedido no pasa los filtros activos, se limpian (y se avisa) para que se
+  // vea igual.
   useEffect(() => {
-    obtenerReclamos().then(setReclamos);
-  }, []);
+    if (!reclamoId || !reclamos) return;
+    const objetivo = reclamos.find((r) => r.id === reclamoId);
+    if (!objetivo) return;
+    const pasaFiltros =
+      (categoriaFiltro.size === 0 || categoriaFiltro.has(objetivo.category)) &&
+      (estadoFiltro.size === 0 || estadoFiltro.has(objetivo.status));
+    if (!pasaFiltros) {
+      setCategoriaFiltro(new Set());
+      setEstadoFiltro(new Set());
+      setAvisoFiltros(true);
+    }
+    // Solo cuando llega un pedido nuevo o datos nuevos, no en cada cambio de filtro.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reclamoId, reclamos]);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const permission = await Location.requestForegroundPermissionsAsync();
-        if (!permission.granted) {
-          if (!cancelled) setLocationDenied(true);
-          return;
-        }
-        const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-        if (!cancelled) {
-          setUserCoords({ latitude: position.coords.latitude, longitude: position.coords.longitude });
-        }
-      } catch {
-        if (!cancelled) setLocationDenied(true);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const initialRegion: Region = userCoords
-    ? { ...userCoords, latitudeDelta: 0.06, longitudeDelta: 0.06 }
-    : CABA_REGION;
-
-  const handleRecenter = useCallback(() => {
-    if (!userCoords || !mapRef.current) return;
-    mapRef.current.animateToRegion({ ...userCoords, latitudeDelta: 0.04, longitudeDelta: 0.04 }, 400);
-  }, [userCoords]);
+    if (!avisoFiltros) return;
+    const timeout = setTimeout(() => setAvisoFiltros(false), 4000);
+    return () => clearTimeout(timeout);
+  }, [avisoFiltros]);
 
   function toggleCategoria(categoria: Categoria) {
     setCategoriaFiltro((prev) => {
@@ -130,78 +120,19 @@ export default function MapScreen() {
         ))}
       </ScrollView>
 
-      <View style={styles.mapWrap}>
-        <MapView
-          ref={mapRef}
-          style={styles.map}
-          // TODO(build de producción): Google Maps en Android necesita una API key
-          // propia en app.json (android.config.googleMaps.apiKey) — ver comentario en
-          // app.json. En Expo Go no hace falta (usa la key de desarrollo del propio
-          // Expo Go). En iOS no se fuerza ningún provider: usa Apple Maps, que no
-          // necesita key y sigue el modo claro/oscuro del sistema.
-          provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
-          initialRegion={initialRegion}
-          showsUserLocation={Boolean(userCoords)}
-          onPress={() => setSelected(null)}
-        >
-          {reclamosFiltrados.map((reclamo) => (
-            <Marker
-              key={reclamo.id}
-              coordinate={{ latitude: reclamo.latitude, longitude: reclamo.longitude }}
-              onPress={() => setSelected(reclamo)}
-              accessibilityLabel={`Reclamo: ${categoryLabels[reclamo.category]} en ${reclamo.address ?? 'ubicación sin resolver'}`}
-            >
-              <ReclamoMarker reclamo={reclamo} />
-            </Marker>
-          ))}
-        </MapView>
-
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Volver a mi ubicación"
-          onPress={handleRecenter}
-          style={({ pressed }) => [styles.locateButton, pressed && styles.pressed]}
-        >
-          <Ionicons name="locate" size={20} color={colors.asphalt} />
-        </Pressable>
-
-        {locationDenied && (
-          <View style={styles.locationNotice}>
-            <Text style={styles.locationNoticeText}>
-              Sin tu ubicación, el mapa arranca centrado en CABA.
-            </Text>
-          </View>
-        )}
-
-        {reclamos === null && (
-          <View style={styles.loadingOverlay}>
-            <Text style={styles.loadingText}>Cargando reclamos…</Text>
-          </View>
-        )}
-      </View>
-
-      {selected && (
-        <Pressable
-          style={styles.selectedCard}
-          onPress={() => router.push(`/reclamos/${selected.id}`)}
-          accessibilityRole="button"
-          accessibilityLabel={`Ver reclamo de ${categoryLabels[selected.category]}`}
-        >
-          <View style={styles.selectedPhotoWrap}>
-            <ReclamoMarker reclamo={selected} size={44} />
-          </View>
-          <View style={styles.selectedBody}>
-            <Text style={styles.selectedTitle} numberOfLines={1}>
-              {categoryLabels[selected.category]}
-            </Text>
-            <Text style={styles.selectedAddress} numberOfLines={1}>
-              {selected.address ?? 'Ubicación sin resolver'}
-            </Text>
-            <StatusStamp status={selected.status} />
-          </View>
-          <Ionicons name="chevron-forward" size={20} color={colors.concrete} />
-        </Pressable>
+      {avisoFiltros && (
+        <View style={styles.aviso}>
+          <Text style={styles.avisoText}>Quitamos los filtros para mostrar ese reclamo.</Text>
+        </View>
       )}
+      <ReclamosMap
+        reclamos={reclamosFiltrados}
+        loading={reclamos === null}
+        enfocarId={reclamoId}
+        onEnfocado={() => router.setParams({ reclamoId: undefined })}
+        centrarEnUsuario
+        onOpenReclamo={(reclamo) => router.push(`/reclamos/${reclamo.id}`)}
+      />
     </SafeAreaView>
   );
 }
@@ -244,85 +175,14 @@ const styles = StyleSheet.create({
   chipTextActive: {
     color: colors.chalk,
   },
-  mapWrap: {
-    flex: 1,
-  },
-  map: {
-    flex: 1,
-  },
-  locateButton: {
-    position: 'absolute',
-    bottom: spacing.lg,
-    right: spacing.lg,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.chalk,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: colors.asphalt,
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  locationNotice: {
-    position: 'absolute',
-    top: spacing.md,
-    left: spacing.md,
-    right: spacing.md,
-    backgroundColor: 'rgba(28,27,26,0.85)',
-    padding: spacing.sm,
-  },
-  locationNoticeText: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    color: colors.chalk,
-    textAlign: 'center',
-  },
-  loadingOverlay: {
-    position: 'absolute',
-    bottom: spacing.lg,
-    left: spacing.lg,
-    backgroundColor: 'rgba(28,27,26,0.85)',
-    paddingHorizontal: spacing.md,
+  aviso: {
+    backgroundColor: colors.asphalt,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
   },
-  loadingText: {
+  avisoText: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     color: colors.chalk,
-  },
-  selectedCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.md,
-    backgroundColor: colors.chalk,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.08)',
-  },
-  selectedPhotoWrap: {
-    width: 48,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  selectedBody: {
-    flex: 1,
-    gap: 4,
-  },
-  selectedTitle: {
-    fontFamily: fonts.bodyBold,
-    fontSize: fontSizes.md,
-    color: colors.asphalt,
-  },
-  selectedAddress: {
-    fontFamily: fonts.body,
-    fontSize: fontSizes.sm,
-    color: colors.concrete,
   },
 });

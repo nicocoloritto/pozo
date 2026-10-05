@@ -2,6 +2,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import CategoryChip from './CategoryChip';
 import StatusStamp from './StatusStamp';
 import { categoryLabels } from '../constants/categories';
+import { fotoSource } from '../lib/fotoReclamo';
 import type { Reclamo } from '../types/reclamo';
 import { colors, fonts, fontSizes, spacing } from '../theme';
 
@@ -25,7 +26,7 @@ export default function ReclamoCard({ reclamo, onPress }: ReclamoCardProps) {
       accessibilityLabel={`Reclamo de ${categoryLabels[reclamo.category]} en ${reclamo.address ?? 'ubicación sin resolver'}`}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
-      <Image source={{ uri: reclamo.photoUrl }} style={styles.photo} resizeMode="cover" />
+      <Image source={fotoSource(reclamo)} style={styles.photo} resizeMode="cover" />
       <View style={styles.body}>
         <View style={styles.topLine}>
           <Text style={styles.title} numberOfLines={1}>

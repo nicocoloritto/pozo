@@ -1,5 +1,5 @@
-import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EmptyState from '../../components/EmptyState';
@@ -7,7 +7,8 @@ import ReclamoCard from '../../components/ReclamoCard';
 import ReclamoCardSkeleton from '../../components/ReclamoCardSkeleton';
 import { statusLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
-import { ESTADOS_RECLAMO, obtenerReclamosPorAutor } from '../../services/reclamos';
+import { devLog } from '../../lib/devLog';
+import { ESTADOS_RECLAMO, obtenerReclamos, obtenerReclamosPorAutor } from '../../services/reclamos';
 import type { EstadoReclamo, Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, spacing } from '../../theme';
 
@@ -25,11 +26,26 @@ export default function MineScreen() {
     if (!autorId) return;
     const data = await obtenerReclamosPorAutor(autorId);
     setReclamos(data);
+    if (__DEV__) {
+      // Diagnóstico: si faltan reclamos, acá se ve si el id de la sesión coincide con los
+      // autorId guardados y cuántos reclamos hay en total en el storage.
+      const todos = await obtenerReclamos();
+      devLog('mis-reclamos', {
+        idDeLaSesion: autorId,
+        reclamosEnStorage: todos.length,
+        conEseAutorId: data.length,
+        autorIdsEnStorage: Array.from(new Set(todos.map((r) => r.autorId))),
+      });
+    }
   }, [autorId]);
 
-  useEffect(() => {
-    cargar();
-  }, [cargar]);
+  // Se recarga cada vez que la tab vuelve a estar en foco: un reclamo recién publicado o
+  // confirmado tiene que aparecer sin tener que hacer pull-to-refresh.
+  useFocusEffect(
+    useCallback(() => {
+      cargar();
+    }, [cargar])
+  );
 
   async function handleRefresh() {
     setRefreshing(true);

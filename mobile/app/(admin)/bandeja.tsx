@@ -1,27 +1,27 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { FlatList, Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
+import { FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import areasData from '../../data/areas.json';
-import barriosData from '../../data/barrios.json';
 import EmptyState from '../../components/EmptyState';
+import FiltrosMunicipioModal from '../../components/FiltrosMunicipioModal';
 import ReclamoCardSkeleton from '../../components/ReclamoCardSkeleton';
 import StatusStamp from '../../components/StatusStamp';
-import { categoryLabels, categoryOrder } from '../../constants/categories';
+import { categoryLabels } from '../../constants/categories';
 import { useAuth } from '../../contexts/AuthContext';
+import { aplicarFiltros, FILTROS_VACIOS, hayFiltrosActivos } from '../../lib/filtrosMunicipio';
+import type { FiltrosMunicipio } from '../../lib/filtrosMunicipio';
 import { estaVencido, ordenarPorPrioridad } from '../../lib/prioridad';
 import { obtenerReclamosPorMunicipio } from '../../services/reclamos';
 import type { Area } from '../../types/area';
-import type { Barrio } from '../../types/estadisticas';
 import { CATEGORIAS_PELIGROSAS } from '../../types/reclamo';
-import type { Categoria, Reclamo } from '../../types/reclamo';
+import type { Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, spacing } from '../../theme';
 
 type Segmento = 'nuevos' | 'gestion' | 'cerrados';
 
 const areas = areasData as Area[];
-const barrios = barriosData as Barrio[];
 
 function esNuevo(reclamo: Reclamo): boolean {
   return (
@@ -42,15 +42,6 @@ function daysSince(iso: string): number {
   return Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24)));
 }
 
-type Filtros = {
-  barrio: string | null;
-  comuna: number | null;
-  categoria: Categoria | null;
-  area: string | null;
-};
-
-const FILTROS_VACIOS: Filtros = { barrio: null, comuna: null, categoria: null, area: null };
-
 export default function BandejaScreen() {
   const router = useRouter();
   const { user } = useAuth();
@@ -59,7 +50,7 @@ export default function BandejaScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [segmento, setSegmento] = useState<Segmento>('nuevos');
   const [busqueda, setBusqueda] = useState('');
-  const [filtros, setFiltros] = useState<Filtros>(FILTROS_VACIOS);
+  const [filtros, setFiltros] = useState<FiltrosMunicipio>(FILTROS_VACIOS);
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
 
   const municipioId = user && user.rol === 'admin' ? user.municipioId : null;
@@ -70,9 +61,13 @@ export default function BandejaScreen() {
     setReclamos(data);
   }, [municipioId]);
 
-  useEffect(() => {
-    cargar();
-  }, [cargar]);
+  // Se recarga cada vez que la tab vuelve a estar en foco: así aparecen los reclamos
+  // recién publicados y los cambios de estado hechos desde el Detalle.
+  useFocusEffect(
+    useCallback(() => {
+      cargar();
+    }, [cargar])
+  );
 
   async function handleRefresh() {
     setRefreshing(true);
@@ -81,9 +76,6 @@ export default function BandejaScreen() {
   }
 
   if (!municipioId) return null;
-
-  const barriosDelMunicipio = barrios.filter((b) => b.municipioId === municipioId);
-  const comunas = Array.from(new Set(barriosDelMunicipio.map((b) => b.comuna))).sort((a, b) => a - b);
 
   const porSegmento = (reclamos ?? []).filter((r) =>
     segmento === 'nuevos' ? esNuevo(r) : segmento === 'gestion' ? esEnGestion(r) : esCerrado(r)
@@ -96,17 +88,12 @@ export default function BandejaScreen() {
   };
 
   const textoBusqueda = busqueda.trim().toLowerCase();
-  const filtrados = porSegmento.filter((r) => {
-    if (filtros.barrio && r.neighborhood !== filtros.barrio) return false;
-    if (filtros.comuna && r.comuna !== filtros.comuna) return false;
-    if (filtros.categoria && r.category !== filtros.categoria) return false;
-    if (filtros.area && r.areaAsignada !== filtros.area) return false;
-    if (textoBusqueda && !r.address?.toLowerCase().includes(textoBusqueda)) return false;
-    return true;
-  });
+  const filtrados = aplicarFiltros(porSegmento, filtros).filter(
+    (r) => !textoBusqueda || r.address?.toLowerCase().includes(textoBusqueda)
+  );
 
   const ordenados = ordenarPorPrioridad(filtrados);
-  const hayFiltrosActivos = Object.values(filtros).some(Boolean);
+  const filtrosActivos = hayFiltrosActivos(filtros);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -116,9 +103,9 @@ export default function BandejaScreen() {
           accessibilityRole="button"
           accessibilityLabel="Filtros"
           onPress={() => setFiltrosAbiertos(true)}
-          style={[styles.filterButton, hayFiltrosActivos && styles.filterButtonActive]}
+          style={[styles.filterButton, filtrosActivos && styles.filterButtonActive]}
         >
-          <Ionicons name="options-outline" size={18} color={hayFiltrosActivos ? colors.chalk : colors.asphalt} />
+          <Ionicons name="options-outline" size={18} color={filtrosActivos ? colors.chalk : colors.asphalt} />
         </Pressable>
       </View>
 
@@ -173,7 +160,7 @@ export default function BandejaScreen() {
             <EmptyState
               icon="file-tray-outline"
               message={
-                hayFiltrosActivos || textoBusqueda
+                filtrosActivos || textoBusqueda
                   ? 'Ningún reclamo coincide con el filtro.'
                   : 'No hay reclamos en esta bandeja todavía.'
               }
@@ -185,84 +172,14 @@ export default function BandejaScreen() {
         />
       )}
 
-      <Modal visible={filtrosAbiertos} animationType="slide" onRequestClose={() => setFiltrosAbiertos(false)}>
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Filtros</Text>
-            <Pressable onPress={() => setFiltrosAbiertos(false)} accessibilityRole="button" accessibilityLabel="Cerrar">
-              <Ionicons name="close" size={24} color={colors.asphalt} />
-            </Pressable>
-          </View>
-          <ScrollView contentContainerStyle={styles.modalContent}>
-            <FiltroSeccion
-              titulo="Barrio"
-              opciones={barriosDelMunicipio.map((b) => ({ id: b.nombre, label: b.nombre }))}
-              valor={filtros.barrio}
-              onChange={(valor) => setFiltros((prev) => ({ ...prev, barrio: valor }))}
-            />
-            <FiltroSeccion
-              titulo="Comuna"
-              opciones={comunas.map((c) => ({ id: String(c), label: `Comuna ${c}` }))}
-              valor={filtros.comuna ? String(filtros.comuna) : null}
-              onChange={(valor) => setFiltros((prev) => ({ ...prev, comuna: valor ? Number(valor) : null }))}
-            />
-            <FiltroSeccion
-              titulo="Categoría"
-              opciones={categoryOrder.map((c) => ({ id: c, label: categoryLabels[c] }))}
-              valor={filtros.categoria}
-              onChange={(valor) => setFiltros((prev) => ({ ...prev, categoria: valor as Categoria | null }))}
-            />
-            <FiltroSeccion
-              titulo="Área"
-              opciones={areas.map((a) => ({ id: a.id, label: a.nombre }))}
-              valor={filtros.area}
-              onChange={(valor) => setFiltros((prev) => ({ ...prev, area: valor }))}
-            />
-          </ScrollView>
-          <Pressable
-            style={({ pressed }) => [styles.clearButton, pressed && styles.pressed]}
-            onPress={() => setFiltros(FILTROS_VACIOS)}
-            accessibilityRole="button"
-            accessibilityLabel="Limpiar filtros"
-          >
-            <Text style={styles.clearButtonText}>Limpiar filtros</Text>
-          </Pressable>
-        </SafeAreaView>
-      </Modal>
+      <FiltrosMunicipioModal
+        visible={filtrosAbiertos}
+        municipioId={municipioId}
+        filtros={filtros}
+        onClose={() => setFiltrosAbiertos(false)}
+        onApply={setFiltros}
+      />
     </SafeAreaView>
-  );
-}
-
-type Opcion = { id: string; label: string };
-
-function FiltroSeccion({
-  titulo,
-  opciones,
-  valor,
-  onChange,
-}: {
-  titulo: string;
-  opciones: Opcion[];
-  valor: string | null;
-  onChange: (valor: string | null) => void;
-}) {
-  return (
-    <View style={styles.filtroSeccion}>
-      <Text style={styles.filtroTitulo}>{titulo}</Text>
-      <View style={styles.filtroOpciones}>
-        {opciones.map((opcion) => (
-          <Pressable
-            key={opcion.id}
-            onPress={() => onChange(valor === opcion.id ? null : opcion.id)}
-            style={[styles.filtroChip, valor === opcion.id && styles.filtroChipActive]}
-          >
-            <Text style={[styles.filtroChipText, valor === opcion.id && styles.filtroChipTextActive]}>
-              {opcion.label}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
-    </View>
   );
 }
 
@@ -440,68 +357,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     color: colors.concrete,
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: colors.chalk,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: spacing.lg,
-  },
-  modalTitle: {
-    fontFamily: fonts.bodyBold,
-    fontSize: fontSizes.lg,
-    color: colors.asphalt,
-  },
-  modalContent: {
-    padding: spacing.lg,
-    gap: spacing.lg,
-  },
-  filtroSeccion: {
-    gap: spacing.sm,
-  },
-  filtroTitulo: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.concrete,
-  },
-  filtroOpciones: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
-  },
-  filtroChip: {
-    borderWidth: 1,
-    borderColor: colors.asphalt,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 6,
-  },
-  filtroChipActive: {
-    backgroundColor: colors.asphalt,
-  },
-  filtroChipText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    color: colors.asphalt,
-  },
-  filtroChipTextActive: {
-    color: colors.chalk,
-  },
-  clearButton: {
-    margin: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.rust,
-    padding: spacing.md,
-    alignItems: 'center',
-  },
-  clearButtonText: {
-    fontFamily: fonts.bodyBold,
-    fontSize: fontSizes.sm,
-    textTransform: 'uppercase',
-    color: colors.rust,
   },
 });

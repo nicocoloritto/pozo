@@ -41,6 +41,14 @@ export default function AdminTabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="mapa"
+        options={{
+          title: 'Mapa',
+          tabBarAccessibilityLabel: 'Mapa',
+          tabBarIcon: (props) => <TabIcon {...props} outline="map-outline" filled="map" />,
+        }}
+      />
+      <Tabs.Screen
         name="tablero"
         options={{
           title: 'Tablero',
