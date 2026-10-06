@@ -200,3 +200,13 @@ export async function cerrarSesion(): Promise<void> {
     console.warn('[auth] No se pudo borrar la sesión', err);
   }
 }
+
+// Borra usuarios y sesión del storage. Solo para el botón "Restablecer datos de prueba"
+// (__DEV__): después hay que volver a llamar a init() para recargar los JSON.
+export async function resetear(): Promise<void> {
+  try {
+    await AsyncStorage.multiRemove([USERS_KEY, SESSION_KEY]);
+  } catch (err) {
+    console.warn('[auth] No se pudieron borrar los datos de prueba', err);
+  }
+}

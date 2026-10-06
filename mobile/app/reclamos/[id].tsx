@@ -1,14 +1,14 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import areasData from '../../data/areas.json';
 import EmptyState from '../../components/EmptyState';
-import ReclamoMarker from '../../components/ReclamoMarker';
+import MiniMapaReclamo from '../../components/MiniMapaReclamo';
 import RubberStamp from '../../components/RubberStamp';
 import Skeleton from '../../components/Skeleton';
 import { categoryLabels } from '../../constants/categories';
+import { fotoResolucionSource, fotoSource } from '../../lib/fotoReclamo';
 import { severityLabels, statusColors, statusLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -120,7 +120,7 @@ export default function ReclamoDetail() {
       </View>
 
       <View style={styles.photoWrap}>
-        <Image source={{ uri: reclamo.photoUrl }} style={styles.photo} resizeMode="cover" />
+        <Image source={fotoSource(reclamo)} style={styles.photo} resizeMode="cover" />
         <Text style={styles.tagline}>Foto del vecino · {formatDateTime(reclamo.createdAt)}</Text>
       </View>
 
@@ -142,22 +142,11 @@ export default function ReclamoDetail() {
           </View>
         </View>
 
-        <View style={styles.miniMapWrap}>
-          <MapView
-            style={styles.miniMap}
-            pointerEvents="none"
-            initialRegion={{
-              latitude: reclamo.latitude,
-              longitude: reclamo.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            }}
-          >
-            <Marker coordinate={{ latitude: reclamo.latitude, longitude: reclamo.longitude }}>
-              <ReclamoMarker reclamo={reclamo} size={30} />
-            </Marker>
-          </MapView>
-        </View>
+        <MiniMapaReclamo
+          reclamo={reclamo}
+          style={styles.miniMapWrap}
+          onPress={() => router.dismissTo({ pathname: '/map', params: { reclamoId: reclamo.id } })}
+        />
 
         <View style={styles.metaBox}>
           <View style={styles.metaRow}>
@@ -202,16 +191,16 @@ export default function ReclamoDetail() {
           </View>
         )}
 
-        {reclamo.status === 'Resuelto' && reclamo.fotoResolucion && (
+        {reclamo.status === 'Resuelto' && fotoResolucionSource(reclamo) && (
           <>
             <Text style={styles.sectionTitle}>Antes / Después</Text>
             <View style={styles.beforeAfterRow}>
               <View style={styles.beforeAfterItem}>
-                <Image source={{ uri: reclamo.photoUrl }} style={styles.beforeAfterPhoto} resizeMode="cover" />
+                <Image source={fotoSource(reclamo)} style={styles.beforeAfterPhoto} resizeMode="cover" />
                 <Text style={styles.beforeAfterLabel}>Antes</Text>
               </View>
               <View style={styles.beforeAfterItem}>
-                <Image source={{ uri: reclamo.fotoResolucion }} style={styles.beforeAfterPhoto} resizeMode="cover" />
+                <Image source={fotoResolucionSource(reclamo) ?? undefined} style={styles.beforeAfterPhoto} resizeMode="cover" />
                 <Text style={styles.beforeAfterLabel}>Después</Text>
               </View>
             </View>
@@ -396,12 +385,7 @@ const styles = StyleSheet.create({
     color: colors.asphalt,
   },
   miniMapWrap: {
-    height: 140,
     marginBottom: spacing.lg,
-    overflow: 'hidden',
-  },
-  miniMap: {
-    flex: 1,
   },
   metaBox: {
     borderWidth: 1,

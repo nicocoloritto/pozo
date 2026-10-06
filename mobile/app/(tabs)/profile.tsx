@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ResetDatosButton from '../../components/ResetDatosButton';
 import { useAuth } from '../../contexts/AuthContext';
 import { colors, fonts, fontSizes, spacing } from '../../theme';
 
@@ -63,6 +64,7 @@ export default function ProfileScreen() {
       >
         <Text style={styles.logoutButtonText}>Cerrar sesión</Text>
       </Pressable>
+      <ResetDatosButton />
     </SafeAreaView>
   );
 }

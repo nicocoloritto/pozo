@@ -52,7 +52,8 @@ export type Reclamo = {
   severity: Severidad;
   status: EstadoReclamo;
   notes?: string;
-  photoUrl: string;
+  photoUrl: string; // URI de la foto sacada por el vecino
+  photoKey?: string; // foto empaquetada de un reclamo de prueba (assets/reclamos)
   latitude: number;
   longitude: number;
   accuracyMeters?: number;
@@ -72,6 +73,7 @@ export type Reclamo = {
   fechaEstimada?: string; // ISO date
   notas?: NotaReclamo[];
   fotoResolucion?: string;
+  fotoResolucionKey?: string; // idem photoKey, para la foto de resolución del seed
   motivoRechazo?: string;
 };
 

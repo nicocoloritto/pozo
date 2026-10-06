@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useEffect, useMemo, useState } from 'react';
-import { FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BarChart from '../../components/BarChart';
+import SheetModal from '../../components/SheetModal';
 import Skeleton from '../../components/Skeleton';
 import { categoryLabels } from '../../constants/categories';
 import { statusColors, statusLabels } from '../../constants/status';
@@ -205,14 +206,7 @@ export default function EstadisticasScreen() {
         )}
       </ScrollView>
 
-      <Modal visible={selectorAbierto} animationType="slide" onRequestClose={() => setSelectorAbierto(false)}>
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Elegí un barrio</Text>
-            <Pressable onPress={() => setSelectorAbierto(false)} accessibilityRole="button" accessibilityLabel="Cerrar">
-              <Ionicons name="close" size={24} color={colors.asphalt} />
-            </Pressable>
-          </View>
+      <SheetModal visible={selectorAbierto} onClose={() => setSelectorAbierto(false)} title="Elegí un barrio">
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar barrio…"
@@ -236,8 +230,7 @@ export default function EstadisticasScreen() {
               </Pressable>
             )}
           />
-        </SafeAreaView>
-      </Modal>
+      </SheetModal>
     </SafeAreaView>
   );
 }

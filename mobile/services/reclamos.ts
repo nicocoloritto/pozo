@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import reclamosSeed from '../data/reclamos.json';
 import { devLog } from '../lib/devLog';
+import { borrarTodasLasFotos } from './fotos';
 import {
   decidirPasarAReparacion,
   decidirRechazar,
@@ -22,9 +23,15 @@ export type { ReclamoErrorCode };
 // llaman a estas funciones, nunca tocan el storage directamente.
 //
 // reclamos.json son datos de prueba (coordenadas reales de varios barrios de CABA) que
-// se precargan una sola vez. Si ya hay reclamos guardados (incluidos los publicados por
-// el usuario o gestionados por el municipio), el seed no los pisa.
+// se precargan y se mezclan por id con lo guardado (ver init()). El seed nunca pisa los
+// reclamos ya guardados (incluidos los publicados por el usuario o gestionados por el
+// municipio).
 
+// Flujo del storage: este servicio no guarda estado en memoria, así que no necesita una
+// bandera isHydrated (esa vive en AuthProvider). Cada función sigue el mismo ciclo:
+// leer de AsyncStorage → parsear el JSON → modificar el arreglo → guardar el arreglo
+// completo con JSON.stringify. init() es lo único que escribe sin que lo pida el
+// usuario, y solo si todavía no hay nada guardado.
 const RECLAMOS_KEY = 'pozo:reclamos';
 
 export type PublicarReclamoInput = {
@@ -74,22 +81,58 @@ function generarCaseNumber(): string {
   return `EXP-${year}-${sequence}`;
 }
 
-// Carga reclamos.json en AsyncStorage una sola vez. Nunca pisa reclamos ya guardados
-// (ni los de prueba ya migrados, ni los que publicó o gestionó alguien). Corre en
+// Carga reclamos.json en AsyncStorage y lo MEZCLA con lo que ya hay: agrega los reclamos
+// de prueba cuyo id todavía no está guardado (así los reclamos de prueba que se suman en
+// una versión nueva aparecen aunque el teléfono ya tenga datos), y a los de prueba ya
+// guardados les completa las claves de foto (photoKey) si les faltan. Nunca pisa ni
+// borra nada más: ni los reclamos que publicó o gestionó alguien, ni su estado. Corre en
 // segundo plano desde AuthProvider: no bloquea el arranque. Nunca throws.
 export async function init(): Promise<void> {
   devLog('reclamos.init:start');
   try {
-    const existing = await AsyncStorage.getItem(RECLAMOS_KEY);
-    if (existing !== null) {
-      devLog('reclamos.init:end (ya había reclamos guardados)');
+    const seed = reclamosSeed as Reclamo[];
+    const raw = await AsyncStorage.getItem(RECLAMOS_KEY);
+    if (raw === null) {
+      await saveReclamos(seed);
+      devLog('reclamos.init:end (seed cargado)', seed.length);
       return;
     }
-    await saveReclamos(reclamosSeed as Reclamo[]);
-    devLog('reclamos.init:end (seed cargado)', (reclamosSeed as Reclamo[]).length);
+
+    const guardados = JSON.parse(raw) as Reclamo[];
+    const porId = new Map(guardados.map((reclamo) => [reclamo.id, reclamo]));
+    let cambios = 0;
+    for (const reclamoSeed of seed) {
+      const guardado = porId.get(reclamoSeed.id);
+      if (!guardado) {
+        guardados.push(reclamoSeed);
+        cambios++;
+        continue;
+      }
+      if (!guardado.photoKey && reclamoSeed.photoKey) {
+        guardado.photoKey = reclamoSeed.photoKey;
+        cambios++;
+      }
+      if (!guardado.fotoResolucionKey && reclamoSeed.fotoResolucionKey) {
+        guardado.fotoResolucionKey = reclamoSeed.fotoResolucionKey;
+        cambios++;
+      }
+    }
+    if (cambios > 0) await saveReclamos(guardados);
+    devLog('reclamos.init:end', cambios, 'cambios sobre', guardados.length, 'reclamos');
   } catch (err) {
     console.warn('[reclamos] No se pudo precargar el seed de reclamos', err);
     devLog('reclamos.init:end (error)');
+  }
+}
+
+// Borra los reclamos del storage y las fotos que guardaron los vecinos. Solo para "Restablecer datos de prueba" (__DEV__):
+// después hay que volver a llamar a init() para recargar reclamos.json.
+export async function resetear(): Promise<void> {
+  try {
+    await AsyncStorage.removeItem(RECLAMOS_KEY);
+    borrarTodasLasFotos();
+  } catch (err) {
+    console.warn('[reclamos] No se pudieron borrar los reclamos', err);
   }
 }
 

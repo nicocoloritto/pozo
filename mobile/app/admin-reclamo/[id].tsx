@@ -1,15 +1,16 @@
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import areasData from '../../data/areas.json';
 import EmptyState from '../../components/EmptyState';
-import ReclamoMarker from '../../components/ReclamoMarker';
+import MiniMapaReclamo from '../../components/MiniMapaReclamo';
+import SheetModal from '../../components/SheetModal';
 import Skeleton from '../../components/Skeleton';
 import StatusStamp from '../../components/StatusStamp';
 import { categoryLabels } from '../../constants/categories';
+import { fotoResolucionSource, fotoSource } from '../../lib/fotoReclamo';
 import { severityLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -244,7 +245,7 @@ export default function AdminReclamoDetail() {
       </SafeAreaView>
 
       <View style={styles.photoWrap}>
-        <Image source={{ uri: reclamo.photoUrl }} style={styles.photo} resizeMode="cover" />
+        <Image source={fotoSource(reclamo)} style={styles.photo} resizeMode="cover" />
       </View>
 
       <View style={styles.body}>
@@ -270,22 +271,11 @@ export default function AdminReclamoDetail() {
           </View>
         </View>
 
-        <View style={styles.miniMapWrap}>
-          <MapView
-            style={styles.miniMap}
-            pointerEvents="none"
-            initialRegion={{
-              latitude: reclamo.latitude,
-              longitude: reclamo.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            }}
-          >
-            <Marker coordinate={{ latitude: reclamo.latitude, longitude: reclamo.longitude }}>
-              <ReclamoMarker reclamo={reclamo} size={30} />
-            </Marker>
-          </MapView>
-        </View>
+        <MiniMapaReclamo
+          reclamo={reclamo}
+          style={styles.miniMapWrap}
+          onPress={() => router.dismissTo({ pathname: '/mapa', params: { reclamoId: reclamo.id } })}
+        />
 
         <View style={styles.metaBox}>
           <View style={styles.metaRow}>
@@ -307,16 +297,16 @@ export default function AdminReclamoDetail() {
           </View>
         )}
 
-        {reclamo.status === 'Resuelto' && reclamo.fotoResolucion && (
+        {reclamo.status === 'Resuelto' && fotoResolucionSource(reclamo) && (
           <>
             <Text style={styles.sectionTitle}>Antes / Después</Text>
             <View style={styles.beforeAfterRow}>
               <View style={styles.beforeAfterItem}>
-                <Image source={{ uri: reclamo.photoUrl }} style={styles.beforeAfterPhoto} resizeMode="cover" />
+                <Image source={fotoSource(reclamo)} style={styles.beforeAfterPhoto} resizeMode="cover" />
                 <Text style={styles.beforeAfterLabel}>Antes</Text>
               </View>
               <View style={styles.beforeAfterItem}>
-                <Image source={{ uri: reclamo.fotoResolucion }} style={styles.beforeAfterPhoto} resizeMode="cover" />
+                <Image source={fotoResolucionSource(reclamo) ?? undefined} style={styles.beforeAfterPhoto} resizeMode="cover" />
                 <Text style={styles.beforeAfterLabel}>Después</Text>
               </View>
             </View>
@@ -396,14 +386,7 @@ export default function AdminReclamoDetail() {
       </View>
 
       {/* Asignar área */}
-      <Modal visible={areaModalVisible} animationType="slide" onRequestClose={() => setAreaModalVisible(false)}>
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Asignar área</Text>
-            <Pressable onPress={() => setAreaModalVisible(false)} accessibilityRole="button" accessibilityLabel="Cerrar">
-              <Text style={styles.modalClose}>Cerrar</Text>
-            </Pressable>
-          </View>
+      <SheetModal visible={areaModalVisible} onClose={() => setAreaModalVisible(false)} title="Asignar área">
           <ScrollView contentContainerStyle={styles.modalContent}>
             {areas.map((item) => (
               <Pressable
@@ -420,18 +403,10 @@ export default function AdminReclamoDetail() {
               </Pressable>
             ))}
           </ScrollView>
-        </SafeAreaView>
-      </Modal>
+      </SheetModal>
 
       {/* Fecha estimada */}
-      <Modal visible={fechaModalVisible} animationType="slide" onRequestClose={() => setFechaModalVisible(false)}>
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Fecha estimada</Text>
-            <Pressable onPress={() => setFechaModalVisible(false)} accessibilityRole="button" accessibilityLabel="Cerrar">
-              <Text style={styles.modalClose}>Cerrar</Text>
-            </Pressable>
-          </View>
+      <SheetModal visible={fechaModalVisible} onClose={() => setFechaModalVisible(false)} title="Fecha estimada" fill={false}>
           <View style={styles.modalContent}>
             <TextInput
               style={styles.fechaInput}
@@ -461,18 +436,10 @@ export default function AdminReclamoDetail() {
               <Text style={styles.primaryButtonText}>Guardar</Text>
             </Pressable>
           </View>
-        </SafeAreaView>
-      </Modal>
+      </SheetModal>
 
       {/* Rechazar */}
-      <Modal visible={rechazoModalVisible} animationType="slide" onRequestClose={() => setRechazoModalVisible(false)}>
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Rechazar reclamo</Text>
-            <Pressable onPress={() => setRechazoModalVisible(false)} accessibilityRole="button" accessibilityLabel="Cerrar">
-              <Text style={styles.modalClose}>Cerrar</Text>
-            </Pressable>
-          </View>
+      <SheetModal visible={rechazoModalVisible} onClose={() => setRechazoModalVisible(false)} title="Rechazar reclamo" fill={false}>
           <View style={styles.modalContent}>
             <TextInput
               style={styles.fechaInput}
@@ -491,8 +458,7 @@ export default function AdminReclamoDetail() {
               <Text style={styles.destructiveButtonText}>Rechazar</Text>
             </Pressable>
           </View>
-        </SafeAreaView>
-      </Modal>
+      </SheetModal>
     </ScrollView>
   );
 }
@@ -602,12 +568,7 @@ const styles = StyleSheet.create({
     color: colors.asphalt,
   },
   miniMapWrap: {
-    height: 140,
     marginTop: spacing.sm,
-    overflow: 'hidden',
-  },
-  miniMap: {
-    flex: 1,
   },
   metaBox: {
     borderWidth: 1,
