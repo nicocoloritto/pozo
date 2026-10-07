@@ -477,7 +477,15 @@ const PinMarker = memo(
       <Marker
         coordinate={coordinate}
         tracksViewChanges={tracks}
-        anchor={tipo === 'cluster' ? ANCLA_CENTRO : undefined}
+        // Tanto el rombo como el círculo de grupo son simétricos: su centro es el punto del
+        // reclamo. Sin esto, en Google Maps (Android) el ancla por defecto es el borde
+        // inferior y el marcador queda dibujado más arriba de su ubicación real. Apple Maps
+        // (iOS) ignora `anchor` y ya centra la vista.
+        anchor={ANCLA_CENTRO}
+        // En iOS, tocar un marcador también dispara el onPress del MapView, que cierra la
+        // tarjeta que este mismo toque acaba de abrir. stopPropagation lo evita (Android
+        // no propaga el evento, así que no le cambia nada).
+        stopPropagation
         onPress={() => onPressMarker(tipo, refId, latitude, longitude)}
         accessibilityLabel={label}
       >

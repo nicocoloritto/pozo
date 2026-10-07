@@ -109,6 +109,16 @@ export async function init(): Promise<void> {
         cambios++;
         continue;
       }
+      // Las coordenadas de los reclamos de prueba se corrigieron (varios estaban en el
+      // centro del barrio y no en su dirección): se actualizan también en los teléfonos que
+      // ya los tenían guardados. Es seguro porque ningún flujo de la app edita las
+      // coordenadas de un reclamo existente: el vecino las fija al publicar y el municipio
+      // solo cambia estado, área, fechas y notas.
+      if (guardado.latitude !== reclamoSeed.latitude || guardado.longitude !== reclamoSeed.longitude) {
+        guardado.latitude = reclamoSeed.latitude;
+        guardado.longitude = reclamoSeed.longitude;
+        cambios++;
+      }
       if (!guardado.photoKey && reclamoSeed.photoKey) {
         guardado.photoKey = reclamoSeed.photoKey;
         cambios++;
