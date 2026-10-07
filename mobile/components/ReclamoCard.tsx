@@ -2,12 +2,15 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import CategoryChip from './CategoryChip';
 import StatusStamp from './StatusStamp';
 import { categoryLabels } from '../constants/categories';
+import { formatearDistancia } from '../lib/distancia';
 import { fotoSource } from '../lib/fotoReclamo';
 import type { Reclamo } from '../types/reclamo';
 import { colors, fonts, fontSizes, spacing } from '../theme';
 
 type ReclamoCardProps = {
   reclamo: Reclamo;
+  // Solo se pasa en "Cerca tuyo": a cuántos metros está el reclamo de la persona.
+  distanciaMetros?: number;
   onPress?: () => void;
 };
 
@@ -18,7 +21,7 @@ function daysSince(isoDate: string): number {
 
 // Reused across el mapa, "Mis reclamos" y resultados de búsqueda
 // (design/pozo-pantallas-hifi.html).
-export default function ReclamoCard({ reclamo, onPress }: ReclamoCardProps) {
+export default function ReclamoCard({ reclamo, distanciaMetros, onPress }: ReclamoCardProps) {
   return (
     <Pressable
       onPress={onPress}
@@ -32,7 +35,10 @@ export default function ReclamoCard({ reclamo, onPress }: ReclamoCardProps) {
           <Text style={styles.title} numberOfLines={1}>
             {categoryLabels[reclamo.category]}
           </Text>
-          <Text style={styles.days}>{daysSince(reclamo.createdAt)}d</Text>
+          <Text style={styles.days}>
+            {distanciaMetros !== undefined ? `${formatearDistancia(distanciaMetros)} · ` : ''}
+            {daysSince(reclamo.createdAt)}d
+          </Text>
         </View>
         <Text style={styles.address} numberOfLines={1}>
           {reclamo.address ?? 'Ubicación sin resolver'}

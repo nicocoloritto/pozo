@@ -12,6 +12,7 @@ import {
 import type { Decision } from '../lib/maquinaEstados';
 import { ReclamoError } from '../lib/reclamoError';
 import type { ReclamoErrorCode } from '../lib/reclamoError';
+import { validarNuevoReclamo } from '../lib/validarReclamo';
 import { CONFIRMACIONES_NECESARIAS } from '../types/reclamo';
 import type { Categoria, EstadoReclamo, OrigenUbicacion, Reclamo } from '../types/reclamo';
 
@@ -161,18 +162,23 @@ export async function obtenerReclamosPorMunicipio(municipioId: string): Promise<
 }
 
 export async function publicarReclamo(input: PublicarReclamoInput): Promise<Reclamo> {
+  validarNuevoReclamo(input);
+
   const reclamos = await loadReclamos();
   const now = new Date().toISOString();
   const caseNumber = generarCaseNumber();
 
+  // `...input` va primero: lo que pone el servicio (id, estado, historial) nunca puede
+  // ser pisado por un campo de más que llegue en el input.
   const reclamo: Reclamo = {
+    ...input,
+    notes: input.notes?.trim() || undefined,
     id: caseNumber,
     caseNumber,
     status: 'Reportado',
     confirmaciones: [],
     createdAt: now,
     history: [{ status: 'Reportado', description: 'Ingresado', createdAt: now, autor: input.autorId }],
-    ...input,
   };
 
   reclamos.unshift(reclamo);
