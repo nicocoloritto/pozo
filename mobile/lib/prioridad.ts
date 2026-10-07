@@ -8,20 +8,21 @@ function diasDesde(iso: string, ahora: number): number {
   return Math.max(0, Math.floor((ahora - new Date(iso).getTime()) / MS_POR_DIA));
 }
 
+type CamposPrioridad = Pick<Reclamo, 'confirmaciones' | 'createdAt' | 'category'> & Partial<Pick<Reclamo, 'votosYaNoEsta'>>;
+
 // Función pura: más confirmaciones, más antigüedad y ser de una categoría peligrosa
-// suben la prioridad. `ahora` es un parámetro (no Date.now() interno) para que esto
+// suben la prioridad; cada "Ya no está" resta lo mismo que suma una confirmación, y nunca
+// queda negativa. `ahora` es un parámetro (no Date.now() interno) para que esto
 // sea testeable de forma determinística.
-export function calcularPrioridad(
-  reclamo: Pick<Reclamo, 'confirmaciones' | 'createdAt' | 'category'>,
-  ahora: number = Date.now()
-): number {
+export function calcularPrioridad(reclamo: CamposPrioridad, ahora: number = Date.now()): number {
   const porConfirmaciones = reclamo.confirmaciones.length * 10;
+  const porYaNoEsta = (reclamo.votosYaNoEsta?.length ?? 0) * 10;
   const porAntiguedad = diasDesde(reclamo.createdAt, ahora) * 2;
   const porPeligro = CATEGORIAS_PELIGROSAS.includes(reclamo.category) ? 50 : 0;
-  return porConfirmaciones + porAntiguedad + porPeligro;
+  return Math.max(0, porConfirmaciones - porYaNoEsta + porAntiguedad + porPeligro);
 }
 
-export function ordenarPorPrioridad<T extends Pick<Reclamo, 'confirmaciones' | 'createdAt' | 'category'>>(
+export function ordenarPorPrioridad<T extends CamposPrioridad>(
   reclamos: T[],
   ahora: number = Date.now()
 ): T[] {

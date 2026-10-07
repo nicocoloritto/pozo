@@ -14,7 +14,7 @@ import { ReclamoError } from '../lib/reclamoError';
 import type { ReclamoErrorCode } from '../lib/reclamoError';
 import { validarNuevoReclamo } from '../lib/validarReclamo';
 import { CONFIRMACIONES_NECESARIAS } from '../types/reclamo';
-import type { Categoria, EstadoReclamo, OrigenUbicacion, Reclamo } from '../types/reclamo';
+import type { Categoria, EstadoReclamo, OrigenUbicacion, Reclamo, TipoVoto } from '../types/reclamo';
 
 export { ReclamoError };
 export type { ReclamoErrorCode };
@@ -196,9 +196,65 @@ export async function publicarReclamo(input: PublicarReclamoInput): Promise<Recl
   return reclamo;
 }
 
-// Un vecino confirma un reclamo ajeno una sola vez. Al llegar a
-// CONFIRMACIONES_NECESARIAS, y solo si todavía está "Reportado", pasa solo a
-// "ConfirmadoPorVecinos". Los estados siguientes los cambia el municipio.
+// Suma la confirmación ("Sigue ahí") de un vecino: lo saca de "Ya no está" si estaba y,
+// al llegar a CONFIRMACIONES_NECESARIAS, y solo si todavía está "Reportado", pasa solo a
+// "ConfirmadoPorVecinos". Los estados siguientes los cambia el municipio. Compartido por
+// confirmarReclamo y votarReclamo.
+function aplicarConfirmacion(reclamo: Reclamo, vecinoId: string, ahora: string): void {
+  reclamo.votosYaNoEsta = (reclamo.votosYaNoEsta ?? []).filter((id) => id !== vecinoId);
+  reclamo.confirmaciones.push(vecinoId);
+  reclamo.ultimoVoto = { tipo: 'sigue', fecha: ahora };
+
+  if (reclamo.status === 'Reportado' && reclamo.confirmaciones.length >= CONFIRMACIONES_NECESARIAS) {
+    reclamo.status = 'ConfirmadoPorVecinos';
+    reclamo.history.push({
+      status: 'ConfirmadoPorVecinos',
+      description: `Confirmado por ${CONFIRMACIONES_NECESARIAS} vecinos`,
+      createdAt: ahora,
+    });
+  }
+}
+
+// Voto "¿Sigue ahí?" estilo Waze. Un voto por vecino: está en confirmaciones ("sigue") o en
+// votosYaNoEsta, nunca en los dos; votar lo otro cambia el voto y tocar el mismo otra vez
+// lo saca. El autor no puede votar "sigue" (sí "yaNoEsta"). Solo en reclamos abiertos.
+// "sigue" cuenta como confirmación; "yaNoEsta" no cambia el estado: lo cierra el municipio.
+// Sacar un voto no vuelve el estado atrás.
+export async function votarReclamo(id: string, vecinoId: string, voto: TipoVoto): Promise<Reclamo> {
+  const reclamos = await loadReclamos();
+  const reclamo = reclamos.find((item) => item.id === id);
+  if (!reclamo) {
+    throw new ReclamoError('NOT_FOUND', 'Este reclamo no existe o fue eliminado');
+  }
+  if (esEstadoFinal(reclamo.status)) {
+    throw new ReclamoError('INVALID_TRANSITION', 'Este reclamo ya está cerrado: no se puede votar');
+  }
+  if (voto === 'sigue' && reclamo.autorId === vecinoId) {
+    throw new ReclamoError('OWN_RECLAMO', 'No podés confirmar tu propio reclamo');
+  }
+
+  const ahora = new Date().toISOString();
+  const yaNoEstaIds = reclamo.votosYaNoEsta ?? [];
+
+  if (voto === 'sigue') {
+    if (reclamo.confirmaciones.includes(vecinoId)) {
+      reclamo.confirmaciones = reclamo.confirmaciones.filter((v) => v !== vecinoId);
+    } else {
+      aplicarConfirmacion(reclamo, vecinoId, ahora);
+    }
+  } else if (yaNoEstaIds.includes(vecinoId)) {
+    reclamo.votosYaNoEsta = yaNoEstaIds.filter((v) => v !== vecinoId);
+  } else {
+    reclamo.confirmaciones = reclamo.confirmaciones.filter((v) => v !== vecinoId);
+    reclamo.votosYaNoEsta = [...yaNoEstaIds, vecinoId];
+    reclamo.ultimoVoto = { tipo: 'yaNoEsta', fecha: ahora };
+  }
+
+  await saveReclamos(reclamos);
+  return reclamo;
+}
+
+// Un vecino confirma un reclamo ajeno una sola vez (ver aplicarConfirmacion).
 export async function confirmarReclamo(id: string, vecinoId: string): Promise<Reclamo> {
   const reclamos = await loadReclamos();
   const reclamo = reclamos.find((item) => item.id === id);
@@ -212,17 +268,7 @@ export async function confirmarReclamo(id: string, vecinoId: string): Promise<Re
     throw new ReclamoError('ALREADY_CONFIRMED', 'Ya confirmaste este reclamo');
   }
 
-  reclamo.confirmaciones.push(vecinoId);
-
-  if (reclamo.status === 'Reportado' && reclamo.confirmaciones.length >= CONFIRMACIONES_NECESARIAS) {
-    const now = new Date().toISOString();
-    reclamo.status = 'ConfirmadoPorVecinos';
-    reclamo.history.push({
-      status: 'ConfirmadoPorVecinos',
-      description: `Confirmado por ${CONFIRMACIONES_NECESARIAS} vecinos`,
-      createdAt: now,
-    });
-  }
+  aplicarConfirmacion(reclamo, vecinoId, new Date().toISOString());
 
   await saveReclamos(reclamos);
   return reclamo;

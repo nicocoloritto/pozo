@@ -1,5 +1,5 @@
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useFocusEffect, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CercaTuyoPanel from '../../components/CercaTuyoPanel';
@@ -12,10 +12,19 @@ import { colors, fonts, fontSizes, spacing } from '../../theme';
 
 export default function MapScreen() {
   const router = useRouter();
+  // router.setParams manda SET_PARAMS al navegador raíz y el param termina en la ruta
+  // "(tabs)", no en esta pantalla: reclamoId nunca se borraba. navigation.setParams actúa
+  // sobre la ruta de esta pantalla.
+  const navigation = useNavigation<{ setParams: (params: { reclamoId?: string }) => void }>();
   // Viene del mini mapa de un Detalle: el reclamo que hay que mostrar centrado.
   const { reclamoId } = useLocalSearchParams<{ reclamoId?: string }>();
   const reclamoIdRef = useRef(reclamoId);
   reclamoIdRef.current = reclamoId;
+  // Ref para que la función sea estable aunque useNavigation devuelva otro objeto: si
+  // cambiara, useFocusEffect volvería a leer los reclamos en cada render.
+  const navigationRef = useRef(navigation);
+  navigationRef.current = navigation;
+  const limpiarReclamoId = useCallback(() => navigationRef.current.setParams({ reclamoId: undefined }), []);
 
   const [avisoFiltros, setAvisoFiltros] = useState(false);
   const [reclamos, setReclamos] = useState<Reclamo[] | null>(null);
@@ -31,9 +40,9 @@ export default function MapScreen() {
         // Con la lista recién leída: si el reclamo pedido ya no existe, se descarta el
         // parámetro para que no quede pendiente.
         const pedido = reclamoIdRef.current;
-        if (pedido && !lista.some((r) => r.id === pedido)) router.setParams({ reclamoId: undefined });
+        if (pedido && !lista.some((r) => r.id === pedido)) limpiarReclamoId();
       });
-    }, [router])
+    }, [limpiarReclamoId])
   );
 
   // Si el reclamo pedido no pasa los filtros activos, se limpian (y se avisa) para que se
@@ -78,11 +87,16 @@ export default function MapScreen() {
     });
   }
 
-  const reclamosFiltrados = (reclamos ?? []).filter((reclamo) => {
-    if (categoriaFiltro.size > 0 && !categoriaFiltro.has(reclamo.category)) return false;
-    if (estadoFiltro.size > 0 && !estadoFiltro.has(reclamo.status)) return false;
-    return true;
-  });
+  // Memoizada: un array nuevo en cada render rearmaba el índice de supercluster del mapa.
+  const reclamosFiltrados = useMemo(
+    () =>
+      (reclamos ?? []).filter((reclamo) => {
+        if (categoriaFiltro.size > 0 && !categoriaFiltro.has(reclamo.category)) return false;
+        if (estadoFiltro.size > 0 && !estadoFiltro.has(reclamo.status)) return false;
+        return true;
+      }),
+    [reclamos, categoriaFiltro, estadoFiltro]
+  );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -130,7 +144,7 @@ export default function MapScreen() {
         reclamos={reclamosFiltrados}
         loading={reclamos === null}
         enfocarId={reclamoId}
-        onEnfocado={() => router.setParams({ reclamoId: undefined })}
+        onEnfocado={limpiarReclamoId}
         centrarEnUsuario
         onOpenReclamo={(reclamo) => router.push(`/reclamos/${reclamo.id}`)}
       />

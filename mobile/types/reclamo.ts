@@ -64,6 +64,11 @@ export type Reclamo = {
   // Ids de los vecinos que confirmaron que el problema sigue ahí. Un vecino confirma
   // una sola vez (no puede estar repetido) y nunca puede ser el autor del reclamo.
   confirmaciones: string[];
+  // Votos "Ya no está" (pulgar abajo). Un vecino está en confirmaciones o acá, nunca en los
+  // dos. Opcional porque los reclamos ya guardados no lo tienen.
+  votosYaNoEsta?: string[];
+  // Último voto recibido, para mostrar "Último aviso: sigue ahí · hace 2 h".
+  ultimoVoto?: { tipo: 'sigue' | 'yaNoEsta'; fecha: string };
   createdAt: string; // ISO date
   history: CambioEstado[];
 
@@ -80,6 +85,12 @@ export type Reclamo = {
 // Configuración, no un número mágico: a cuántas confirmaciones de otros vecinos pasa
 // de Reportado a ConfirmadoPorVecinos.
 export const CONFIRMACIONES_NECESARIAS = 3;
+
+// Desde cuántos "Ya no está" (y más que "Sigue ahí") se avisa al municipio que el
+// reclamo posiblemente ya se resolvió.
+export const VOTOS_YA_NO_ESTA_PARA_AVISO = 3;
+
+export type TipoVoto = 'sigue' | 'yaNoEsta';
 
 // Categorías que ameritan atención del municipio sin esperar confirmaciones de
 // vecinos: un poste o árbol caído, un corte de luz/agua o un semáforo roto son

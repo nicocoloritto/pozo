@@ -5,20 +5,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import areasData from '../../data/areas.json';
 import EmptyState from '../../components/EmptyState';
 import MiniMapaReclamo from '../../components/MiniMapaReclamo';
+import VerificacionReclamo from '../../components/VerificacionReclamo';
 import RubberStamp from '../../components/RubberStamp';
 import Skeleton from '../../components/Skeleton';
 import { categoryLabels } from '../../constants/categories';
 import { fotoResolucionSource, fotoSource } from '../../lib/fotoReclamo';
+import { resumenVerificacion } from '../../lib/verificacion';
 import { severityLabels, statusColors, statusLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
 import {
-  confirmarReclamo,
   obtenerReclamoPorId,
   ESTADOS_TIMELINE_VECINO,
   ReclamoError,
+  votarReclamo,
 } from '../../services/reclamos';
 import type { Area } from '../../types/area';
-import type { EstadoReclamo, Reclamo } from '../../types/reclamo';
+import type { EstadoReclamo, Reclamo, TipoVoto } from '../../types/reclamo';
 import { colors, fonts, fontSizes, spacing } from '../../theme';
 
 const areas = areasData as Area[];
@@ -44,8 +46,8 @@ export default function ReclamoDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const [reclamo, setReclamo] = useState<Reclamo | null | undefined>(undefined);
-  const [confirmando, setConfirmando] = useState(false);
-  const [confirmError, setConfirmError] = useState<string | null>(null);
+  const [votando, setVotando] = useState(false);
+  const [votoError, setVotoError] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
     const data = await obtenerReclamoPorId(id);
@@ -80,20 +82,20 @@ export default function ReclamoDetail() {
   const reclamoId = reclamo.id;
   const vecinoId = user && user.rol === 'vecino' ? user.id : null;
   const isOwnReclamo = vecinoId !== null && reclamo.autorId === vecinoId;
-  const yaConfirmado = vecinoId !== null && reclamo.confirmaciones.includes(vecinoId);
-  const canConfirm = vecinoId !== null && !isOwnReclamo && !yaConfirmado;
+  const resumen = resumenVerificacion(reclamo, vecinoId);
+  const reclamoAbierto = reclamo.status !== 'Resuelto' && reclamo.status !== 'Rechazado';
 
-  async function handleConfirm() {
-    if (!vecinoId || !canConfirm) return;
-    setConfirmando(true);
-    setConfirmError(null);
+  async function handleVotar(voto: TipoVoto) {
+    if (!vecinoId || votando) return;
+    setVotando(true);
+    setVotoError(null);
     try {
-      const actualizado = await confirmarReclamo(reclamoId, vecinoId);
-      setReclamo(actualizado);
+      const actualizado = await votarReclamo(reclamoId, vecinoId, voto);
+      setReclamo({ ...actualizado });
     } catch (err) {
-      setConfirmError(err instanceof ReclamoError ? err.message : 'No se pudo confirmar. Probá de nuevo.');
+      setVotoError(err instanceof ReclamoError ? err.message : 'No se pudo registrar tu voto. Probá de nuevo.');
     } finally {
-      setConfirmando(false);
+      setVotando(false);
     }
   }
 
@@ -133,8 +135,12 @@ export default function ReclamoDetail() {
 
         <View style={styles.statGrid}>
           <View style={styles.statBox}>
-            <Text style={styles.statLabel}>Confirmaron</Text>
-            <Text style={styles.statValue}>{reclamo.confirmaciones.length}</Text>
+            <Text style={styles.statLabel}>Sigue ahí</Text>
+            <Text style={styles.statValue}>{resumen.sigue}</Text>
+          </View>
+          <View style={styles.statBox}>
+            <Text style={styles.statLabel}>Ya no está</Text>
+            <Text style={styles.statValue}>{resumen.yaNoEsta}</Text>
           </View>
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>Días abierto</Text>
@@ -221,6 +227,18 @@ export default function ReclamoDetail() {
           </>
         )}
 
+        {reclamoAbierto && (
+          <VerificacionReclamo
+            reclamo={reclamo}
+            resumen={resumen}
+            esAutor={isOwnReclamo}
+            puedeVotar={vecinoId !== null}
+            votando={votando}
+            error={votoError}
+            onVotar={handleVotar}
+          />
+        )}
+
         <View style={styles.stampRow}>
           <RubberStamp
             size={110}
@@ -234,26 +252,6 @@ export default function ReclamoDetail() {
             curvedText="RECLAMO · VECINAL ·"
             centerLines={[statusLabels[reclamo.status].toUpperCase(), formatDateTime(reclamo.createdAt).split(',')[0]]}
           />
-          {!isOwnReclamo && (
-            <View style={styles.confirmBox}>
-              <Pressable
-                disabled={!canConfirm || confirmando}
-                onPress={handleConfirm}
-                accessibilityRole="button"
-                accessibilityLabel={yaConfirmado ? 'Ya confirmaste este reclamo' : 'Confirmar reclamo'}
-                style={({ pressed }) => [
-                  styles.confirmButton,
-                  (!canConfirm || confirmando) && styles.confirmButtonDisabled,
-                  pressed && canConfirm && styles.pressed,
-                ]}
-              >
-                <Text style={styles.confirmButtonText}>
-                  {yaConfirmado ? '✓ Ya confirmaste' : confirmando ? 'Confirmando…' : '+ Confirmar'}
-                </Text>
-              </Pressable>
-              {confirmError && <Text style={styles.confirmErrorText}>{confirmError}</Text>}
-            </View>
-          )}
         </View>
 
         <Text style={styles.sectionTitle}>Línea de tiempo</Text>
@@ -472,32 +470,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.md,
     marginBottom: spacing.lg,
-  },
-  confirmBox: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  confirmButton: {
-    backgroundColor: colors.asphalt,
-    padding: spacing.md,
-    alignItems: 'center',
-  },
-  confirmButtonDisabled: {
-    backgroundColor: colors.concreteLight,
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  confirmButtonText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.sm,
-    textTransform: 'uppercase',
-    color: colors.chalk,
-  },
-  confirmErrorText: {
-    fontFamily: fonts.body,
-    fontSize: fontSizes.xs,
-    color: colors.rust,
   },
   sectionTitle: {
     fontFamily: fonts.mono,

@@ -11,6 +11,7 @@ import Skeleton from '../../components/Skeleton';
 import StatusStamp from '../../components/StatusStamp';
 import { categoryLabels } from '../../constants/categories';
 import { fotoResolucionSource, fotoSource } from '../../lib/fotoReclamo';
+import { resumenVerificacion } from '../../lib/verificacion';
 import { severityLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -254,12 +255,23 @@ export default function AdminReclamoDetail() {
         </Text>
         <Text style={styles.title}>{categoryLabels[reclamo.category]}</Text>
         <Text style={styles.address}>{reclamo.address ?? 'Dirección sin resolver'}</Text>
-        <StatusStamp status={reclamo.status} />
+        <View style={styles.statusRow}>
+          <StatusStamp status={reclamo.status} />
+          {resumenVerificacion(reclamo, null).posiblementeResuelto && (
+            <View style={styles.resueltoChip}>
+              <Text style={styles.resueltoChipText}>POSIBLEMENTE RESUELTO</Text>
+            </View>
+          )}
+        </View>
 
         <View style={styles.statGrid}>
           <View style={styles.statBox}>
-            <Text style={styles.statLabel}>Confirmaron</Text>
+            <Text style={styles.statLabel}>Sigue ahí</Text>
             <Text style={styles.statValue}>{reclamo.confirmaciones.length}</Text>
+          </View>
+          <View style={styles.statBox}>
+            <Text style={styles.statLabel}>Ya no está</Text>
+            <Text style={styles.statValue}>{reclamo.votosYaNoEsta?.length ?? 0}</Text>
           </View>
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>Barrio</Text>
@@ -543,6 +555,21 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.sm,
     color: colors.concrete,
     marginBottom: spacing.xs,
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  resueltoChip: {
+    backgroundColor: colors.green,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 2,
+  },
+  resueltoChipText: {
+    fontFamily: fonts.monoSemiBold,
+    fontSize: 9,
+    color: colors.chalk,
   },
   statGrid: {
     flexDirection: 'row',
