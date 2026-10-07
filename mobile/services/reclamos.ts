@@ -76,10 +76,25 @@ async function saveReclamos(reclamos: Reclamo[]): Promise<void> {
   }
 }
 
-function generarCaseNumber(): string {
+function buscarReclamo(reclamos: Reclamo[], id: string): Reclamo {
+  const reclamo = reclamos.find((item) => item.id === id);
+  if (!reclamo) {
+    throw new ReclamoError('NOT_FOUND', 'Este reclamo no existe o fue eliminado');
+  }
+  return reclamo;
+}
+
+// El número de expediente también es el id del reclamo: si se repitiera, find() devolvería
+// el reclamo equivocado. Por eso se sortea de nuevo hasta que no choque con uno existente.
+function generarCaseNumber(reclamos: Reclamo[]): string {
   const year = new Date().getFullYear().toString().slice(-2);
-  const sequence = Math.floor(10000 + Math.random() * 90000);
-  return `EXP-${year}-${sequence}`;
+  const usados = new Set(reclamos.map((reclamo) => reclamo.id));
+  let caseNumber: string;
+  do {
+    const sequence = Math.floor(10000 + Math.random() * 90000);
+    caseNumber = `EXP-${year}-${sequence}`;
+  } while (usados.has(caseNumber));
+  return caseNumber;
 }
 
 // Carga reclamos.json en AsyncStorage y lo MEZCLA con lo que ya hay: agrega los reclamos
@@ -176,7 +191,7 @@ export async function publicarReclamo(input: PublicarReclamoInput): Promise<Recl
 
   const reclamos = await loadReclamos();
   const now = new Date().toISOString();
-  const caseNumber = generarCaseNumber();
+  const caseNumber = generarCaseNumber(reclamos);
 
   // `...input` va primero: lo que pone el servicio (id, estado, historial) nunca puede
   // ser pisado por un campo de más que llegue en el input.
@@ -222,10 +237,7 @@ function aplicarConfirmacion(reclamo: Reclamo, vecinoId: string, ahora: string):
 // Sacar un voto no vuelve el estado atrás.
 export async function votarReclamo(id: string, vecinoId: string, voto: TipoVoto): Promise<Reclamo> {
   const reclamos = await loadReclamos();
-  const reclamo = reclamos.find((item) => item.id === id);
-  if (!reclamo) {
-    throw new ReclamoError('NOT_FOUND', 'Este reclamo no existe o fue eliminado');
-  }
+  const reclamo = buscarReclamo(reclamos, id);
   if (esEstadoFinal(reclamo.status)) {
     throw new ReclamoError('INVALID_TRANSITION', 'Este reclamo ya está cerrado: no se puede votar');
   }
@@ -257,10 +269,7 @@ export async function votarReclamo(id: string, vecinoId: string, voto: TipoVoto)
 // Un vecino confirma un reclamo ajeno una sola vez (ver aplicarConfirmacion).
 export async function confirmarReclamo(id: string, vecinoId: string): Promise<Reclamo> {
   const reclamos = await loadReclamos();
-  const reclamo = reclamos.find((item) => item.id === id);
-  if (!reclamo) {
-    throw new ReclamoError('NOT_FOUND', 'Este reclamo no existe o fue eliminado');
-  }
+  const reclamo = buscarReclamo(reclamos, id);
   if (reclamo.autorId === vecinoId) {
     throw new ReclamoError('OWN_RECLAMO', 'No podés confirmar tu propio reclamo');
   }
@@ -284,10 +293,7 @@ export async function confirmarReclamo(id: string, vecinoId: string): Promise<Re
 
 async function transicionar(id: string, decidir: (reclamo: Reclamo) => Decision, autor: string): Promise<Reclamo> {
   const reclamos = await loadReclamos();
-  const reclamo = reclamos.find((item) => item.id === id);
-  if (!reclamo) {
-    throw new ReclamoError('NOT_FOUND', 'Este reclamo no existe o fue eliminado');
-  }
+  const reclamo = buscarReclamo(reclamos, id);
 
   const { status, description, extra } = decidir(reclamo);
   const now = new Date().toISOString();
@@ -318,10 +324,7 @@ export async function rechazar(id: string, adminId: string, motivo: string): Pro
 
 export async function asignarArea(id: string, areaId: string): Promise<Reclamo> {
   const reclamos = await loadReclamos();
-  const reclamo = reclamos.find((item) => item.id === id);
-  if (!reclamo) {
-    throw new ReclamoError('NOT_FOUND', 'Este reclamo no existe o fue eliminado');
-  }
+  const reclamo = buscarReclamo(reclamos, id);
   if (esEstadoFinal(reclamo.status)) {
     throw new ReclamoError('INVALID_TRANSITION', 'No se puede asignar un área a un reclamo cerrado');
   }
@@ -333,10 +336,7 @@ export async function asignarArea(id: string, areaId: string): Promise<Reclamo> 
 
 export async function definirFechaEstimada(id: string, fechaEstimada: string): Promise<Reclamo> {
   const reclamos = await loadReclamos();
-  const reclamo = reclamos.find((item) => item.id === id);
-  if (!reclamo) {
-    throw new ReclamoError('NOT_FOUND', 'Este reclamo no existe o fue eliminado');
-  }
+  const reclamo = buscarReclamo(reclamos, id);
   if (esEstadoFinal(reclamo.status)) {
     throw new ReclamoError('INVALID_TRANSITION', 'No se puede definir una fecha estimada en un reclamo cerrado');
   }
@@ -351,10 +351,7 @@ export async function agregarNota(id: string, texto: string, autor: string): Pro
     throw new ReclamoError('NOTA_VACIA', 'La nota no puede estar vacía');
   }
   const reclamos = await loadReclamos();
-  const reclamo = reclamos.find((item) => item.id === id);
-  if (!reclamo) {
-    throw new ReclamoError('NOT_FOUND', 'Este reclamo no existe o fue eliminado');
-  }
+  const reclamo = buscarReclamo(reclamos, id);
 
   reclamo.notas = [...(reclamo.notas ?? []), { fecha: new Date().toISOString(), texto: texto.trim(), autor }];
   await saveReclamos(reclamos);

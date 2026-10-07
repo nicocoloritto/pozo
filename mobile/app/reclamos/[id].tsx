@@ -2,7 +2,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import areasData from '../../data/areas.json';
 import EmptyState from '../../components/EmptyState';
 import MiniMapaReclamo from '../../components/MiniMapaReclamo';
 import VerificacionReclamo from '../../components/VerificacionReclamo';
@@ -19,11 +18,9 @@ import {
   ReclamoError,
   votarReclamo,
 } from '../../services/reclamos';
-import type { Area } from '../../types/area';
+import { areaPorId } from '../../services/areas';
 import type { EstadoReclamo, Reclamo, TipoVoto } from '../../types/reclamo';
 import { colors, fonts, fontSizes, spacing } from '../../theme';
-
-const areas = areasData as Area[];
 
 function daysSince(isoDate: string): number {
   const ms = Date.now() - new Date(isoDate).getTime();
@@ -109,7 +106,7 @@ export default function ReclamoDetail() {
         ?.status ?? 'Reportado')
     : reclamo.status;
   const indiceActual = ESTADOS_TIMELINE_VECINO.indexOf(ultimoEstadoTimeline);
-  const area = areas.find((a) => a.id === reclamo.areaAsignada);
+  const area = areaPorId(reclamo.areaAsignada);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>

@@ -1,17 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import areasData from '../data/areas.json';
 import barriosData from '../data/barrios.json';
 import { categoryLabels, categoryOrder } from '../constants/categories';
 import { FILTROS_VACIOS } from '../lib/filtrosMunicipio';
 import type { FiltrosMunicipio } from '../lib/filtrosMunicipio';
-import type { Area } from '../types/area';
+import { AREAS } from '../services/areas';
 import type { Barrio } from '../types/estadisticas';
 import type { Categoria } from '../types/reclamo';
 import { colors, fonts, fontSizes, spacing } from '../theme';
 import SheetModal from './SheetModal';
 
-const areas = areasData as Area[];
 const barrios = barriosData as Barrio[];
 
 type Props = {
@@ -84,7 +82,7 @@ export default function FiltrosMunicipioModal({ visible, municipioId, filtros, o
         />
         <FiltroSeccion
           titulo="Área"
-          opciones={areas.map((a) => ({ id: a.id, label: a.nombre }))}
+          opciones={AREAS.map((a) => ({ id: a.id, label: a.nombre }))}
           valor={borrador.area}
           onChange={(valor) => setBorrador((prev) => ({ ...prev, area: valor }))}
         />

@@ -1,21 +1,18 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import areasData from '../../data/areas.json';
 import BarChart from '../../components/BarChart';
 import Skeleton from '../../components/Skeleton';
 import { statusColors, statusLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
 import { estaVencido } from '../../lib/prioridad';
+import { AREAS } from '../../services/areas';
 import { obtenerEvolucionMunicipio, obtenerRanking } from '../../services/estadisticas';
 import { ESTADOS_RECLAMO, obtenerReclamosPorMunicipio } from '../../services/reclamos';
-import type { Area } from '../../types/area';
 import type { RankingBarrio } from '../../types/estadisticas';
 import { CATEGORIAS_PELIGROSAS as PELIGROSAS } from '../../types/reclamo';
 import type { EstadoReclamo, Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, spacing } from '../../theme';
-
-const areas = areasData as Area[];
 
 function esEstadoFinal(status: EstadoReclamo): boolean {
   return status === 'Resuelto' || status === 'Rechazado';
@@ -85,12 +82,12 @@ export default function TableroScreen() {
   // calculan en el cliente a partir de lo que hay en AsyncStorage.
   const abiertos = reclamos.filter((r) => !esEstadoFinal(r.status)).length;
   const nuevosSinTomar = reclamos.filter(esNuevoSinTomar).length;
-  const vencidos = reclamos.filter((r) => estaVencido(r, areas)).length;
+  const vencidos = reclamos.filter((r) => estaVencido(r, AREAS)).length;
   const resueltos = reclamos.filter((r) => r.status === 'Resuelto').length;
   const porcentajeResuelto = reclamos.length ? Math.round((resueltos / reclamos.length) * 1000) / 10 : 0;
   const diasPromedio = tiempoPromedioResolucionDias(reclamos);
 
-  const porAreaData = areas.map((area) => ({
+  const porAreaData = AREAS.map((area) => ({
     label: area.nombre,
     value: reclamos.filter((r) => r.areaAsignada === area.id).length,
   }));

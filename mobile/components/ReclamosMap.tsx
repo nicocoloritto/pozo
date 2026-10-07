@@ -6,17 +6,14 @@ import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-n
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import type { Region } from 'react-native-maps';
 import Supercluster from 'supercluster';
-import areasData from '../data/areas.json';
 import { categoryLabels } from '../constants/categories';
 import { estaVencido } from '../lib/prioridad';
-import type { Area } from '../types/area';
+import { AREAS } from '../services/areas';
 import { CATEGORIAS_PELIGROSAS } from '../types/reclamo';
 import type { Reclamo } from '../types/reclamo';
 import { colors, fonts, fontSizes, spacing } from '../theme';
 import ReclamoMarker from './ReclamoMarker';
 import StatusStamp from './StatusStamp';
-
-const areas = areasData as Area[];
 
 // Centro aproximado de CABA (Obelisco), usado cuando no hay permiso de ubicación.
 const CABA_REGION: Region = {
@@ -177,7 +174,7 @@ export default function ReclamosMap({
         type: 'Feature' as const,
         properties: {
           id: r.id,
-          vencido: modoMunicipio && estaVencido(r, areas) ? 1 : 0,
+          vencido: modoMunicipio && estaVencido(r, AREAS) ? 1 : 0,
           peligroso: modoMunicipio && CATEGORIAS_PELIGROSAS.includes(r.category) ? 1 : 0,
         },
         geometry: { type: 'Point' as const, coordinates: [r.longitude, r.latitude] },

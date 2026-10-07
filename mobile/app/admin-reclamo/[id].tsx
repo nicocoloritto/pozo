@@ -3,7 +3,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import areasData from '../../data/areas.json';
 import EmptyState from '../../components/EmptyState';
 import MiniMapaReclamo from '../../components/MiniMapaReclamo';
 import SheetModal from '../../components/SheetModal';
@@ -25,12 +24,10 @@ import {
   tomar,
   ReclamoError,
 } from '../../services/reclamos';
-import type { Area } from '../../types/area';
+import { areaPorId, AREAS } from '../../services/areas';
 import { CATEGORIAS_PELIGROSAS } from '../../types/reclamo';
 import type { Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, spacing } from '../../theme';
-
-const areas = areasData as Area[];
 
 function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleString('es-AR', {
@@ -115,7 +112,7 @@ export default function AdminReclamoDetail() {
   const reclamoId = reclamo.id;
   const reclamoActual = reclamo;
   const adminIdSeguro = adminId;
-  const area = areas.find((a) => a.id === reclamo.areaAsignada);
+  const area = areaPorId(reclamo.areaAsignada);
   const esFinal = reclamo.status === 'Resuelto' || reclamo.status === 'Rechazado';
   const puedeTomar =
     reclamo.status === 'ConfirmadoPorVecinos' ||
@@ -400,7 +397,7 @@ export default function AdminReclamoDetail() {
       {/* Asignar área */}
       <SheetModal visible={areaModalVisible} onClose={() => setAreaModalVisible(false)} title="Asignar área">
           <ScrollView contentContainerStyle={styles.modalContent}>
-            {areas.map((item) => (
+            {AREAS.map((item) => (
               <Pressable
                 key={item.id}
                 onPress={() => handleAsignarArea(item.id)}

@@ -1,9 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import areasData from '../../data/areas.json';
 import EmptyState from '../../components/EmptyState';
 import FiltrosMunicipioModal from '../../components/FiltrosMunicipioModal';
 import ReclamoCardSkeleton from '../../components/ReclamoCardSkeleton';
@@ -14,15 +13,13 @@ import { aplicarFiltros, FILTROS_VACIOS, hayFiltrosActivos } from '../../lib/fil
 import type { FiltrosMunicipio } from '../../lib/filtrosMunicipio';
 import { estaVencido, ordenarPorPrioridad } from '../../lib/prioridad';
 import { resumenVerificacion } from '../../lib/verificacion';
+import { areaPorId, AREAS } from '../../services/areas';
 import { obtenerReclamosPorMunicipio } from '../../services/reclamos';
-import type { Area } from '../../types/area';
 import { CATEGORIAS_PELIGROSAS } from '../../types/reclamo';
 import type { Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, spacing } from '../../theme';
 
 type Segmento = 'nuevos' | 'gestion' | 'cerrados';
-
-const areas = areasData as Area[];
 
 function esNuevo(reclamo: Reclamo): boolean {
   return (
@@ -185,8 +182,8 @@ export default function BandejaScreen() {
 }
 
 function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => void }) {
-  const area = useMemo(() => areas.find((a) => a.id === reclamo.areaAsignada), [reclamo.areaAsignada]);
-  const vencido = estaVencido(reclamo, areas);
+  const area = areaPorId(reclamo.areaAsignada);
+  const vencido = estaVencido(reclamo, AREAS);
   const { yaNoEsta, posiblementeResuelto } = resumenVerificacion(reclamo, null);
 
   return (

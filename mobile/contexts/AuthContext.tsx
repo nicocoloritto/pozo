@@ -44,6 +44,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     hydration.current = { promise, resolve };
   }
+  // registrar/login leen y reescriben la lista entera de usuarios: si corrieran mientras
+  // el seed todavía está hasheando, su guardado se pisaría con el del seed (o el login no
+  // encontraría a los usuarios de prueba). Por eso esperan a que el seed termine.
+  const seed = useRef<Promise<void>>(Promise.resolve());
 
   useEffect(() => {
     let settled = false;
@@ -66,12 +70,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // El seed de los JSON de prueba (usuarios-vecinos.json / usuarios-admin.json, con su
     // hasheo SHA-256) corre en segundo plano: no bloquea que la app arranque y muestre
     // login. Solo la lectura de la sesión guardada decide qué pantalla mostrar primero.
-    authService.init().catch((err) => {
-      console.warn('[auth] Falló el seed en segundo plano', err);
-    });
-    reclamosService.init().catch((err) => {
-      console.warn('[reclamos] Falló el seed en segundo plano', err);
-    });
+    seed.current = Promise.all([
+      authService.init().catch((err) => {
+        console.warn('[auth] Falló el seed en segundo plano', err);
+      }),
+      reclamosService.init().catch((err) => {
+        console.warn('[reclamos] Falló el seed en segundo plano', err);
+      }),
+    ]).then(() => undefined);
 
     (async () => {
       let session: User | null = null;
@@ -99,12 +105,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isHydrated,
       async registrar(input) {
         await hydration.current?.promise;
+        await seed.current;
         const created = await authService.registrar(input);
         await authService.guardarSesion(created);
         setUser(created);
       },
       async login(email, password) {
         await hydration.current?.promise;
+        await seed.current;
         const found = await authService.login(email, password);
         await authService.guardarSesion(found);
         setUser(found);
