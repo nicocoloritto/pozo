@@ -13,6 +13,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { aplicarFiltros, FILTROS_VACIOS, hayFiltrosActivos } from '../../lib/filtrosMunicipio';
 import type { FiltrosMunicipio } from '../../lib/filtrosMunicipio';
 import { estaVencido, ordenarPorPrioridad } from '../../lib/prioridad';
+import { resumenVerificacion } from '../../lib/verificacion';
 import { obtenerReclamosPorMunicipio } from '../../services/reclamos';
 import type { Area } from '../../types/area';
 import { CATEGORIAS_PELIGROSAS } from '../../types/reclamo';
@@ -186,12 +187,13 @@ export default function BandejaScreen() {
 function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => void }) {
   const area = useMemo(() => areas.find((a) => a.id === reclamo.areaAsignada), [reclamo.areaAsignada]);
   const vencido = estaVencido(reclamo, areas);
+  const { yaNoEsta, posiblementeResuelto } = resumenVerificacion(reclamo, null);
 
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Reclamo de ${categoryLabels[reclamo.category]} en ${reclamo.address ?? 'ubicación sin resolver'}${vencido ? ', vencido' : ''}`}
+      accessibilityLabel={`Reclamo de ${categoryLabels[reclamo.category]} en ${reclamo.address ?? 'ubicación sin resolver'}${vencido ? ', vencido' : ''}${posiblementeResuelto ? ', posiblemente resuelto' : ''}`}
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}
     >
       <View style={styles.rowPhotoWrap}>
@@ -202,11 +204,18 @@ function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => voi
           <Text style={styles.rowTitle} numberOfLines={1}>
             {categoryLabels[reclamo.category]}
           </Text>
-          {vencido && (
-            <View style={styles.vencidoChip}>
-              <Text style={styles.vencidoChipText}>VENCIDO</Text>
-            </View>
-          )}
+          <View style={styles.chips}>
+            {posiblementeResuelto && (
+              <View style={styles.resueltoChip}>
+                <Text style={styles.vencidoChipText}>POSIBLEMENTE RESUELTO</Text>
+              </View>
+            )}
+            {vencido && (
+              <View style={styles.vencidoChip}>
+                <Text style={styles.vencidoChipText}>VENCIDO</Text>
+              </View>
+            )}
+          </View>
         </View>
         <Text style={styles.rowAddress} numberOfLines={1}>
           {reclamo.address ?? 'Ubicación sin resolver'} · {reclamo.neighborhood ?? '—'}
@@ -214,7 +223,7 @@ function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => voi
         <View style={styles.rowFooter}>
           <StatusStamp status={reclamo.status} />
           <Text style={styles.rowMeta}>
-            {reclamo.confirmaciones.length} conf. {area ? `· ${area.nombre}` : ''}
+            {reclamo.confirmaciones.length} sigue · {yaNoEsta} ya no está{area ? ` · ${area.nombre}` : ''}
           </Text>
         </View>
       </View>
@@ -331,6 +340,16 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.md,
     color: colors.asphalt,
     flexShrink: 1,
+  },
+  chips: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    flexShrink: 0,
+  },
+  resueltoChip: {
+    backgroundColor: colors.green,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 2,
   },
   vencidoChip: {
     backgroundColor: colors.rust,

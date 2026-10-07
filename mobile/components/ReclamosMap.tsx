@@ -208,12 +208,23 @@ export default function ReclamosMap({
     [index]
   );
 
+  // Último enfocarId que ya se atendió. Mientras el padre siga pasando el mismo id no se lo
+  // vuelve a atender (este efecto corre cada vez que cambian reclamosPorId o el índice, y
+  // sin esta guarda llevaría el mapa de vuelta al reclamo todo el tiempo). Se resetea
+  // cuando enfocarId queda vacío, así un pedido nuevo del mismo reclamo sí funciona.
+  const enfocadoAtendido = useRef<string | null>(null);
+
   useEffect(() => {
-    if (!enfocarId || !mapaListo) return;
+    if (!enfocarId) {
+      enfocadoAtendido.current = null;
+      return;
+    }
+    if (!mapaListo || enfocadoAtendido.current === enfocarId) return;
     const reclamo = reclamosPorId.get(enfocarId);
     // Si todavía no cargaron los reclamos (o el filtro lo oculta) se espera: este efecto
     // vuelve a correr cuando cambia reclamosPorId.
     if (!reclamo) return;
+    enfocadoAtendido.current = enfocarId;
     movidoPorUsuario.current = true; // que el primer GPS no lo mueva de lugar
     const zoom = Math.min(zoomParaSepararlo(reclamo) + 0.2, MAX_ZOOM + 0.9);
     mapRef.current?.animateToRegion(

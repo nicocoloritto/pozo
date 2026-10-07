@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import CategoryChip from './CategoryChip';
 import StatusStamp from './StatusStamp';
@@ -44,7 +45,16 @@ export default function ReclamoCard({ reclamo, distanciaMetros, onPress }: Recla
           {reclamo.address ?? 'Ubicación sin resolver'}
         </Text>
         <View style={styles.footer}>
-          <Text style={styles.confirmations}>{reclamo.confirmaciones.length} CONF.</Text>
+          <View style={styles.votes}>
+            <View style={styles.vote}>
+              <Ionicons name="thumbs-up-outline" size={13} color={colors.concrete} />
+              <Text style={styles.voteText}>{reclamo.confirmaciones.length}</Text>
+            </View>
+            <View style={styles.vote}>
+              <Ionicons name="thumbs-down-outline" size={13} color={colors.concrete} />
+              <Text style={styles.voteText}>{reclamo.votosYaNoEsta?.length ?? 0}</Text>
+            </View>
+          </View>
           <StatusStamp status={reclamo.status} />
         </View>
       </View>
@@ -100,7 +110,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 4,
   },
-  confirmations: {
+  votes: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  vote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  voteText: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     color: colors.concrete,
