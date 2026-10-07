@@ -6,7 +6,8 @@ export type ReclamoErrorCode =
   | 'AREA_REQUIRED'
   | 'FOTO_REQUIRED'
   | 'MOTIVO_REQUIRED'
-  | 'NOTA_VACIA';
+  | 'NOTA_VACIA'
+  | 'INVALID_INPUT';
 
 export class ReclamoError extends Error {
   code: ReclamoErrorCode;

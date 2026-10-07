@@ -21,6 +21,7 @@ import { categoryLabels, categoryOrder } from '../../constants/categories';
 import { severityLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
 import { encontrarReclamoCercano } from '../../lib/distancia';
+import { coordenadasDesdeExif } from '../../lib/exif';
 import { fotoSource } from '../../lib/fotoReclamo';
 import { obtenerBarrioPorCoordenadas } from '../../services/estadisticas';
 import { borrarFotoPermanente, guardarFotoPermanente } from '../../services/fotos';
@@ -187,13 +188,14 @@ export default function NewReclamo() {
     setPhotoUri(asset.uri);
     setLocatingPhoto(true);
 
-    const exifLat = asset.exif?.GPSLatitude;
-    const exifLng = asset.exif?.GPSLongitude;
-    if (typeof exifLat === 'number' && typeof exifLng === 'number') {
+    // El EXIF guarda latitud/longitud sin signo más una letra N/S y E/W: coordenadasDesdeExif
+    // aplica el hemisferio (en CABA, Sur y Oeste) y descarta valores imposibles.
+    const exifCoords = coordenadasDesdeExif(asset.exif);
+    if (exifCoords) {
       // The photo already carries its own coordinates: no need for the current
       // location, and it stays truthful about where the picture was actually taken.
       setLocationSource('Exif');
-      setCoords({ latitude: exifLat, longitude: exifLng, accuracy: null });
+      setCoords({ ...exifCoords, accuracy: null });
     } else {
       // No EXIF location (common: WhatsApp, some Android versions, iOS sharing).
       // Fall back to where the neighbor is standing right now, marked as such.
@@ -311,7 +313,13 @@ export default function NewReclamo() {
       console.warn('[nuevo-reclamo] No se pudo publicar', err);
       // La copia ya no sirve: se borra para no dejar fotos huérfanas.
       borrarFotoPermanente(fotoGuardada);
-      setErrorMsg('No pudimos guardar el reclamo. Tus datos siguen acá: probá publicar de nuevo.');
+      // Una validación del servicio dice exactamente qué falta; cualquier otro error es
+      // genérico (storage lleno, etc.).
+      setErrorMsg(
+        err instanceof ReclamoError && err.code === 'INVALID_INPUT'
+          ? err.message
+          : 'No pudimos guardar el reclamo. Tus datos siguen acá: probá publicar de nuevo.'
+      );
       setSubmitting(false);
     }
   }

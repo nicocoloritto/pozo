@@ -12,6 +12,7 @@ import {
 import type { Decision } from '../lib/maquinaEstados';
 import { ReclamoError } from '../lib/reclamoError';
 import type { ReclamoErrorCode } from '../lib/reclamoError';
+import { validarNuevoReclamo } from '../lib/validarReclamo';
 import { CONFIRMACIONES_NECESARIAS } from '../types/reclamo';
 import type { Categoria, EstadoReclamo, OrigenUbicacion, Reclamo } from '../types/reclamo';
 
@@ -108,6 +109,16 @@ export async function init(): Promise<void> {
         cambios++;
         continue;
       }
+      // Las coordenadas de los reclamos de prueba se corrigieron (varios estaban en el
+      // centro del barrio y no en su dirección): se actualizan también en los teléfonos que
+      // ya los tenían guardados. Es seguro porque ningún flujo de la app edita las
+      // coordenadas de un reclamo existente: el vecino las fija al publicar y el municipio
+      // solo cambia estado, área, fechas y notas.
+      if (guardado.latitude !== reclamoSeed.latitude || guardado.longitude !== reclamoSeed.longitude) {
+        guardado.latitude = reclamoSeed.latitude;
+        guardado.longitude = reclamoSeed.longitude;
+        cambios++;
+      }
       if (!guardado.photoKey && reclamoSeed.photoKey) {
         guardado.photoKey = reclamoSeed.photoKey;
         cambios++;
@@ -161,18 +172,23 @@ export async function obtenerReclamosPorMunicipio(municipioId: string): Promise<
 }
 
 export async function publicarReclamo(input: PublicarReclamoInput): Promise<Reclamo> {
+  validarNuevoReclamo(input);
+
   const reclamos = await loadReclamos();
   const now = new Date().toISOString();
   const caseNumber = generarCaseNumber();
 
+  // `...input` va primero: lo que pone el servicio (id, estado, historial) nunca puede
+  // ser pisado por un campo de más que llegue en el input.
   const reclamo: Reclamo = {
+    ...input,
+    notes: input.notes?.trim() || undefined,
     id: caseNumber,
     caseNumber,
     status: 'Reportado',
     confirmaciones: [],
     createdAt: now,
     history: [{ status: 'Reportado', description: 'Ingresado', createdAt: now, autor: input.autorId }],
-    ...input,
   };
 
   reclamos.unshift(reclamo);

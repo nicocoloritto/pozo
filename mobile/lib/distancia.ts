@@ -22,6 +22,33 @@ export function distanciaEnMetros(a: Coordenada, b: Coordenada): number {
   return 2 * RADIO_TIERRA_METROS * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
+// Radio del listado "Cerca tuyo" (design/figma/02-mapa.png: "RADIO 500 m").
+export const RADIO_CERCA_TUYO_METROS = 500;
+
+export type ReclamoConDistancia = { reclamo: Reclamo; distanciaMetros: number };
+
+// Reclamos activos (ni Resuelto ni Rechazado) dentro de `radioMetros` de `punto`, del más
+// cercano al más lejano. Pasar Infinity como radio sirve para buscar el más cercano sin
+// importar cuán lejos esté.
+export function reclamosCercanos(
+  reclamos: Reclamo[],
+  punto: Coordenada,
+  radioMetros: number = RADIO_CERCA_TUYO_METROS
+): ReclamoConDistancia[] {
+  return reclamos
+    .filter((reclamo) => reclamo.status !== 'Resuelto' && reclamo.status !== 'Rechazado')
+    .map((reclamo) => ({ reclamo, distanciaMetros: distanciaEnMetros(punto, reclamo) }))
+    .filter((item) => item.distanciaMetros <= radioMetros)
+    .sort((a, b) => a.distanciaMetros - b.distanciaMetros);
+}
+
+// "120 m" por debajo del kilómetro, "1,2 km" a partir de ahí.
+export function formatearDistancia(metros: number): string {
+  const redondeado = Math.round(metros);
+  if (redondeado < 1000) return `${redondeado} m`;
+  return `${(metros / 1000).toFixed(1).replace('.', ',')} km`;
+}
+
 // El reclamo abierto (ni Resuelto ni Rechazado) de la misma categoría más cercano a
 // `punto`, siempre que esté a menos de `radioMetros`. Si no hay, null.
 export function encontrarReclamoCercano(

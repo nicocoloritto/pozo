@@ -85,3 +85,22 @@ export const CONFIRMACIONES_NECESARIAS = 3;
 // vecinos: un poste o árbol caído, un corte de luz/agua o un semáforo roto son
 // riesgos inmediatos, no solo una molestia.
 export const CATEGORIAS_PELIGROSAS: Categoria[] = ['FallenPole', 'FallenTree', 'Outage', 'TrafficLight'];
+
+// Valores permitidos de cada union type, para validar en tiempo de ejecución (un tipo de
+// TypeScript no existe cuando corre la app, y los datos pueden venir de un JSON o de
+// AsyncStorage).
+export const CATEGORIAS: Categoria[] = [
+  'Pothole',
+  'BrokenSidewalk',
+  'TrafficLight',
+  'StreetLight',
+  'FallenPole',
+  'FallenTree',
+  'Trench',
+  'Outage',
+  'OverflowingBin',
+];
+export const SEVERIDADES: Severidad[] = ['Low', 'Medium', 'High'];
+export const ORIGENES_UBICACION: OrigenUbicacion[] = ['Device', 'Exif', 'Manual'];
+
+export const NOTAS_MAX_CARACTERES = 280;

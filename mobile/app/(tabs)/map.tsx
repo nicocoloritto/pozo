@@ -2,6 +2,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import CercaTuyoPanel from '../../components/CercaTuyoPanel';
 import ReclamosMap from '../../components/ReclamosMap';
 import { categoryLabels, categoryOrder } from '../../constants/categories';
 import { statusLabels } from '../../constants/status';
@@ -131,6 +132,10 @@ export default function MapScreen() {
         enfocarId={reclamoId}
         onEnfocado={() => router.setParams({ reclamoId: undefined })}
         centrarEnUsuario
+        onOpenReclamo={(reclamo) => router.push(`/reclamos/${reclamo.id}`)}
+      />
+      <CercaTuyoPanel
+        reclamos={reclamosFiltrados}
         onOpenReclamo={(reclamo) => router.push(`/reclamos/${reclamo.id}`)}
       />
     </SafeAreaView>
