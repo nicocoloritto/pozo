@@ -37,7 +37,7 @@ type Coords = {
 
 const NOTES_MAX_LENGTH = 280;
 
-// Screen 04 of the mockup (design/figma/04-nuevo-reclamo.png), plus the permission
+// New claim screen (mockup screen 04), plus the permission
 // handling of 04b. See docs/diseno-funcional.md for the "foto + coordenadas = evidencia"
 // rule and the locationSource field this screen fills in.
 export default function NewReclamo() {
@@ -56,7 +56,7 @@ export default function NewReclamo() {
   const [locatingPhoto, setLocatingPhoto] = useState(false);
 
   // Fetched as soon as the camera opens, so the "GPS FIJADO ±N m" chip is already
-  // showing while the neighbor frames the photo (design/pozo-pantallas-hifi.html),
+  // showing while the neighbor frames the photo,
   // instead of only starting to look for a fix after the shutter is pressed.
   const [liveCoords, setLiveCoords] = useState<Coords | null>(null);
   const [locatingLive, setLocatingLive] = useState(false);

@@ -15,7 +15,7 @@ type Props = {
   onOpenReclamo: (reclamo: Reclamo) => void;
 };
 
-// "Cerca tuyo" de design/figma/02-mapa.png: los reclamos activos a menos de 500 m de donde
+// "Cerca tuyo": los reclamos activos a menos de 500 m de donde
 // está la persona, del más cercano al más lejano y con la distancia.
 export default function CercaTuyoPanel({ reclamos, onOpenReclamo }: Props) {
   const { coords, estado, reintentar } = useUbicacionUsuario();

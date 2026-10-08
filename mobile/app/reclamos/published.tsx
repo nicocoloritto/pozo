@@ -6,7 +6,7 @@ import PressableScale from '../../components/PressableScale';
 import RubberStamp from '../../components/RubberStamp';
 import { colors, fonts, fontSizes, radii, spacing } from '../../theme';
 
-// Screen 04c of the mockup (design/figma/04c-reclamo-publicado.png).
+// Claim published screen (mockup screen 04c).
 export default function Published() {
   const router = useRouter();
   const { caseNumber, address, lat, lng } = useLocalSearchParams<{

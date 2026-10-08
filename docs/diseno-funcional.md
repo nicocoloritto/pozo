@@ -1,110 +1,142 @@
 # Diseño funcional de Pozo
 
-Fuente única de verdad del alcance. Las capturas del prototipo de Figma están en
-`design/figma/` y son la referencia visual vigente. El HTML de `design/pozo-pantallas-hifi.html`
-es un mockup anterior, más completo en detalle visual pero **desactualizado** en flujo y
-datos: no lo uses como referencia para implementar.
+Qué hace la app y qué reglas cumple. Describe el comportamiento actual de `mobile/`; si el
+código y este documento se contradicen, manda el código. Para las capturas ver el
+[README](../README.md#capturas).
 
 ## Idea
 
-Un reclamo urbano no es un "post": es una **boleta con expediente**. Cada reclamo lleva
-coordenadas, foto, categoría, severidad, un estado de trámite y un historial. Cuantos más
-vecinos lo confirman, más peso tiene, hasta que se eleva a la comuna.
+Un reclamo urbano no es un "post": es un **expediente**. Cada reclamo lleva foto,
+coordenadas, categoría, severidad, un estado de trámite y un historial. Los vecinos lo
+confirman, y el municipio lo gestiona desde su propio panel dentro de la misma app.
 
-## Dirección visual
+## Roles
 
-- Fondo **Tiza** (`#EDEAE2`) en pantallas de datos; **Asfalto** (`#1C1B1A`) en onboarding,
-  mapa, cámara y ranking.
-- Acentos: amarillo `#E8B23D` (acción), óxido `#C0472B` (grave/FAB/urgente), verde `#4C7A5E`
-  (resuelto), azul `#2E4C59` (en curso/enviado).
-- Tipografías: **Archivo Black** (títulos y sellos), **Inter** (interfaz), **IBM Plex Mono**
-  (coordenadas, IDs, fechas).
-- Motivos: franjas diagonales tipo cinta de peligro, sello circular de estado, rombos de
-  categoría (cartel vial), textura de asfalto.
+Dos roles con cuentas separadas (`mobile/types/user.ts`):
 
-## Actores y roles
+- **Vecino:** reporta, confirma y sigue reclamos. Se registra escaneando el **PDF417** del
+  dorso del DNI con la cámara; no escribe sus datos a mano.
+- **Admin (municipio):** gestiona los reclamos de su municipio. No se registra desde la app:
+  existe como dato de prueba (`mobile/data/usuarios-admin.json`). Hoy hay un solo municipio
+  (CABA).
 
-Dos roles con cuentas separadas (ver `docs/adr/` para la decisión de autenticación):
+Según el rol, la sesión abre un grupo de tabs distinto: `(tabs)` para el vecino y `(admin)`
+para el municipio.
 
-- **Vecino**: reporta, confirma, sigue reclamos. Se registra verificando su identidad con el
-  **código PDF417** del dorso del DNI argentino (leído con la cámara).
-- **Municipalidad**: cuenta interna, login con email y contraseña. Revisa los reclamos
-  elevados, cambia su estado y asigna una cuadrilla. No es una simulación externa: es un rol
-  real dentro de la misma app, con su propia interfaz.
-
-## Estados del reclamo (`ReportStatus`)
+## Estados del reclamo
 
 ```
-Reported → Validated → Escalated → InProgress → Resolved
+Reportado → ConfirmadoPorVecinos → EnviadoAlMunicipio → EnReparacion → Resuelto
+                  (cualquiera de los anteriores, salvo los finales) → Rechazado
 ```
 
-- **Reported** (`INGRESADO`): recién creado por un vecino.
-- **Validated** (`VALIDADO`): alcanzó **10 confirmaciones** de otros vecinos.
-- **Escalated** (`ELEVADO A COMUNA`): alcanzó **50 confirmaciones**. Se asigna la comuna y
-  queda visible para el rol Municipalidad.
-- **InProgress** (`EN CURSO`): la Municipalidad lo tomó y asignó una cuadrilla.
-- **Resolved** (`RESUELTO`): la Municipalidad lo cerró. Guarda cuadrilla y días totales.
+| Estado | Quién lo produce | Cuándo |
+|---|---|---|
+| Reportado | Vecino | Al publicar |
+| Confirmado por vecinos | Automático | Al juntar **3 confirmaciones** de otros vecinos |
+| Enviado al municipio | Municipio | Lo toma (acción **Tomar**) |
+| En reparación | Municipio | Pasa a reparación; exige tener un **área asignada** |
+| Resuelto | Municipio | Exige la **foto del "después"** |
+| Rechazado | Municipio | Exige un **motivo** |
 
-Cada transición se guarda en `StatusChange` con fecha y una descripción corta (ej.
-"Validado ×10", "Elevado a Comuna 6"). No se puede saltar ni retroceder. Los umbrales (10 y
-50) son una constante de configuración, no están escritos a mano en el código.
+`Resuelto` y `Rechazado` son finales. Cada transición queda en el historial del reclamo con
+fecha y descripción, y es lo que se muestra como línea de tiempo. Las reglas viven en
+`mobile/lib/maquinaEstados.ts` como funciones puras.
 
-## Severidad y "Urgente"
+### Categorías peligrosas
 
-El vecino elige la severidad al reportar: **Low / Medium / High** (Baja / Media / Alta). No
-hay un cuarto nivel elegible.
+Poste caído, árbol o rama caída, corte de luz o agua y semáforo pueden pasar directo de
+`Reportado` a `Enviado al municipio` sin esperar confirmaciones: son un riesgo inmediato.
 
-**"Urgente" es una etiqueta calculada, no un dato guardado:** un reclamo se muestra como
-urgente cuando `severity == High` **y** `confirmations >= UMBRAL_VALIDACION` (hoy 10, es
-decir, ya validado). Esto evita que la severidad se infle al reportar y hace que la etiqueta
-dependa de datos verificables por la comunidad.
+## Categorías y áreas
 
-## Pantallas (ver `design/figma/`)
+Nueve categorías: pozo, vereda, semáforo, luminaria, poste, árbol o rama caída, zanja,
+luz/agua y residuos. Cada una pertenece a **un área** del municipio, y cada área tiene un
+**plazo máximo** en días (`mobile/data/areas.json`):
 
-| # | Archivo | Pantalla | Comportamiento |
-|---|---|---|---|
-| 01 | `01-onboarding.png` | Onboarding | Pitch, contador de reclamos, resueltos y barrios, "Empezar un reclamo" |
-| 02 | `02-mapa.png` | Mapa / Reclamos | Mapa con pines por categoría, radio de 500 m, indicador de precisión GPS, "cuadra más rota", lista de cercanos |
-| 03 | `03-detalle.png` | Detalle | Foto, categoría, severidad, dirección, coordenadas, confirmaciones, días abierto, puesto en el ranking del barrio, sello de estado, timeline, "Confirmar" / "Seguir" |
-| 04 | `04-nuevo-reclamo.png` | Nuevo reclamo | Cámara (foto obligatoria, con galería y flash), ubicación detectada, categoría, severidad, notas opcionales, "Generar expediente" |
-| 04b | `04b-permisos.png` | Permisos | Diálogo del sistema para ubicación y cámara; falta la pantalla de **permiso rechazado** (US-06) |
-| 04c | `04c-reclamo-publicado.png` | Reclamo publicado | Sello "Expediente generado", número de expediente, "Ver en el mapa" |
-| 05 | `05-mis-reclamos.png` | Mis reclamos | Contadores (reportados, confirmados por otros, resueltos), filtros Todos/Abiertos/Resueltos, lista con estado y días |
-| 06 | `06-ranking.png` | Ranking (Termómetro) | Barrios con más reclamos activos en 30 días, tu barrio resaltado, variación semanal, tu cuadra |
-| 07 | `07-perfil.png` | Perfil | Nombre, barrio, contadores, ajustes (notificaciones, barrio, cerrar sesión) |
+| Área | Categorías | Plazo |
+|---|---|---|
+| Alumbrado | Luminaria, poste | 7 días |
+| Bacheo y veredas | Pozo, vereda | 15 días |
+| Arbolado | Árbol o rama caída | 10 días |
+| Semáforos y tránsito | Semáforo | 5 días |
+| Higiene urbana | Residuos | 3 días |
+| Servicios públicos | Luz/agua, zanja | 7 días |
 
-Pantallas fuera del alcance del Sprint 1: bandeja y flujo de la Municipalidad (se documentan
-cuando arranque ese trabajo), escaneo de QR en carteles municipales.
+## Severidad
+
+El vecino elige **Baja, Media o Alta** al reportar. Es un dato informativo; no cambia el
+estado por sí sola.
+
+## Prioridad y vencimiento (municipio)
+
+La bandeja ordena por una **prioridad** calculada, no guardada (`mobile/lib/prioridad.ts`):
+
+- +10 por cada confirmación.
+- −10 por cada voto "Ya no está" (nunca queda negativa).
+- +2 por cada día de antigüedad.
+- +50 si la categoría es peligrosa.
+
+Un reclamo está **vencido** cuando el municipio ya lo tomó (`Enviado al municipio` o `En
+reparación`) y pasaron más días que el plazo de su área. Si todavía no tiene área, se usa el
+plazo más corto de todas. Antes de ser tomado, o una vez cerrado, no corre plazo.
+
+## Pantallas
+
+### Ingreso
+
+- **Ingresar:** email y contraseña.
+- **Crear cuenta:** escaneo del PDF417 del DNI y datos de acceso.
+
+### Vecino
+
+| Pantalla | Comportamiento |
+|---|---|
+| Mapa | Todos los reclamos con filtros por categoría y estado. Los cercanos se agrupan en un círculo con la cantidad. Panel **"Cerca tuyo"**: reclamos activos a menos de 500 m, del más cercano al más lejano. |
+| Nuevo reclamo | Foto con la cámara (o galería), ubicación por GPS, categoría, severidad y notas. Si ya hay un reclamo abierto de la misma categoría a menos de 50 m, lo muestra y deja confirmarlo en lugar de duplicarlo. Al publicar se genera el número de expediente. |
+| Detalle | Foto, mapa, dirección, barrio, expediente, días abierto, votos **"Sigue ahí" / "Ya no está"** y línea de tiempo. Con el reclamo resuelto muestra el antes y el después. |
+| Mis reclamos | Lista de los propios, con filtro por estado. |
+| Barrio | Estadísticas del barrio (porcentaje resuelto, total, días promedio, posición entre los barrios, reclamos por categoría y evolución de 6 meses). |
+| Perfil | Datos personales (DNI enmascarado) y cerrar sesión. |
+
+### Municipio
+
+| Pantalla | Comportamiento |
+|---|---|
+| Bandeja | Tres segmentos (Nuevos, En gestión, Cerrados), búsqueda por dirección y filtros por barrio, comuna, categoría y área. Orden por prioridad y marca de vencido. |
+| Mapa | Los mismos filtros, con marca visual para vencidos y peligrosos y una tarjeta que abre el detalle. |
+| Tablero | Reclamos abiertos que requieren seguimiento, nuevos sin tomar, vencidos, porcentaje resuelto, días promedio, reclamos por área y por estado. |
+| Detalle con gestión | Acciones: **Tomar, Asignar área, Fecha estimada, Pasar a reparación, Resolver, Rechazar**. Notas públicas del expediente. |
+| Perfil | Datos del admin y del municipio. |
+
+## Votos "Sigue ahí" / "Ya no está"
+
+Los vecinos confirman que un reclamo sigue ahí o avisan que ya no está. Un vecino está en una
+lista o en la otra, nunca en las dos. Si hay **3 o más** "Ya no está" y más que "Sigue ahí",
+el reclamo se marca como **posiblemente resuelto** (`mobile/lib/verificacion.ts`).
 
 ## Origen de la ubicación de una foto
 
 Una foto sacada **dentro de la app** siempre es confiable: se piden las coordenadas al
-disparar, y quedan asociadas al reclamo aunque se suba más tarde (soporta borradores sin
-conexión). Una foto elegida de la **Galería** no tiene esa garantía: puede traer coordenadas
-EXIF, o no traer ninguna. Por eso todo `Report` guarda de dónde salió su ubicación
-(`locationSource`):
+disparar. Una foto de la **galería** puede traer coordenadas EXIF, o no traer ninguna. Por eso
+cada reclamo guarda de dónde salió su ubicación (`locationSource`):
 
-- `Device` — GPS del dispositivo en el momento de sacar la foto (más confiable).
-- `Exif` — coordenadas leídas del archivo de la foto elegida en la Galería.
-- `Manual` — no había coordenadas disponibles; se usó la ubicación actual del vecino y se le
-  pidió confirmarla.
-
-Por ahora la Galería se deja disponible sin restricciones adicionales; la política de qué
-hacer cuando no hay EXIF se termina de definir probando en dispositivos reales.
+- `Device`: GPS del dispositivo al sacar la foto (el más confiable).
+- `Exif`: coordenadas leídas del archivo de la foto elegida en la galería.
+- `Manual`: no había coordenadas; se usó la ubicación actual del vecino.
 
 ## Reglas de negocio
 
 1. Un vecino no puede confirmar dos veces el mismo reclamo ni confirmar el propio.
 2. Un reclamo necesita foto y coordenadas para publicarse.
-3. La ubicación se toma con el GPS o el EXIF de la foto (ver arriba); el vecino no la escribe
-   a mano, aunque puede confirmarla si se usó `Manual`.
-4. La lista "Cerca mío" ordena por distancia dentro de un radio de 500 m.
-5. El ranking cuenta reclamos **activos** (no `Resolved`) por barrio, en los últimos 30 días.
-6. Un vecino ve y edita solo sus reclamos en `Reported`; después son de solo lectura para él.
-7. Solo la Municipalidad puede mover un reclamo de `Escalated` en adelante.
+3. El vecino no escribe la ubicación a mano: sale del GPS o del EXIF de la foto.
+4. "Cerca tuyo" lista reclamos activos a menos de 500 m, ordenados por distancia.
+5. Solo el municipio mueve un reclamo de `Confirmado por vecinos` en adelante.
+6. Resolver exige foto del "después"; rechazar exige motivo; pasar a reparación exige área.
+7. Un reclamo cerrado (`Resuelto` o `Rechazado`) no cambia más de estado.
 
-## Fuera de alcance del Sprint 1
+## Fuera de alcance por ahora
 
-Notificaciones push, moderación, "Seguir" un reclamo, polígonos reales de barrio/comuna
-(se aproxima con una tabla fija), cálculo de "cuadra más rota", i18n. El escaneo de QR en
-carteles municipales queda fuera de alcance del TPO por ahora.
+Backend real y base de datos del municipio, notificaciones push, varios municipios,
+almacenamiento de fotos en un servidor y modo sin conexión. Ver "Próximos pasos" en el
+[README](../README.md#próximos-pasos).
