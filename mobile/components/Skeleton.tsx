@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet } from 'react-native';
 import type { DimensionValue } from 'react-native';
-import { colors } from '../theme';
+import { colors, radii } from '../theme';
 
 type SkeletonProps = {
   width?: DimensionValue;
@@ -37,6 +37,7 @@ export default function Skeleton({ width = '100%', height = 16, style }: Skeleto
 
 const styles = StyleSheet.create({
   base: {
-    backgroundColor: colors.inkMuted,
+    backgroundColor: colors.line,
+    borderRadius: radii.sm,
   },
 });

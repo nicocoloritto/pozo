@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, fonts, fontSizes, spacing } from '../theme';
+import { StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
+import PressableScale from './PressableScale';
+import { colors, fonts, fontSizes, radii, spacing } from '../theme';
 
 type EmptyStateProps = {
   message: string;
@@ -13,20 +15,22 @@ type EmptyStateProps = {
 // icon + optional action keep it from feeling like an error state.
 export default function EmptyState({ message, icon = 'file-tray-outline', actionLabel, onAction }: EmptyStateProps) {
   return (
-    <View style={styles.container}>
-      <Ionicons name={icon} size={40} color={colors.inkSoft} />
+    <Animated.View entering={FadeInUp.springify().damping(16)} style={styles.container}>
+      <View style={styles.iconBubble}>
+        <Ionicons name={icon} size={30} color={colors.mangoDeep} />
+      </View>
       <Text style={styles.text}>{message}</Text>
       {actionLabel && onAction && (
-        <Pressable
+        <PressableScale
           accessibilityRole="button"
           accessibilityLabel={actionLabel}
           onPress={onAction}
-          style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+          style={styles.button}
         >
           <Text style={styles.buttonText}>{actionLabel}</Text>
-        </Pressable>
+        </PressableScale>
       )}
-    </View>
+    </Animated.View>
   );
 }
 
@@ -34,27 +38,32 @@ const styles = StyleSheet.create({
   container: {
     padding: spacing.xl,
     alignItems: 'center',
-    gap: spacing.sm,
+    gap: spacing.md,
+  },
+  iconBubble: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: colors.mangoSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   text: {
-    fontFamily: fonts.body,
-    fontSize: fontSizes.sm,
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.md - 1,
     color: colors.inkSoft,
     textAlign: 'center',
   },
   button: {
     marginTop: spacing.sm,
-    backgroundColor: colors.mango,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-  },
-  pressed: {
-    opacity: 0.7,
+    backgroundColor: colors.ink,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    borderRadius: radii.pill,
   },
   buttonText: {
     fontFamily: fonts.bodyBold,
-    fontSize: fontSizes.sm,
-    textTransform: 'uppercase',
-    color: colors.ink,
+    fontSize: fontSizes.sm + 1,
+    color: colors.surface,
   },
 });
