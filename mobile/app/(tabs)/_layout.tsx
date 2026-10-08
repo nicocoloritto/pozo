@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Tabs, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import PressableScale from '../../components/PressableScale';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
@@ -15,14 +15,13 @@ type TabIconProps = {
 
 const SPRING = { damping: 14, stiffness: 220 };
 
-// La pestaña activa se marca con una píldora mango detrás del ícono que entra con un
-// resorte; solo cambiar el color del ícono es demasiado sutil.
 function TabIcon({ focused, outline, filled }: TabIconProps) {
   const progress = useSharedValue(focused ? 1 : 0);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
-    progress.value = withSpring(focused ? 1 : 0, SPRING);
-  }, [focused, progress]);
+    progress.value = reducedMotion ? (focused ? 1 : 0) : withSpring(focused ? 1 : 0, SPRING);
+  }, [focused, progress, reducedMotion]);
 
   const pillStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
@@ -32,13 +31,11 @@ function TabIcon({ focused, outline, filled }: TabIconProps) {
   return (
     <View style={styles.tabIconWrap}>
       <Animated.View style={[styles.tabPill, pillStyle]} />
-      <Ionicons name={focused ? filled : outline} size={22} color={focused ? colors.ink : colors.inkMuted} />
+      <Ionicons name={focused ? filled : outline} size={22} color={focused ? colors.cobalt : colors.inkMuted} />
     </View>
   );
 }
 
-// Botón "+" central de la barra: abre Nuevo reclamo en vez de navegar a una pestaña,
-// así que `new` no tiene contenido propio.
 function NewReclamoButton() {
   const router = useRouter();
 
@@ -51,7 +48,7 @@ function NewReclamoButton() {
         pressedScale={0.88}
         style={styles.fab}
       >
-        <Ionicons name="add" size={30} color={colors.ink} />
+        <Ionicons name="add" size={30} color={colors.surface} />
       </PressableScale>
     </View>
   );
@@ -62,13 +59,12 @@ export default function TabsLayout() {
 
   return (
     <Tabs
-      // El margen inferior de la barra flotante ya contempla el inset del sistema.
       safeAreaInsets={{ bottom: 0 }}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.ink,
+        tabBarActiveTintColor: colors.cobalt,
         tabBarInactiveTintColor: colors.inkMuted,
-        tabBarStyle: [styles.tabBar, { marginBottom: Math.max(insets.bottom, spacing.md) }],
+        tabBarStyle: [styles.tabBar, { bottom: Math.max(insets.bottom, spacing.md) }],
         tabBarItemStyle: styles.tabBarItem,
         tabBarLabelStyle: styles.tabBarLabel,
         sceneStyle: { backgroundColor: colors.bg },
@@ -118,7 +114,9 @@ export default function TabsLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    marginHorizontal: spacing.lg,
+    position: 'absolute',
+    left: spacing.lg,
+    right: spacing.lg,
     height: 68,
     paddingTop: spacing.sm,
     paddingBottom: spacing.sm,
@@ -143,7 +141,7 @@ const styles = StyleSheet.create({
   tabPill: {
     ...StyleSheet.absoluteFill,
     borderRadius: radii.pill,
-    backgroundColor: colors.mangoSoft,
+    backgroundColor: colors.cobaltSoft,
   },
   fabSlot: {
     flex: 1,
@@ -155,8 +153,8 @@ const styles = StyleSheet.create({
     marginTop: -22,
     borderRadius: 29,
     borderWidth: 4,
-    borderColor: colors.bg,
-    backgroundColor: colors.mango,
+    borderColor: colors.surface,
+    backgroundColor: colors.cobalt,
     alignItems: 'center',
     justifyContent: 'center',
     ...shadows.float,

@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { ColorValue, StyleSheet, View } from 'react-native';
-import { colors, fonts, fontSizes, spacing } from '../../theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
 type TabIconProps = {
   focused: boolean;
@@ -10,8 +11,6 @@ type TabIconProps = {
   filled: keyof typeof Ionicons.glyphMap;
 };
 
-// Same active-tab treatment as el vecino (icono relleno + punto amarillo): sin botón
-// "+" — el admin no crea ni confirma reclamos, solo los gestiona.
 function TabIcon({ focused, color, outline, filled }: TabIconProps) {
   return (
     <View style={styles.tabIconWrap}>
@@ -22,14 +21,18 @@ function TabIcon({ focused, color, outline, filled }: TabIconProps) {
 }
 
 export default function AdminTabsLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
+      safeAreaInsets={{ bottom: 0 }}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.mango,
+        tabBarActiveTintColor: colors.cobalt,
         tabBarInactiveTintColor: colors.inkSoft,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [styles.tabBar, { bottom: Math.max(insets.bottom, spacing.md) }],
         tabBarLabelStyle: styles.tabBarLabel,
+        sceneStyle: { backgroundColor: colors.bg },
       }}
     >
       <Tabs.Screen
@@ -70,15 +73,20 @@ export default function AdminTabsLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: colors.ink,
-    borderTopColor: colors.inkRaised,
-    height: 64,
-    paddingTop: spacing.xs,
+    position: 'absolute',
+    left: spacing.lg,
+    right: spacing.lg,
+    height: 68,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.sm,
+    borderRadius: radii.xl,
+    borderTopWidth: 0,
+    backgroundColor: colors.surface,
+    ...shadows.float,
   },
   tabBarLabel: {
     fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
   },
   tabIconWrap: {
     alignItems: 'center',
@@ -91,6 +99,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   tabDotActive: {
-    backgroundColor: colors.mango,
+    backgroundColor: colors.cobalt,
   },
 });

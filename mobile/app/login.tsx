@@ -4,15 +4,17 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import PressableScale from '../components/PressableScale';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthError } from '../services/auth';
-import { colors, fonts, fontSizes, spacing } from '../theme';
+import { colors, fonts, fontSizes, radii, shadows, spacing } from '../theme';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -53,72 +55,83 @@ export default function Login() {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View style={styles.content}>
-          <Text style={styles.logo}>
-            POZO<Text style={styles.logoDot}>.</Text>
-          </Text>
-          <Text style={styles.headline}>Ingresar</Text>
-
-          <View style={styles.field}>
-            <Text style={styles.lbl}>Email</Text>
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                setError(null);
-              }}
-              placeholder="tu@email.com"
-              placeholderTextColor={colors.inkSoft}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-            />
+        <ScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.brandBlock}>
+            <View style={styles.brandOrb} />
+            <Text style={styles.logo}>
+              POZO<Text style={styles.logoDot}>.</Text>
+            </Text>
           </View>
 
-          <View style={styles.field}>
-            <Text style={styles.lbl}>Contraseña</Text>
-            <TextInput
-              style={styles.input}
-              value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                setError(null);
-              }}
-              placeholder="••••••"
-              placeholderTextColor={colors.inkSoft}
-              secureTextEntry
-              autoCapitalize="none"
-            />
-          </View>
+          <View style={styles.formCard}>
+            <Text style={styles.headline}>Ingresar</Text>
 
-          {error && (
-            <View style={styles.errorBox}>
-              <Text style={styles.errorText}>{error}</Text>
-              {offerRegister && (
-                <Pressable onPress={() => router.push('/register')}>
-                  <Text style={styles.link}>Crear cuenta</Text>
-                </Pressable>
-              )}
+            <View style={styles.field}>
+              <Text style={styles.lbl}>Email</Text>
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  setError(null);
+                }}
+                placeholder="tu@email.com"
+                placeholderTextColor={colors.inkSoft}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+              />
             </View>
-          )}
 
-          <Pressable
-            disabled={!canSubmit}
-            onPress={handleSubmit}
-            style={[styles.button, !canSubmit && styles.buttonDisabled]}
-          >
-            <Text style={[styles.buttonText, !canSubmit && styles.buttonTextDisabled]}>
-              {submitting ? 'Ingresando…' : 'Ingresar'}
-            </Text>
-          </Pressable>
+            <View style={styles.field}>
+              <Text style={styles.lbl}>Contraseña</Text>
+              <TextInput
+                style={styles.input}
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  setError(null);
+                }}
+                placeholder="••••••"
+                placeholderTextColor={colors.inkSoft}
+                secureTextEntry
+                autoCapitalize="none"
+              />
+            </View>
 
-          <Pressable onPress={() => router.push('/register')} style={styles.footer}>
-            <Text style={styles.footerText}>
-              ¿No tenés cuenta? <Text style={styles.link}>Crear cuenta</Text>
-            </Text>
-          </Pressable>
-        </View>
+            {error && (
+              <View style={styles.errorBox}>
+                <Text style={styles.errorText}>{error}</Text>
+                {offerRegister && (
+                  <Pressable onPress={() => router.push('/register')}>
+                    <Text style={styles.link}>Crear cuenta</Text>
+                  </Pressable>
+                )}
+              </View>
+            )}
+
+            <PressableScale
+              disabled={!canSubmit}
+              onPress={handleSubmit}
+              style={[styles.button, !canSubmit && styles.buttonDisabled]}
+              accessibilityRole="button"
+            >
+              <Text style={[styles.buttonText, !canSubmit && styles.buttonTextDisabled]}>
+                {submitting ? 'Ingresando…' : 'Ingresar'}
+              </Text>
+            </PressableScale>
+
+            <Pressable onPress={() => router.push('/register')} style={styles.footer}>
+              <Text style={styles.footerText}>
+                ¿No tenés cuenta? <Text style={styles.link}>Crear cuenta</Text>
+              </Text>
+            </Pressable>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -127,77 +140,107 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.cobalt,
   },
   flex: {
     flex: 1,
   },
   content: {
+    flexGrow: 1,
+    justifyContent: 'flex-end',
+    paddingTop: spacing.xl,
+  },
+  brandBlock: {
     flex: 1,
+    minHeight: 220,
     justifyContent: 'center',
-    gap: spacing.md,
-    padding: spacing.xl,
+    paddingHorizontal: spacing.xl,
+    overflow: 'hidden',
+  },
+  brandOrb: {
+    position: 'absolute',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    right: -42,
+    top: 4,
+    backgroundColor: colors.mandarin,
   },
   logo: {
     fontFamily: fonts.display,
-    fontSize: fontSizes.xxl,
-    color: colors.bg,
+    fontSize: 54,
+    color: colors.surface,
   },
   logoDot: {
-    color: colors.mango,
+    color: colors.lime,
+  },
+  formCard: {
+    gap: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.xl,
+    borderTopLeftRadius: radii.xl,
+    borderTopRightRadius: radii.xl,
+    backgroundColor: colors.surface,
+    ...shadows.float,
   },
   headline: {
-    fontFamily: fonts.body,
-    fontSize: fontSizes.md,
-    color: colors.inkMuted,
-    marginBottom: spacing.sm,
+    fontFamily: fonts.display,
+    fontSize: fontSizes.xxl,
+    color: colors.ink,
+    marginBottom: spacing.xs,
   },
   field: {
     gap: spacing.xs,
   },
   lbl: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.inkMuted,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.inkSoft,
   },
   input: {
-    backgroundColor: colors.bg,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    minHeight: 56,
+    borderRadius: radii.md,
+    backgroundColor: colors.surfaceAlt,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
     color: colors.ink,
   },
   errorBox: {
     gap: spacing.xs,
+    borderRadius: radii.md,
+    backgroundColor: colors.pinkSoft,
+    padding: spacing.md,
   },
   errorText: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.coral,
+    color: colors.pinkDeep,
   },
   link: {
     fontFamily: fonts.bodySemiBold,
-    color: colors.mango,
+    color: colors.cobalt,
   },
   button: {
-    backgroundColor: colors.mango,
+    minHeight: 56,
+    borderRadius: radii.pill,
+    backgroundColor: colors.cobalt,
     padding: spacing.lg,
     alignItems: 'center',
     marginTop: spacing.sm,
   },
   buttonDisabled: {
-    backgroundColor: colors.inkRaised,
+    backgroundColor: colors.line,
   },
   buttonText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    textTransform: 'uppercase',
-    color: colors.ink,
+    color: colors.surface,
   },
   buttonTextDisabled: {
-    color: colors.inkSoft,
+    color: colors.inkMuted,
   },
   footer: {
     alignItems: 'center',
@@ -206,6 +249,6 @@ const styles = StyleSheet.create({
   footerText: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.inkMuted,
+    color: colors.inkSoft,
   },
 });
