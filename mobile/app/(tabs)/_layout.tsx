@@ -1,54 +1,77 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs, useRouter } from 'expo-router';
-import { ColorValue, Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, fonts, fontSizes, spacing } from '../../theme';
+import { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import PressableScale from '../../components/PressableScale';
+import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
 type TabIconProps = {
   focused: boolean;
-  color: ColorValue;
   outline: keyof typeof Ionicons.glyphMap;
   filled: keyof typeof Ionicons.glyphMap;
 };
 
-// The active tab gets a filled icon plus a small yellow underline dot — relying only
-// on a tint color swap is too subtle to read as "selected" at a glance.
-function TabIcon({ focused, color, outline, filled }: TabIconProps) {
+const SPRING = { damping: 14, stiffness: 220 };
+
+// La pestaña activa se marca con una píldora mango detrás del ícono que entra con un
+// resorte; solo cambiar el color del ícono es demasiado sutil.
+function TabIcon({ focused, outline, filled }: TabIconProps) {
+  const progress = useSharedValue(focused ? 1 : 0);
+
+  useEffect(() => {
+    progress.value = withSpring(focused ? 1 : 0, SPRING);
+  }, [focused, progress]);
+
+  const pillStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+    transform: [{ scaleX: 0.6 + progress.value * 0.4 }],
+  }));
+
   return (
     <View style={styles.tabIconWrap}>
-      <Ionicons name={focused ? filled : outline} size={22} color={color} />
-      <View style={[styles.tabDot, focused && styles.tabDotActive]} />
+      <Animated.View style={[styles.tabPill, pillStyle]} />
+      <Ionicons name={focused ? filled : outline} size={22} color={focused ? colors.ink : colors.inkMuted} />
     </View>
   );
 }
 
-// Center "+" button of the tab bar (see design/pozo-pantallas-hifi.html). It opens
-// Nuevo reclamo instead of navigating to a tab, so `new` has no content of its own.
+// Botón "+" central de la barra: abre Nuevo reclamo en vez de navegar a una pestaña,
+// así que `new` no tiene contenido propio.
 function NewReclamoButton() {
   const router = useRouter();
 
   return (
     <View style={styles.fabSlot}>
-      <Pressable
+      <PressableScale
         accessibilityRole="button"
         accessibilityLabel="Nuevo reclamo"
         onPress={() => router.push('/reclamos/new')}
-        style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
+        pressedScale={0.88}
+        style={styles.fab}
       >
-        <Text style={styles.fabText}>+</Text>
-      </Pressable>
+        <Ionicons name="add" size={30} color={colors.ink} />
+      </PressableScale>
     </View>
   );
 }
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
+      // El margen inferior de la barra flotante ya contempla el inset del sistema.
+      safeAreaInsets={{ bottom: 0 }}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.mango,
-        tabBarInactiveTintColor: colors.inkSoft,
-        tabBarStyle: styles.tabBar,
+        tabBarActiveTintColor: colors.ink,
+        tabBarInactiveTintColor: colors.inkMuted,
+        tabBarStyle: [styles.tabBar, { marginBottom: Math.max(insets.bottom, spacing.md) }],
+        tabBarItemStyle: styles.tabBarItem,
         tabBarLabelStyle: styles.tabBarLabel,
+        sceneStyle: { backgroundColor: colors.bg },
       }}
     >
       <Tabs.Screen
@@ -56,16 +79,16 @@ export default function TabsLayout() {
         options={{
           title: 'Mapa',
           tabBarAccessibilityLabel: 'Mapa',
-          tabBarIcon: (props) => <TabIcon {...props} outline="map-outline" filled="map" />,
+          tabBarIcon: ({ focused }) => <TabIcon focused={focused} outline="map-outline" filled="map" />,
         }}
       />
       <Tabs.Screen
         name="mine"
         options={{
-          title: 'Mis reclamos',
+          title: 'Míos',
           tabBarAccessibilityLabel: 'Mis reclamos',
-          tabBarIcon: (props) => (
-            <TabIcon {...props} outline="document-text-outline" filled="document-text" />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} outline="document-text-outline" filled="document-text" />
           ),
         }}
       />
@@ -76,9 +99,9 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="estadisticas"
         options={{
-          title: 'Estadísticas',
+          title: 'Barrio',
           tabBarAccessibilityLabel: 'Estadísticas',
-          tabBarIcon: (props) => <TabIcon {...props} outline="stats-chart-outline" filled="stats-chart" />,
+          tabBarIcon: ({ focused }) => <TabIcon focused={focused} outline="stats-chart-outline" filled="stats-chart" />,
         }}
       />
       <Tabs.Screen
@@ -86,7 +109,7 @@ export default function TabsLayout() {
         options={{
           title: 'Perfil',
           tabBarAccessibilityLabel: 'Perfil',
-          tabBarIcon: (props) => <TabIcon {...props} outline="person-outline" filled="person" />,
+          tabBarIcon: ({ focused }) => <TabIcon focused={focused} outline="person-outline" filled="person" />,
         }}
       />
     </Tabs>
@@ -95,50 +118,47 @@ export default function TabsLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: colors.ink,
-    borderTopColor: colors.inkRaised,
-    height: 64,
-    paddingTop: spacing.xs,
+    marginHorizontal: spacing.lg,
+    height: 68,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.sm,
+    borderRadius: radii.xl,
+    borderTopWidth: 0,
+    backgroundColor: colors.surface,
+    ...shadows.float,
+  },
+  tabBarItem: {
+    gap: 2,
   },
   tabBarLabel: {
     fontFamily: fonts.bodySemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
+    fontSize: fontSizes.xs - 1,
   },
   tabIconWrap: {
+    width: 52,
+    height: 30,
     alignItems: 'center',
-    gap: 3,
+    justifyContent: 'center',
   },
-  tabDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: 'transparent',
-  },
-  tabDotActive: {
-    backgroundColor: colors.mango,
+  tabPill: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: radii.pill,
+    backgroundColor: colors.mangoSoft,
   },
   fabSlot: {
     flex: 1,
     alignItems: 'center',
   },
   fab: {
-    width: 44,
-    height: 44,
-    marginTop: -14,
-    borderRadius: 22,
+    width: 58,
+    height: 58,
+    marginTop: -22,
+    borderRadius: 29,
     borderWidth: 4,
     borderColor: colors.bg,
-    backgroundColor: colors.coral,
+    backgroundColor: colors.mango,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  fabPressed: {
-    opacity: 0.7,
-  },
-  fabText: {
-    fontFamily: fonts.bodyBold,
-    fontSize: fontSizes.lg,
-    color: colors.bg,
+    ...shadows.float,
   },
 });
