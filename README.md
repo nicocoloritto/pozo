@@ -27,27 +27,23 @@ todos los reclamos, un tablero con estadísticas y las herramientas para gestion
 "después" o rechazar con motivo). Se avisa cuando un reclamo está vencido respecto del plazo
 de su área.
 
-## Capturas
+## Equipo
 
-### Ingreso
+- Martín Allende ([@martinallende02](https://github.com/martinallende02))
+- Nicolas Coloritto ([@nicocoloritto](https://github.com/nicocoloritto))
+- Isidro Pasman ([@isidropasman](https://github.com/isidropasman))
 
-<img src="docs/capturas/login.jpg" width="220" alt="Ingresar" />
+## Documentación y créditos
 
-### Vecino
-
-| Mapa | Nuevo reclamo | Detalle |
-|---|---|---|
-| <img src="docs/capturas/vecino-mapa.jpg" width="220" /> | <img src="docs/capturas/vecino-nuevo-reclamo.jpg" width="220" /> | <img src="docs/capturas/vecino-detalle.jpg" width="220" /> |
-
-| Mis reclamos | Estadísticas del barrio | Perfil |
-|---|---|---|
-| <img src="docs/capturas/vecino-mis-reclamos.jpg" width="220" /> | <img src="docs/capturas/vecino-estadisticas.jpg" width="220" /> | <img src="docs/capturas/vecino-perfil.jpg" width="220" /> |
-
-### Municipio
-
-| Bandeja | Mapa | Tablero | Gestión del reclamo | Perfil |
-|---|---|---|---|---|
-| <img src="docs/capturas/municipio-bandeja.jpg" width="180" /> | <img src="docs/capturas/municipio-mapa.jpg" width="180" /> | <img src="docs/capturas/municipio-tablero.jpg" width="180" /> | <img src="docs/capturas/municipio-gestion.jpg" width="180" /> | <img src="docs/capturas/municipio-perfil.jpg" width="180" /> |
+- **Entrega del Sprint 1:**
+  - [`Pozo-Sprint1-Presentacion.pdf`](docs/Entrega-Sprint1/Pozo-Sprint1-Presentacion.pdf):
+    temática, público objetivo, diferencial, modelo de negocio, branding y componentes nativos.
+  - [`Pozo-Mockup.pdf`](docs/Entrega-Sprint1/Pozo-Mockup.pdf): mockup con las pantallas del
+    vecino y del municipio, y el circuito de estados.
+- **Diseño funcional:** [`docs/diseno-funcional.md`](docs/diseno-funcional.md): roles, estados, reglas
+  de negocio y comportamiento de cada pantalla.
+- **Fotos de los reclamos de prueba:** autor y fuente de cada una en
+  [`mobile/assets/reclamos/CREDITOS.md`](mobile/assets/reclamos/CREDITOS.md) (Unsplash y/o Pexels).
 
 ## Funcionalidades
 
@@ -211,42 +207,6 @@ Se cargan solos la primera vez que se abre la app.
 También se puede crear una cuenta de vecino nueva escaneando un PDF417 con el formato
 `trámite@apellido@nombres@sexo@dni@ejemplar@nacimiento@emisión`. Los admin no se registran
 desde la app.
-
-## Branding
-
-| Color | HEX | Uso |
-|---|---|---|
-| Cobalto | `#5653FF` | Color principal: botones, pestaña activa, fondos de marca |
-| Cobalto profundo | `#3431B8` | Texto e íconos sobre cobalto suave |
-| Mandarina | `#FF7A21` | Acento: pozo, gráficos y destacados |
-| Lima | `#C8F45D` | Acento: cifras destacadas y avatar |
-| Rosa | `#FF5C8A` | Alertas y semáforo |
-| Cielo | `#53C8FF` | Luz/agua y estados informativos |
-| Tinta | `#17202A` | Texto principal |
-| Fondo | `#F7F8FF` | Fondo de pantallas |
-
-Cada color de acento tiene una variante `Deep` para texto y una `Soft` para fondos (ver `mobile/theme/colors.ts`).
-
-Tipografías: **Bricolage Grotesque** (700 y 800) para títulos y **Inter** (400 a 800) para el resto del texto.
-
-## Equipo
-
-- Martín Allende ([@martinallende02](https://github.com/martinallende02))
-- Nicolas Coloritto ([@nicocoloritto](https://github.com/nicocoloritto))
-- Isidro Pasman ([@isidropasman](https://github.com/isidropasman))
-
-
-## Documentación y créditos
-
-- **Entrega del Sprint 1:**
-  - [`Pozo-Sprint1-Presentacion.pdf`](docs/Entrega-Sprint1/Pozo-Sprint1-Presentacion.pdf):
-    temática, público objetivo, diferencial, modelo de negocio, branding y componentes nativos.
-  - [`Pozo-Mockup.pdf`](docs/Entrega-Sprint1/Pozo-Mockup.pdf): mockup con las pantallas del
-    vecino y del municipio, y el circuito de estados.
-- **Diseño funcional:** [`docs/diseno-funcional.md`](docs/diseno-funcional.md): roles, estados, reglas
-  de negocio y comportamiento de cada pantalla.
-- **Fotos de los reclamos de prueba:** autor y fuente de cada una en
-  [`mobile/assets/reclamos/CREDITOS.md`](mobile/assets/reclamos/CREDITOS.md) (Unsplash y/o Pexels).
 
 ## Próximos pasos
 
