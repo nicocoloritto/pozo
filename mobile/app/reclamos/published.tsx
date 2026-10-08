@@ -1,9 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import PressableScale from '../../components/PressableScale';
 import RubberStamp from '../../components/RubberStamp';
-import { colors, fonts, fontSizes, spacing } from '../../theme';
+import { colors, fonts, fontSizes, radii, spacing } from '../../theme';
 
 // Screen 04c of the mockup (design/figma/04c-reclamo-publicado.png).
 export default function Published() {
@@ -27,22 +28,25 @@ export default function Published() {
       <View style={styles.stampWrap}>
         <RubberStamp
           size={190}
-          color={colors.mango}
+          color={colors.lime}
           curvedText="EXPEDIENTE · GENERADO ·"
           centerLines={['INGRESADO', today]}
         />
       </View>
+      <Text style={styles.title}>Tu reclamo ya está en marcha</Text>
       <Text style={styles.caseNumber}>{caseNumber}</Text>
       {address ? <Text style={styles.address}>{address}</Text> : null}
       <Text style={styles.coords}>
         {Number(lat).toFixed(5)}, {Number(lng).toFixed(5)}
       </Text>
-      <Pressable
-        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      <PressableScale
+        style={styles.button}
         onPress={() => router.replace('/map')}
+        accessibilityRole="button"
+        accessibilityLabel="Ver reclamo en el mapa"
       >
         <Text style={styles.buttonText}>Ver en el mapa</Text>
-      </Pressable>
+      </PressableScale>
       <Text style={styles.footer}>Tu expediente es público para la comunidad</Text>
     </SafeAreaView>
   );
@@ -51,7 +55,7 @@ export default function Published() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.cobalt,
     padding: spacing.xl,
     justifyContent: 'center',
     alignItems: 'center',
@@ -60,44 +64,51 @@ const styles = StyleSheet.create({
   stampWrap: {
     marginBottom: spacing.lg,
   },
-  caseNumber: {
+  title: {
+    maxWidth: 300,
     fontFamily: fonts.display,
-    fontSize: fontSizes.xl,
-    color: colors.bg,
+    fontSize: fontSizes.xxl,
+    lineHeight: 36,
+    color: colors.surface,
+    textAlign: 'center',
+    marginBottom: spacing.sm,
+  },
+  caseNumber: {
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.md,
+    color: colors.surface,
     textAlign: 'center',
   },
   address: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.sm,
-    color: colors.inkMuted,
+    color: colors.surface,
     textAlign: 'center',
   },
   coords: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.body,
     fontSize: fontSizes.xs,
-    color: colors.inkSoft,
+    color: colors.surface,
     textAlign: 'center',
     marginBottom: spacing.lg,
   },
   button: {
     alignSelf: 'stretch',
-    backgroundColor: colors.mango,
+    backgroundColor: colors.lime,
     padding: spacing.lg,
     alignItems: 'center',
-  },
-  pressed: {
-    opacity: 0.7,
+    borderRadius: radii.pill,
+    marginTop: spacing.sm,
   },
   buttonText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    textTransform: 'uppercase',
     color: colors.ink,
   },
   footer: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.body,
     fontSize: fontSizes.xs,
-    color: colors.inkSoft,
+    color: colors.surface,
     textAlign: 'center',
     marginTop: spacing.md,
   },

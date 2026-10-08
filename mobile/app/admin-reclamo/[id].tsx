@@ -27,7 +27,7 @@ import {
 import { areaPorId, AREAS } from '../../services/areas';
 import { CATEGORIAS_PELIGROSAS } from '../../types/reclamo';
 import type { Reclamo } from '../../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../../theme';
+import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
 function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleString('es-AR', {
@@ -238,7 +238,7 @@ export default function AdminReclamoDetail() {
           <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Volver">
             <Text style={styles.navText}>‹ Volver</Text>
           </Pressable>
-          <Text style={styles.navText}>Reclamo · {reclamo.caseNumber}</Text>
+          <Text style={styles.caseNumber}>{reclamo.caseNumber}</Text>
         </View>
       </SafeAreaView>
 
@@ -256,7 +256,7 @@ export default function AdminReclamoDetail() {
           <StatusStamp status={reclamo.status} />
           {resumenVerificacion(reclamo, null).posiblementeResuelto && (
             <View style={styles.resueltoChip}>
-              <Text style={styles.resueltoChipText}>POSIBLEMENTE RESUELTO</Text>
+              <Text style={styles.resueltoChipText}>Posiblemente resuelto</Text>
             </View>
           )}
         </View>
@@ -384,7 +384,10 @@ export default function AdminReclamoDetail() {
         <View style={styles.timeline}>
           {reclamo.history.map((entry, index) => (
             <View key={index} style={styles.timelineRow}>
-              <View style={styles.timelineDot} />
+              <View style={styles.timelineRail}>
+                {index < reclamo.history.length - 1 && <View style={styles.timelineLine} />}
+                <View style={styles.timelineDot} />
+              </View>
               <View style={styles.timelineTextWrap}>
                 <Text style={styles.timelineLabel}>{entry.description}</Text>
                 <Text style={styles.timelineFecha}>{formatDateTime(entry.createdAt)}</Text>
@@ -511,7 +514,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   navSafeArea: {
-    backgroundColor: colors.bg,
+    backgroundColor: colors.cobalt,
   },
   nav: {
     flexDirection: 'row',
@@ -519,13 +522,17 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   navText: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.surface,
+  },
+  caseNumber: {
+    fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.inkSoft,
+    color: colors.surface,
   },
   photoWrap: {
-    height: 190,
+    height: 280,
     backgroundColor: colors.inkRaised,
   },
   photo: {
@@ -533,14 +540,19 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   body: {
+    marginTop: -32,
+    marginHorizontal: spacing.sm,
     padding: spacing.lg,
+    paddingBottom: spacing.xxl,
     gap: spacing.sm,
+    borderRadius: radii.xl,
+    backgroundColor: colors.surface,
+    ...shadows.float,
   },
   category: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.coral,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.pinkDeep,
   },
   title: {
     fontFamily: fonts.display,
@@ -559,30 +571,33 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   resueltoChip: {
-    backgroundColor: colors.mint,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 2,
+    borderRadius: radii.pill,
+    backgroundColor: colors.limeSoft,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 5,
   },
   resueltoChipText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: 9,
-    color: colors.bg,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs,
+    color: colors.limeDeep,
   },
   statGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
     marginTop: spacing.sm,
   },
   statBox: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.12)',
-    padding: spacing.sm,
+    flexBasis: '46%',
+    flexGrow: 1,
+    minHeight: 82,
+    borderRadius: radii.md,
+    backgroundColor: colors.surfaceAlt,
+    padding: spacing.md,
   },
   statLabel: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    textTransform: 'uppercase',
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.xs,
     color: colors.inkSoft,
     marginBottom: 4,
   },
@@ -595,47 +610,45 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   metaBox: {
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: colors.inkSoft,
-    padding: spacing.md,
+    borderRadius: radii.lg,
+    backgroundColor: colors.cobaltSoft,
+    padding: spacing.lg,
   },
   metaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: spacing.xs,
+    gap: spacing.md,
   },
   metaKey: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.sm,
     color: colors.inkSoft,
   },
   metaValue: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
     color: colors.ink,
   },
   rechazadoBox: {
-    backgroundColor: colors.ink,
-    padding: spacing.md,
+    borderRadius: radii.lg,
+    backgroundColor: colors.pinkSoft,
+    padding: spacing.lg,
     gap: 4,
   },
   rechazadoTitulo: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.bg,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.pinkDeep,
   },
   rechazadoTexto: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.inkMuted,
+    color: colors.ink,
   },
   sectionTitle: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.inkSoft,
+    fontFamily: fonts.displayBold,
+    fontSize: fontSizes.lg,
+    color: colors.ink,
     marginTop: spacing.sm,
   },
   beforeAfterRow: {
@@ -650,21 +663,25 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 120,
     backgroundColor: colors.inkRaised,
+    borderRadius: radii.md,
   },
   beforeAfterLabel: {
-    fontFamily: fonts.monoSemiBold,
+    fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
     textAlign: 'center',
     color: colors.inkSoft,
   },
   errorText: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.coral,
+    color: colors.pinkDeep,
   },
   actionsBox: {
     gap: spacing.sm,
+    marginTop: spacing.md,
+    padding: spacing.lg,
+    borderRadius: radii.lg,
+    backgroundColor: colors.cobaltSoft,
   },
   actionsGrid: {
     flexDirection: 'row',
@@ -672,13 +689,13 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   actionButton: {
-    borderWidth: 1,
-    borderColor: colors.ink,
+    borderRadius: radii.pill,
+    backgroundColor: colors.cobalt,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
   actionButtonDestructivo: {
-    borderColor: colors.coral,
+    backgroundColor: colors.pinkSoft,
   },
   actionButtonDisabled: {
     opacity: 0.4,
@@ -687,13 +704,12 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   actionButtonText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.ink,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.surface,
   },
   actionButtonTextDestructivo: {
-    color: colors.coral,
+    color: colors.pinkDeep,
   },
   notasBox: {
     gap: spacing.sm,
@@ -705,12 +721,12 @@ const styles = StyleSheet.create({
   },
   notaRow: {
     borderLeftWidth: 2,
-    borderLeftColor: colors.mango,
+    borderLeftColor: colors.mandarin,
     paddingLeft: spacing.sm,
     gap: 2,
   },
   notaFecha: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.xs,
     color: colors.inkSoft,
   },
@@ -724,9 +740,9 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   notaInput: {
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.15)',
-    padding: spacing.sm,
+    borderRadius: radii.md,
+    backgroundColor: colors.surfaceAlt,
+    padding: spacing.md,
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
     color: colors.ink,
@@ -735,7 +751,8 @@ const styles = StyleSheet.create({
   },
   notaButton: {
     alignSelf: 'flex-end',
-    backgroundColor: colors.mango,
+    borderRadius: radii.pill,
+    backgroundColor: colors.cobalt,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
@@ -745,8 +762,7 @@ const styles = StyleSheet.create({
   notaButtonText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.ink,
+    color: colors.surface,
   },
   timeline: {
     gap: spacing.md,
@@ -756,13 +772,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.sm,
+    minHeight: 48,
+  },
+  timelineRail: {
+    width: 16,
+    alignItems: 'center',
+    alignSelf: 'stretch',
+  },
+  timelineLine: {
+    position: 'absolute',
+    top: 13,
+    bottom: -spacing.md,
+    width: 3,
+    borderRadius: radii.pill,
+    backgroundColor: colors.cobaltSoft,
   },
   timelineDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
     marginTop: 4,
-    backgroundColor: colors.mango,
+    backgroundColor: colors.cobalt,
   },
   timelineTextWrap: {
     flex: 1,
@@ -773,7 +803,7 @@ const styles = StyleSheet.create({
     color: colors.ink,
   },
   timelineFecha: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.body,
     fontSize: fontSizes.xs,
     color: colors.inkSoft,
   },
@@ -793,9 +823,8 @@ const styles = StyleSheet.create({
     color: colors.ink,
   },
   modalClose: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
     color: colors.inkSoft,
   },
   modalContent: {
@@ -806,8 +835,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.08)',
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.surfaceAlt,
   },
   modalRowActive: {
     backgroundColor: colors.surfaceAlt,
@@ -818,13 +848,13 @@ const styles = StyleSheet.create({
     color: colors.ink,
   },
   modalRowMeta: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.xs,
     color: colors.inkSoft,
   },
   fechaInput: {
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.15)',
+    borderRadius: radii.md,
+    backgroundColor: colors.surfaceAlt,
     padding: spacing.md,
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
@@ -835,36 +865,36 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   fechaRapidaChip: {
-    borderWidth: 1,
-    borderColor: colors.ink,
+    borderRadius: radii.pill,
+    backgroundColor: colors.cobaltSoft,
     paddingHorizontal: spacing.sm,
     paddingVertical: 6,
   },
   fechaRapidaText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    color: colors.ink,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.cobaltDeep,
   },
   primaryButton: {
-    backgroundColor: colors.mango,
+    borderRadius: radii.pill,
+    backgroundColor: colors.cobalt,
     padding: spacing.md,
     alignItems: 'center',
   },
   primaryButtonText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    textTransform: 'uppercase',
-    color: colors.ink,
+    color: colors.surface,
   },
   destructiveButton: {
-    backgroundColor: colors.coral,
+    backgroundColor: colors.pink,
     padding: spacing.md,
     alignItems: 'center',
+    borderRadius: radii.pill,
   },
   destructiveButtonText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    textTransform: 'uppercase',
-    color: colors.bg,
+    color: colors.surface,
   },
 });

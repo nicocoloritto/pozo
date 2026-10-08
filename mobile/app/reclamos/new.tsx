@@ -27,7 +27,7 @@ import { obtenerBarrioPorCoordenadas } from '../../services/estadisticas';
 import { borrarFotoPermanente, guardarFotoPermanente } from '../../services/fotos';
 import { confirmarReclamo, obtenerReclamos, publicarReclamo, ReclamoError } from '../../services/reclamos';
 import type { Categoria, OrigenUbicacion, Reclamo, Severidad } from '../../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../../theme';
+import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
 type Coords = {
   latitude: number;
@@ -371,8 +371,8 @@ export default function NewReclamo() {
               </View>
 
               <View style={styles.hintBox}>
-                <Text style={styles.hint}>ENCUADRÁ EL PROBLEMA</Text>
-                <Text style={styles.hintRequired}>LA FOTO ES OBLIGATORIA</Text>
+                <Text style={styles.hint}>Encuadrá el problema</Text>
+                <Text style={styles.hintRequired}>La foto es obligatoria</Text>
               </View>
             </CameraView>
           )}
@@ -418,21 +418,26 @@ export default function NewReclamo() {
       {photoUri && !locationDenied && (
         <View style={styles.geo}>
           <View style={[styles.geoDot, coords && styles.geoDotOk]} />
-          <Text style={styles.geoText}>
-            {locatingPhoto
-              ? 'Detectando ubicación…'
-              : coords
-                ? `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}${
-                    coords.accuracy ? ` · ±${Math.round(coords.accuracy)} m` : ''
-                  }${address ? `\n${address}` : ''}${
-                    locationSource === 'Exif'
-                      ? ' · de la foto'
-                      : locationSource === 'Manual'
-                        ? ' · ubicación actual (sin GPS en la foto)'
-                        : ''
-                  }`
-                : 'Ubicación no disponible'}
-          </Text>
+          <View style={styles.geoCopy}>
+            {locatingPhoto ? (
+              <Text style={styles.geoDetail}>Detectando ubicación…</Text>
+            ) : coords ? (
+              <>
+                <Text style={styles.geoText}>
+                  {coords.latitude.toFixed(5)}, {coords.longitude.toFixed(5)}
+                  {coords.accuracy ? ` · ±${Math.round(coords.accuracy)} m` : ''}
+                </Text>
+                {address ? <Text style={styles.geoDetail}>{address}</Text> : null}
+                {locationSource === 'Exif' ? (
+                  <Text style={styles.geoDetail}>Ubicación de la foto</Text>
+                ) : locationSource === 'Manual' ? (
+                  <Text style={styles.geoDetail}>Ubicación actual, sin GPS en la foto</Text>
+                ) : null}
+              </>
+            ) : (
+              <Text style={styles.geoDetail}>Ubicación no disponible</Text>
+            )}
+          </View>
         </View>
       )}
 
@@ -470,7 +475,7 @@ export default function NewReclamo() {
         </View>
 
         <Text style={styles.lbl}>
-          3 · Severidad{severity ? ` — ${severityLabels[severity].toUpperCase()}` : ''}
+          3 · Severidad{severity ? ` — ${severityLabels[severity]}` : ''}
         </Text>
         <View style={styles.severityRow}>
           {(['Low', 'Medium', 'High'] as Severidad[]).map((item) => (
@@ -489,7 +494,7 @@ export default function NewReclamo() {
                   severity === item && item === 'High' && styles.severityTextOnDark,
                 ]}
               >
-                {severityLabels[item].toUpperCase()}
+                {severityLabels[item]}
               </Text>
             </Pressable>
           ))}
@@ -576,9 +581,7 @@ export default function NewReclamo() {
 
 const styles = StyleSheet.create({
   errorBox: {
-    backgroundColor: colors.surfaceAlt,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.coral,
+    backgroundColor: colors.pinkSoft,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     gap: spacing.xs,
@@ -586,12 +589,11 @@ const styles = StyleSheet.create({
   errorText: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.coral,
+    color: colors.pinkDeep,
   },
   errorRetry: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
     color: colors.ink,
   },
   nearbyBody: {
@@ -604,10 +606,12 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     backgroundColor: colors.surfaceAlt,
     padding: spacing.sm,
+    borderRadius: radii.lg,
   },
   nearbyPhoto: {
     width: 84,
     height: 84,
+    borderRadius: radii.md,
     backgroundColor: colors.inkMuted,
   },
   nearbyInfo: {
@@ -633,24 +637,25 @@ const styles = StyleSheet.create({
   nearbyError: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.coral,
+    color: colors.pinkDeep,
   },
   nearbyPrimary: {
-    backgroundColor: colors.mango,
+    backgroundColor: colors.mandarin,
     padding: spacing.md,
     alignItems: 'center',
+    borderRadius: radii.pill,
   },
   nearbyPrimaryText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    textTransform: 'uppercase',
     color: colors.ink,
   },
   nearbySecondary: {
     borderWidth: 1,
-    borderColor: colors.ink,
+    borderColor: colors.line,
     padding: spacing.md,
     alignItems: 'center',
+    borderRadius: radii.pill,
   },
   nearbySecondaryText: {
     fontFamily: fonts.bodyBold,
@@ -666,38 +671,39 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.08)',
   },
   cancel: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.sm,
-    textTransform: 'uppercase',
     color: colors.inkSoft,
   },
   headerTitle: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.sm,
-    color: colors.inkSoft,
+    fontFamily: fonts.displayBold,
+    fontSize: fontSizes.lg,
+    color: colors.ink,
   },
   post: {
-    fontFamily: fonts.monoSemiBold,
+    fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    textTransform: 'uppercase',
-    backgroundColor: colors.mango,
-    color: colors.ink,
+    backgroundColor: colors.cobalt,
+    color: colors.surface,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingVertical: spacing.sm,
+    borderRadius: radii.pill,
   },
   postDisabled: {
     backgroundColor: colors.inkMuted,
     color: colors.inkSoft,
   },
   camera: {
+    marginHorizontal: spacing.md,
     backgroundColor: colors.ink,
+    borderRadius: radii.xl,
+    overflow: 'hidden',
+    ...shadows.float,
   },
   preview: {
-    height: 260,
+    height: 340,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -705,7 +711,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 28,
     height: 28,
-    borderColor: colors.mango,
+    borderColor: colors.lime,
   },
   cornerTopLeft: {
     top: 14,
@@ -741,6 +747,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.55)',
     paddingHorizontal: spacing.sm,
     paddingVertical: 6,
+    borderRadius: radii.pill,
   },
   gpsDot: {
     width: 8,
@@ -749,10 +756,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.inkSoft,
   },
   gpsDotOk: {
-    backgroundColor: colors.mint,
+    backgroundColor: colors.lime,
   },
   gpsChipText: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.xs,
     color: colors.bg,
   },
@@ -761,14 +768,14 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   hint: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.sm,
     color: colors.inkMuted,
   },
   hintRequired: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.sm,
-    color: colors.coral,
+    color: colors.pink,
   },
   controls: {
     flexDirection: 'row',
@@ -777,13 +784,12 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   controlLabel: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
     color: colors.inkMuted,
   },
   controlLabelActive: {
-    color: colors.mango,
+    color: colors.lime,
   },
   shutterOuter: {
     width: 64,
@@ -798,30 +804,32 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: colors.mango,
+    backgroundColor: colors.cobalt,
   },
   retakeButton: {
     borderWidth: 1,
-    borderColor: colors.mango,
+    borderColor: colors.mandarin,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    borderRadius: radii.pill,
   },
   pressed: {
     opacity: 0.7,
   },
   retakeText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.mango,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.mandarin,
   },
   geo: {
     flexDirection: 'row',
     gap: spacing.sm,
     alignItems: 'flex-start',
     padding: spacing.md,
-    paddingHorizontal: spacing.lg,
-    backgroundColor: colors.surfaceAlt,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    borderRadius: radii.md,
+    backgroundColor: colors.limeSoft,
   },
   geoDot: {
     width: 8,
@@ -831,12 +839,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.inkSoft,
   },
   geoDotOk: {
-    backgroundColor: colors.mint,
+    backgroundColor: colors.lime,
   },
   geoText: {
-    flex: 1,
-    fontFamily: fonts.mono,
+    fontFamily: fonts.body,
     fontSize: fontSizes.xs,
+    color: colors.ink,
+  },
+  geoCopy: {
+    flex: 1,
+    gap: 2,
+  },
+  geoDetail: {
+    fontFamily: fonts.body,
+    fontSize: fontSizes.sm,
     color: colors.ink,
   },
   form: {
@@ -844,13 +860,13 @@ const styles = StyleSheet.create({
   },
   formContent: {
     padding: spacing.lg,
+    paddingBottom: spacing.xxl,
   },
   lbl: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.inkSoft,
-    marginBottom: spacing.sm,
+    fontFamily: fonts.displayBold,
+    fontSize: fontSizes.lg,
+    color: colors.ink,
+    marginBottom: spacing.md,
   },
   categoryGrid: {
     flexDirection: 'row',
@@ -867,37 +883,37 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingVertical: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.ink,
+    borderRadius: radii.pill,
+    backgroundColor: colors.surfaceAlt,
   },
   severitySelected: {
-    backgroundColor: colors.mango,
+    backgroundColor: colors.mandarin,
   },
   severityHigh: {
-    backgroundColor: colors.coral,
-    borderColor: colors.coral,
+    backgroundColor: colors.pink,
   },
   severityText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
     color: colors.ink,
   },
   severityTextOnDark: {
-    color: colors.bg,
+    color: colors.ink,
   },
   textarea: {
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.15)',
-    padding: spacing.sm,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
+    padding: spacing.md,
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
     color: colors.ink,
-    height: 72,
+    minHeight: 96,
     textAlignVertical: 'top',
+    ...shadows.card,
   },
   notesCount: {
     alignSelf: 'flex-end',
-    fontFamily: fonts.mono,
+    fontFamily: fonts.body,
     fontSize: fontSizes.xs,
     color: colors.inkSoft,
     marginTop: spacing.xs,
