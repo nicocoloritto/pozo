@@ -42,8 +42,7 @@ de su área.
     vecino y del municipio, y el circuito de estados.
 - **Diseño funcional:** [`docs/diseno-funcional.md`](docs/diseno-funcional.md): roles, estados, reglas
   de negocio y comportamiento de cada pantalla.
-- **Fotos de los reclamos de prueba:** autor y fuente de cada una en
-  [`mobile/assets/reclamos/CREDITOS.md`](mobile/assets/reclamos/CREDITOS.md) (Unsplash y/o Pexels).
+
 
 ## Funcionalidades
 
