@@ -3,7 +3,7 @@
 > Reclamos urbanos hiperlocales: fotografiás el problema de tu cuadra, tus vecinos lo
 > confirman y el municipio lo gestiona como un expediente.
 
-TPO de Apps Móviles, UCA. App móvil hecha con Expo y React Native.
+TP de Apps Móviles, UCA. App móvil hecha con Expo y React Native.
 
 ## ¿Qué es Pozo?
 
