@@ -1,15 +1,31 @@
-// Single source of truth for colors. Must match the palette in the mockup and the PDF.
+// Single source of truth for colors. Each accent comes in three tones: the base (fills,
+// icons), `Soft` (pill and tile backgrounds) and `Deep` (text on top of the Soft tone,
+// which keeps contrast readable on small labels).
 export const colors = {
-  asphalt: '#1C1B1A',
-  asphalt2: '#26241F',
-  concrete: '#8A857D',
-  concreteLight: '#C9C4B8',
-  chalk: '#EDEAE2',
-  chalk2: '#E2DDCF',
-  yellow: '#E8B23D',
-  rust: '#C0472B',
-  green: '#4C7A5E',
-  blue: '#2E4C59',
+  ink: '#211C17',
+  inkRaised: '#2E2822',
+  inkSoft: '#6B6259',
+  inkMuted: '#A69D92',
+  line: '#EDE5D8',
+  bg: '#FBF7F0',
+  surface: '#FFFFFF',
+  surfaceAlt: '#F4EDE2',
+
+  mango: '#FFB21E',
+  mangoDeep: '#9A5F00',
+  mangoSoft: '#FFF1D2',
+  mint: '#2DBE8C',
+  mintDeep: '#13704F',
+  mintSoft: '#DCF6EB',
+  coral: '#FF6A55',
+  coralDeep: '#B8321F',
+  coralSoft: '#FFE4DF',
+  lavender: '#8A7CF8',
+  lavenderDeep: '#4B3BC4',
+  lavenderSoft: '#ECE9FF',
+  sky: '#3E9BF0',
+  skyDeep: '#1A5C9F',
+  skySoft: '#E0EFFD',
 } as const;
 
 export type ColorName = keyof typeof colors;

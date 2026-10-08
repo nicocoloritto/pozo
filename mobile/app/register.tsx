@@ -170,7 +170,7 @@ export default function Register() {
                 setFormError(null);
               }}
               placeholder="tu@email.com"
-              placeholderTextColor={colors.concrete}
+              placeholderTextColor={colors.inkSoft}
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
@@ -187,7 +187,7 @@ export default function Register() {
                 setFormError(null);
               }}
               placeholder={`Mínimo ${MIN_PASSWORD_LENGTH} caracteres`}
-              placeholderTextColor={colors.concrete}
+              placeholderTextColor={colors.inkSoft}
               secureTextEntry
               autoCapitalize="none"
             />
@@ -222,7 +222,7 @@ export default function Register() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
   },
   flex: {
     flex: 1,
@@ -246,12 +246,12 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: fontSizes.sm,
     textTransform: 'uppercase',
-    color: colors.concreteLight,
+    color: colors.inkMuted,
   },
   headerTitle: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.sm,
-    color: colors.chalk,
+    color: colors.bg,
   },
   camera: {
     flex: 1,
@@ -269,22 +269,22 @@ const styles = StyleSheet.create({
   hint: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.sm,
-    color: colors.concreteLight,
+    color: colors.inkMuted,
   },
   errorBox: {
     gap: spacing.sm,
     padding: spacing.lg,
-    backgroundColor: colors.asphalt2,
+    backgroundColor: colors.inkRaised,
   },
   errorText: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.rust,
+    color: colors.coral,
   },
   retryButton: {
     alignSelf: 'flex-start',
     borderWidth: 1,
-    borderColor: colors.yellow,
+    borderColor: colors.mango,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.yellow,
+    color: colors.mango,
   },
   content: {
     flex: 1,
@@ -305,18 +305,18 @@ const styles = StyleSheet.create({
   dniBox: {
     gap: spacing.xs,
     padding: spacing.md,
-    backgroundColor: colors.asphalt2,
+    backgroundColor: colors.inkRaised,
     marginBottom: spacing.sm,
   },
   dniRow: {
     fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.md,
-    color: colors.chalk,
+    color: colors.bg,
   },
   dniRowSmall: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concreteLight,
+    color: colors.inkMuted,
   },
   field: {
     gap: spacing.xs,
@@ -325,15 +325,15 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concreteLight,
+    color: colors.inkMuted,
   },
   input: {
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   formErrorBox: {
     gap: spacing.xs,
@@ -341,28 +341,28 @@ const styles = StyleSheet.create({
   formErrorText: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.rust,
+    color: colors.coral,
   },
   link: {
     fontFamily: fonts.bodySemiBold,
-    color: colors.yellow,
+    color: colors.mango,
   },
   button: {
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.mango,
     padding: spacing.lg,
     alignItems: 'center',
     marginTop: spacing.sm,
   },
   buttonDisabled: {
-    backgroundColor: colors.asphalt2,
+    backgroundColor: colors.inkRaised,
   },
   buttonText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
     textTransform: 'uppercase',
-    color: colors.asphalt,
+    color: colors.ink,
   },
   buttonTextDisabled: {
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
 });

@@ -37,6 +37,6 @@ export default function Skeleton({ width = '100%', height = 16, style }: Skeleto
 
 const styles = StyleSheet.create({
   base: {
-    backgroundColor: colors.concreteLight,
+    backgroundColor: colors.inkMuted,
   },
 });

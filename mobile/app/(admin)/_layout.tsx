@@ -26,8 +26,8 @@ export default function AdminTabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.yellow,
-        tabBarInactiveTintColor: colors.concrete,
+        tabBarActiveTintColor: colors.mango,
+        tabBarInactiveTintColor: colors.inkSoft,
         tabBarStyle: styles.tabBar,
         tabBarLabelStyle: styles.tabBarLabel,
       }}
@@ -70,8 +70,8 @@ export default function AdminTabsLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: colors.asphalt,
-    borderTopColor: colors.asphalt2,
+    backgroundColor: colors.ink,
+    borderTopColor: colors.inkRaised,
     height: 64,
     paddingTop: spacing.xs,
   },
@@ -91,6 +91,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   tabDotActive: {
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.mango,
   },
 });

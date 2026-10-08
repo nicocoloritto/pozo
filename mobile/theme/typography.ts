@@ -1,7 +1,8 @@
 // Single source of truth for typography. With custom fonts each weight is its own
 // family: never pair these with a `fontWeight` style.
 export const fonts = {
-  display: 'ArchivoBlack_400Regular',
+  display: 'BricolageGrotesque_800ExtraBold',
+  displayBold: 'BricolageGrotesque_700Bold',
   body: 'Inter_400Regular',
   bodyMedium: 'Inter_500Medium',
   bodySemiBold: 'Inter_600SemiBold',
@@ -13,13 +14,13 @@ export const fonts = {
 } as const;
 
 export const fontSizes = {
-  xs: 10,
+  xs: 11,
   sm: 13,
   md: 16,
   lg: 20,
   xl: 24,
   xxl: 32,
-  display: 44,
+  display: 40,
 } as const;
 
 export type FontName = keyof typeof fonts;

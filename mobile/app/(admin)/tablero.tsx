@@ -109,7 +109,7 @@ export default function TableroScreen() {
 
         <Text style={styles.sectionTitle}>Reclamos por área</Text>
         <View style={styles.card}>
-          <BarChart data={porAreaData} color={colors.yellow} />
+          <BarChart data={porAreaData} color={colors.mango} />
         </View>
 
         <Text style={styles.sectionTitle}>Reclamos por estado</Text>
@@ -132,7 +132,7 @@ export default function TableroScreen() {
 
         <Text style={styles.sectionTitle}>Evolución últimos 6 meses (CABA)</Text>
         <View style={styles.card}>
-          <BarChart data={evolucion} color={colors.blue} />
+          <BarChart data={evolucion} color={colors.sky} />
         </View>
 
         <Text style={styles.sectionTitle}>Ranking de barrios por % de resolución</Text>
@@ -164,7 +164,7 @@ function StatCard({ label, value, resaltar }: { label: string; value: string; re
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   scrollContent: {
     padding: spacing.lg,
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xl,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   statGrid: {
     flexDirection: 'row',
@@ -188,32 +188,32 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   statCardResaltado: {
-    backgroundColor: colors.rust,
-    borderColor: colors.rust,
+    backgroundColor: colors.coral,
+    borderColor: colors.coral,
   },
   statLabel: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
     marginBottom: 4,
   },
   statLabelResaltado: {
-    color: colors.chalk,
+    color: colors.bg,
   },
   statValue: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xl,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   statValueResaltado: {
-    color: colors.chalk,
+    color: colors.bg,
   },
   sectionTitle: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
     marginTop: spacing.sm,
   },
   card: {
@@ -234,13 +234,13 @@ const styles = StyleSheet.create({
   estadoLabel: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.asphalt,
+    color: colors.ink,
     width: 130,
   },
   estadoBarTrack: {
     flex: 1,
     height: 8,
-    backgroundColor: colors.chalk2,
+    backgroundColor: colors.surfaceAlt,
     overflow: 'hidden',
   },
   estadoBarFill: {
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   estadoCantidad: {
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
-    color: colors.asphalt,
+    color: colors.ink,
     width: 28,
     textAlign: 'right',
   },
@@ -264,18 +264,18 @@ const styles = StyleSheet.create({
   rankingPuesto: {
     fontFamily: fonts.display,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
     width: 32,
   },
   rankingNombre: {
     flex: 1,
     fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   rankingPorcentaje: {
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.sm,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
 });

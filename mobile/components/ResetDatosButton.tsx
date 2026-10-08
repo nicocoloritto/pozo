@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.lg,
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: colors.concrete,
+    borderColor: colors.inkSoft,
     padding: spacing.md,
     alignItems: 'center',
   },
@@ -69,6 +69,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
 });

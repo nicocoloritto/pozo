@@ -27,7 +27,7 @@ export default function Published() {
       <View style={styles.stampWrap}>
         <RubberStamp
           size={190}
-          color={colors.yellow}
+          color={colors.mango}
           curvedText="EXPEDIENTE · GENERADO ·"
           centerLines={['INGRESADO', today]}
         />
@@ -51,7 +51,7 @@ export default function Published() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
     padding: spacing.xl,
     justifyContent: 'center',
     alignItems: 'center',
@@ -63,25 +63,25 @@ const styles = StyleSheet.create({
   caseNumber: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xl,
-    color: colors.chalk,
+    color: colors.bg,
     textAlign: 'center',
   },
   address: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.sm,
-    color: colors.concreteLight,
+    color: colors.inkMuted,
     textAlign: 'center',
   },
   coords: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
     textAlign: 'center',
     marginBottom: spacing.lg,
   },
   button: {
     alignSelf: 'stretch',
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.mango,
     padding: spacing.lg,
     alignItems: 'center',
   },
@@ -92,12 +92,12 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
     textTransform: 'uppercase',
-    color: colors.asphalt,
+    color: colors.ink,
   },
   footer: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
     textAlign: 'center',
     marginTop: spacing.md,
   },

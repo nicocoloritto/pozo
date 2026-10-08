@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   opciones: {
     flexDirection: 'row',
@@ -145,20 +145,20 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderWidth: 1,
-    borderColor: colors.asphalt,
+    borderColor: colors.ink,
     paddingHorizontal: spacing.sm,
     paddingVertical: 6,
   },
   chipActive: {
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
   },
   chipText: {
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   chipTextActive: {
-    color: colors.chalk,
+    color: colors.bg,
   },
   pressed: {
     opacity: 0.7,
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   clearButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: colors.rust,
+    borderColor: colors.coral,
     padding: spacing.md,
     alignItems: 'center',
   },
@@ -174,11 +174,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
     textTransform: 'uppercase',
-    color: colors.rust,
+    color: colors.coral,
   },
   applyButton: {
     flex: 1,
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
     padding: spacing.md,
     alignItems: 'center',
   },
@@ -186,6 +186,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
     textTransform: 'uppercase',
-    color: colors.chalk,
+    color: colors.bg,
   },
 });

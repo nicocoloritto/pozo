@@ -241,10 +241,10 @@ export default function ReclamoDetail() {
             size={110}
             color={
               reclamo.status === 'Resuelto'
-                ? colors.green
+                ? colors.mint
                 : fueRechazado
-                  ? colors.asphalt
-                  : colors.yellow
+                  ? colors.ink
+                  : colors.mango
             }
             curvedText="RECLAMO · VECINAL ·"
             centerLines={[statusLabels[reclamo.status].toUpperCase(), formatDateTime(reclamo.createdAt).split(',')[0]]}
@@ -264,7 +264,7 @@ export default function ReclamoDetail() {
                 <View
                   style={[
                     styles.timelineDot,
-                    { backgroundColor: yaPaso ? statusColors[estado] : colors.concreteLight },
+                    { backgroundColor: yaPaso ? statusColors[estado] : colors.inkMuted },
                     esActual && styles.timelineDotActual,
                   ]}
                 />
@@ -298,7 +298,7 @@ export default function ReclamoDetail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   loadingContent: {
     padding: spacing.lg,
@@ -313,11 +313,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   photoWrap: {
     height: 190,
-    backgroundColor: colors.asphalt2,
+    backgroundColor: colors.inkRaised,
   },
   photo: {
     width: '100%',
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 10,
     left: 14,
-    color: colors.chalk,
+    color: colors.bg,
     backgroundColor: 'rgba(0,0,0,0.45)',
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
@@ -341,19 +341,19 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.rust,
+    color: colors.coral,
     marginBottom: spacing.xs,
   },
   title: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xl,
-    color: colors.asphalt,
+    color: colors.ink,
     marginBottom: 4,
   },
   address: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concrete,
+    color: colors.inkSoft,
     marginBottom: spacing.lg,
   },
   statGrid: {
@@ -371,13 +371,13 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: 9,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
     marginBottom: 4,
   },
   statValue: {
     fontFamily: fonts.display,
     fontSize: fontSizes.lg,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   miniMapWrap: {
     marginBottom: spacing.lg,
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
   metaBox: {
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: colors.concrete,
+    borderColor: colors.inkSoft,
     padding: spacing.md,
     marginBottom: spacing.lg,
   },
@@ -397,15 +397,15 @@ const styles = StyleSheet.create({
   metaKey: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   metaValue: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   rechazadoBox: {
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
     padding: spacing.md,
     gap: 4,
     marginBottom: spacing.lg,
@@ -414,12 +414,12 @@ const styles = StyleSheet.create({
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.chalk,
+    color: colors.bg,
   },
   rechazadoTexto: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concreteLight,
+    color: colors.inkMuted,
   },
   beforeAfterRow: {
     flexDirection: 'row',
@@ -433,14 +433,14 @@ const styles = StyleSheet.create({
   beforeAfterPhoto: {
     width: '100%',
     height: 120,
-    backgroundColor: colors.asphalt2,
+    backgroundColor: colors.inkRaised,
   },
   beforeAfterLabel: {
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
     textAlign: 'center',
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   notasBox: {
     gap: spacing.sm,
@@ -448,19 +448,19 @@ const styles = StyleSheet.create({
   },
   notaRow: {
     borderLeftWidth: 2,
-    borderLeftColor: colors.yellow,
+    borderLeftColor: colors.mango,
     paddingLeft: spacing.sm,
     gap: 2,
   },
   notaFecha: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   notaTexto: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   stampRow: {
     flexDirection: 'row',
@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
     marginBottom: spacing.sm,
   },
   timeline: {
@@ -492,7 +492,7 @@ const styles = StyleSheet.create({
   },
   timelineDotActual: {
     borderWidth: 2,
-    borderColor: colors.asphalt,
+    borderColor: colors.ink,
   },
   timelineTextWrap: {
     flex: 1,
@@ -500,10 +500,10 @@ const styles = StyleSheet.create({
   timelineLabel: {
     fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   timelineLabelFuturo: {
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   timelineLabelActual: {
     fontFamily: fonts.bodyBold,
@@ -511,6 +511,6 @@ const styles = StyleSheet.create({
   timelineFecha: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
 });

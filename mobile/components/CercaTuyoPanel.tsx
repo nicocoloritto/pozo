@@ -78,7 +78,7 @@ export default function CercaTuyoPanel({ reclamos, onOpenReclamo }: Props) {
 const styles = StyleSheet.create({
   container: {
     maxHeight: 260,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.12)',
   },
@@ -92,18 +92,18 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.display,
     fontSize: fontSizes.md,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   subtitle: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   hint: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
     padding: spacing.lg,
   },
   list: {

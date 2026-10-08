@@ -159,11 +159,11 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   filterScroll: {
     flexGrow: 0,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   filterRow: {
     gap: spacing.xs,
@@ -178,30 +178,30 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderWidth: 1,
-    borderColor: colors.asphalt,
+    borderColor: colors.ink,
     paddingHorizontal: spacing.sm,
     paddingVertical: 6,
   },
   chipActive: {
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
   },
   chipText: {
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.asphalt,
+    color: colors.ink,
   },
   chipTextActive: {
-    color: colors.chalk,
+    color: colors.bg,
   },
   aviso: {
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
   },
   avisoText: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.chalk,
+    color: colors.bg,
   },
 });

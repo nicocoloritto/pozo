@@ -105,7 +105,7 @@ export default function MineScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.concrete} />
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.inkSoft} />
           }
           ListEmptyComponent={
             <EmptyState
@@ -131,7 +131,7 @@ export default function MineScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   header: {
     padding: spacing.lg,
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xl,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   countersRow: {
     flexDirection: 'row',
@@ -150,21 +150,21 @@ const styles = StyleSheet.create({
   },
   counterChip: {
     borderWidth: 1,
-    borderColor: colors.asphalt,
+    borderColor: colors.ink,
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
   },
   counterChipActive: {
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
   },
   counterChipText: {
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.asphalt,
+    color: colors.ink,
   },
   counterChipTextActive: {
-    color: colors.chalk,
+    color: colors.bg,
   },
   list: {
     paddingHorizontal: spacing.lg,

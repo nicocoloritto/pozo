@@ -23,7 +23,7 @@ export default function ReclamoMarker({ reclamo, size = 34 }: ReclamoMarkerProps
         ]}
       >
         <View style={{ transform: [{ rotate: '-45deg' }] }}>
-          <Ionicons name={categoryIcons[reclamo.category]} size={size * 0.5} color={colors.asphalt} />
+          <Ionicons name={categoryIcons[reclamo.category]} size={size * 0.5} color={colors.ink} />
         </View>
       </View>
     </View>
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: colors.chalk,
+    borderColor: colors.bg,
     transform: [{ rotate: '45deg' }],
   },
 });

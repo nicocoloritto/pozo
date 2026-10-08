@@ -34,7 +34,7 @@ export default function VerificacionReclamo({ reclamo, resumen, esAutor, puedeVo
           accessibilityLabel={`Sigue ahí, ${sigue} ${sigue === 1 ? 'voto' : 'votos'}${miVoto === 'sigue' ? ', es tu voto' : ''}`}
           style={({ pressed }) => [
             styles.button,
-            miVoto === 'sigue' && { backgroundColor: colors.yellow, borderColor: colors.yellow },
+            miVoto === 'sigue' && { backgroundColor: colors.mango, borderColor: colors.mango },
             sigueDeshabilitado && styles.buttonDisabled,
             pressed && !sigueDeshabilitado && styles.pressed,
           ]}
@@ -42,7 +42,7 @@ export default function VerificacionReclamo({ reclamo, resumen, esAutor, puedeVo
           <Ionicons
             name={miVoto === 'sigue' ? 'thumbs-up' : 'thumbs-up-outline'}
             size={22}
-            color={miVoto === 'sigue' ? colors.asphalt : colors.yellow}
+            color={miVoto === 'sigue' ? colors.ink : colors.mango}
           />
           <Text style={styles.buttonLabel}>Sigue ahí</Text>
           <Text style={styles.count}>{sigue}</Text>
@@ -55,7 +55,7 @@ export default function VerificacionReclamo({ reclamo, resumen, esAutor, puedeVo
           accessibilityLabel={`Ya no está, ${yaNoEsta} ${yaNoEsta === 1 ? 'voto' : 'votos'}${miVoto === 'yaNoEsta' ? ', es tu voto' : ''}`}
           style={({ pressed }) => [
             styles.button,
-            miVoto === 'yaNoEsta' && { backgroundColor: colors.green, borderColor: colors.green },
+            miVoto === 'yaNoEsta' && { backgroundColor: colors.mint, borderColor: colors.mint },
             yaNoEstaDeshabilitado && styles.buttonDisabled,
             pressed && !yaNoEstaDeshabilitado && styles.pressed,
           ]}
@@ -63,10 +63,10 @@ export default function VerificacionReclamo({ reclamo, resumen, esAutor, puedeVo
           <Ionicons
             name={miVoto === 'yaNoEsta' ? 'thumbs-down' : 'thumbs-down-outline'}
             size={22}
-            color={miVoto === 'yaNoEsta' ? colors.chalk : colors.green}
+            color={miVoto === 'yaNoEsta' ? colors.bg : colors.mint}
           />
-          <Text style={[styles.buttonLabel, miVoto === 'yaNoEsta' && { color: colors.chalk }]}>Ya no está</Text>
-          <Text style={[styles.count, miVoto === 'yaNoEsta' && { color: colors.chalk }]}>{yaNoEsta}</Text>
+          <Text style={[styles.buttonLabel, miVoto === 'yaNoEsta' && { color: colors.bg }]}>Ya no está</Text>
+          <Text style={[styles.count, miVoto === 'yaNoEsta' && { color: colors.bg }]}>{yaNoEsta}</Text>
         </Pressable>
       </View>
 
@@ -83,7 +83,7 @@ export default function VerificacionReclamo({ reclamo, resumen, esAutor, puedeVo
 
       {posiblementeResuelto && (
         <View style={styles.aviso}>
-          <Ionicons name="information-circle" size={18} color={colors.green} />
+          <Ionicons name="information-circle" size={18} color={colors.mint} />
           <Text style={styles.avisoText}>Varios vecinos dicen que ya no está. El municipio lo va a revisar.</Text>
         </View>
       )}
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   buttons: {
     flexDirection: 'row',
@@ -127,40 +127,40 @@ const styles = StyleSheet.create({
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.asphalt,
+    color: colors.ink,
   },
   count: {
     fontFamily: fonts.display,
     fontSize: fontSizes.lg,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   hint: {
     fontFamily: fonts.body,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   error: {
     fontFamily: fonts.body,
     fontSize: fontSizes.xs,
-    color: colors.rust,
+    color: colors.coral,
   },
   ultimo: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   aviso: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
     borderLeftWidth: 3,
-    borderLeftColor: colors.green,
+    borderLeftColor: colors.mint,
     paddingLeft: spacing.sm,
   },
   avisoText: {
     flex: 1,
     fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
 });

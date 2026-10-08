@@ -341,12 +341,12 @@ export default function ReclamosMap({
                   <ReclamoMarker reclamo={reclamo} />
                   {vencido > 0 && (
                     <View style={[styles.badge, styles.badgeVencido]}>
-                      <Ionicons name="alarm" size={11} color={colors.chalk} />
+                      <Ionicons name="alarm" size={11} color={colors.bg} />
                     </View>
                   )}
                   {peligroso > 0 && (
                     <View style={[styles.badge, styles.badgePeligroso]}>
-                      <Ionicons name="warning" size={11} color={colors.asphalt} />
+                      <Ionicons name="warning" size={11} color={colors.ink} />
                     </View>
                   )}
                 </View>
@@ -361,7 +361,7 @@ export default function ReclamosMap({
           onPress={handleRecenter}
           style={({ pressed }) => [styles.locateButton, pressed && styles.pressed]}
         >
-          <Ionicons name="locate" size={20} color={colors.asphalt} />
+          <Ionicons name="locate" size={20} color={colors.ink} />
         </Pressable>
 
         {locationDenied && (
@@ -393,7 +393,7 @@ export default function ReclamosMap({
           <View style={styles.listHeader}>
             <Text style={styles.listTitle}>{tarjeta.reclamos.length} reclamos en este punto</Text>
             <Pressable onPress={() => setTarjeta(null)} hitSlop={10} accessibilityRole="button" accessibilityLabel="Cerrar lista">
-              <Ionicons name="close" size={20} color={colors.asphalt} />
+              <Ionicons name="close" size={20} color={colors.ink} />
             </Pressable>
           </View>
           <ScrollView style={styles.listScroll}>
@@ -430,7 +430,7 @@ function FilaReclamo({ reclamo }: { reclamo: Reclamo }) {
         </Text>
         <StatusStamp status={reclamo.status} />
       </View>
-      <Ionicons name="chevron-forward" size={20} color={colors.concrete} />
+      <Ionicons name="chevron-forward" size={20} color={colors.inkSoft} />
     </>
   );
 }
@@ -443,7 +443,7 @@ function ClusterBubble({ count, vencido, peligroso }: { count: number; vencido: 
       </View>
       {peligroso && (
         <View style={[styles.badge, styles.badgePeligroso]}>
-          <Ionicons name="warning" size={11} color={colors.asphalt} />
+          <Ionicons name="warning" size={11} color={colors.ink} />
         </View>
       )}
     </View>
@@ -516,7 +516,7 @@ const ANCLA_CENTRO = { x: 0.5, y: 0.5 };
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   mapWrap: {
     flex: 1,
@@ -535,38 +535,38 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 9,
     borderWidth: 1.5,
-    borderColor: colors.chalk,
+    borderColor: colors.bg,
     alignItems: 'center',
     justifyContent: 'center',
   },
   badgeVencido: {
     top: 0,
     right: 0,
-    backgroundColor: colors.rust,
+    backgroundColor: colors.coral,
   },
   badgePeligroso: {
     top: 0,
     left: 0,
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.mango,
   },
   cluster: {
     minWidth: 40,
     height: 40,
     borderRadius: 20,
     paddingHorizontal: 6,
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
     borderWidth: 3,
-    borderColor: colors.yellow,
+    borderColor: colors.mango,
     alignItems: 'center',
     justifyContent: 'center',
   },
   clusterVencido: {
-    borderColor: colors.rust,
+    borderColor: colors.coral,
   },
   clusterText: {
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.sm,
-    color: colors.chalk,
+    color: colors.bg,
   },
   locateButton: {
     position: 'absolute',
@@ -575,10 +575,10 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.asphalt,
+    shadowColor: colors.ink,
     shadowOpacity: 0.2,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
@@ -598,7 +598,7 @@ const styles = StyleSheet.create({
   locationNoticeText: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.chalk,
+    color: colors.bg,
     textAlign: 'center',
   },
   loadingOverlay: {
@@ -612,14 +612,14 @@ const styles = StyleSheet.create({
   loadingText: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.chalk,
+    color: colors.bg,
   },
   selectedCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     padding: spacing.md,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.08)',
   },
@@ -636,15 +636,15 @@ const styles = StyleSheet.create({
   selectedTitle: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.md,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   selectedAddress: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   listCard: {
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.08)',
     maxHeight: 280,
@@ -661,7 +661,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   listScroll: {
     flexGrow: 0,

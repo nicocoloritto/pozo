@@ -45,8 +45,8 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.yellow,
-        tabBarInactiveTintColor: colors.concrete,
+        tabBarActiveTintColor: colors.mango,
+        tabBarInactiveTintColor: colors.inkSoft,
         tabBarStyle: styles.tabBar,
         tabBarLabelStyle: styles.tabBarLabel,
       }}
@@ -95,8 +95,8 @@ export default function TabsLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: colors.asphalt,
-    borderTopColor: colors.asphalt2,
+    backgroundColor: colors.ink,
+    borderTopColor: colors.inkRaised,
     height: 64,
     paddingTop: spacing.xs,
   },
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   tabDotActive: {
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.mango,
   },
   fabSlot: {
     flex: 1,
@@ -128,8 +128,8 @@ const styles = StyleSheet.create({
     marginTop: -14,
     borderRadius: 22,
     borderWidth: 4,
-    borderColor: colors.chalk,
-    backgroundColor: colors.rust,
+    borderColor: colors.bg,
+    backgroundColor: colors.coral,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -139,6 +139,6 @@ const styles = StyleSheet.create({
   fabText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.lg,
-    color: colors.chalk,
+    color: colors.bg,
   },
 });

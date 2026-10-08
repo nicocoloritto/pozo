@@ -17,7 +17,7 @@ type BarChartProps = {
 
 // Gráfico de barras simple con react-native-svg (sin librerías de charts): usado para
 // reclamos por categoría y la evolución mensual en Estadísticas.
-export default function BarChart({ data, color = colors.yellow, height = 140 }: BarChartProps) {
+export default function BarChart({ data, color = colors.mango, height = 140 }: BarChartProps) {
   const [width, setWidth] = useState(0);
 
   function handleLayout(event: LayoutChangeEvent) {
@@ -63,6 +63,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: 9,
     textAlign: 'center',
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
 });

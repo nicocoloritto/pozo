@@ -62,19 +62,19 @@ export default function PerfilAdminScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   header: {
     alignItems: 'center',
     gap: spacing.xs,
     padding: spacing.xl,
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
   },
   avatar: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.mango,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.sm,
@@ -82,17 +82,17 @@ const styles = StyleSheet.create({
   avatarText: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xl,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   nombre: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.lg,
-    color: colors.chalk,
+    color: colors.bg,
   },
   email: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concreteLight,
+    color: colors.inkMuted,
   },
   body: {
     flex: 1,
@@ -102,13 +102,13 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
     marginBottom: spacing.sm,
   },
   card: {
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: colors.concrete,
+    borderColor: colors.inkSoft,
   },
   dato: {
     flexDirection: 'row',
@@ -123,19 +123,19 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   datoValor: {
     fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
     flexShrink: 1,
     textAlign: 'right',
   },
   logoutButton: {
     margin: spacing.lg,
     borderWidth: 1,
-    borderColor: colors.rust,
+    borderColor: colors.coral,
     padding: spacing.md,
     alignItems: 'center',
   },
@@ -146,6 +146,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
     textTransform: 'uppercase',
-    color: colors.rust,
+    color: colors.coral,
   },
 });

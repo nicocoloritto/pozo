@@ -103,16 +103,16 @@ export default function BandejaScreen() {
           onPress={() => setFiltrosAbiertos(true)}
           style={[styles.filterButton, filtrosActivos && styles.filterButtonActive]}
         >
-          <Ionicons name="options-outline" size={18} color={filtrosActivos ? colors.chalk : colors.asphalt} />
+          <Ionicons name="options-outline" size={18} color={filtrosActivos ? colors.bg : colors.ink} />
         </Pressable>
       </View>
 
       <View style={styles.searchBox}>
-        <Ionicons name="search-outline" size={16} color={colors.concrete} />
+        <Ionicons name="search-outline" size={16} color={colors.inkSoft} />
         <TextInput
           style={styles.searchInput}
           placeholder="Buscar por dirección…"
-          placeholderTextColor={colors.concrete}
+          placeholderTextColor={colors.inkSoft}
           value={busqueda}
           onChangeText={setBusqueda}
         />
@@ -152,7 +152,7 @@ export default function BandejaScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.concrete} />
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.inkSoft} />
           }
           ListEmptyComponent={
             <EmptyState
@@ -231,7 +231,7 @@ function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => voi
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   header: {
     flexDirection: 'row',
@@ -243,19 +243,19 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xl,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   filterButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: colors.asphalt,
+    borderColor: colors.ink,
     alignItems: 'center',
     justifyContent: 'center',
   },
   filterButtonActive: {
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
   },
   searchBox: {
     flexDirection: 'row',
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     marginHorizontal: spacing.lg,
     marginTop: spacing.sm,
-    backgroundColor: colors.chalk2,
+    backgroundColor: colors.surfaceAlt,
     paddingHorizontal: spacing.sm,
     paddingVertical: 8,
   },
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   segments: {
     flexDirection: 'row',
@@ -285,19 +285,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: spacing.sm,
     borderWidth: 1,
-    borderColor: colors.asphalt,
+    borderColor: colors.ink,
   },
   segmentActive: {
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
   },
   segmentText: {
     fontFamily: fonts.monoSemiBold,
     fontSize: 10,
     textTransform: 'uppercase',
-    color: colors.asphalt,
+    color: colors.ink,
   },
   segmentTextActive: {
-    color: colors.chalk,
+    color: colors.bg,
   },
   list: {
     paddingHorizontal: spacing.lg,
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
   rowDays: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   rowBody: {
     flex: 1,
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   rowTitle: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.md,
-    color: colors.asphalt,
+    color: colors.ink,
     flexShrink: 1,
   },
   chips: {
@@ -344,24 +344,24 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   resueltoChip: {
-    backgroundColor: colors.green,
+    backgroundColor: colors.mint,
     paddingHorizontal: spacing.xs,
     paddingVertical: 2,
   },
   vencidoChip: {
-    backgroundColor: colors.rust,
+    backgroundColor: colors.coral,
     paddingHorizontal: spacing.xs,
     paddingVertical: 2,
   },
   vencidoChipText: {
     fontFamily: fonts.monoSemiBold,
     fontSize: 9,
-    color: colors.chalk,
+    color: colors.bg,
   },
   rowAddress: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   rowFooter: {
     flexDirection: 'row',
@@ -372,6 +372,6 @@ const styles = StyleSheet.create({
   rowMeta: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
 });

@@ -69,7 +69,7 @@ export default function Login() {
                 setError(null);
               }}
               placeholder="tu@email.com"
-              placeholderTextColor={colors.concrete}
+              placeholderTextColor={colors.inkSoft}
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
@@ -86,7 +86,7 @@ export default function Login() {
                 setError(null);
               }}
               placeholder="••••••"
-              placeholderTextColor={colors.concrete}
+              placeholderTextColor={colors.inkSoft}
               secureTextEntry
               autoCapitalize="none"
             />
@@ -127,7 +127,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
   },
   flex: {
     flex: 1,
@@ -141,15 +141,15 @@ const styles = StyleSheet.create({
   logo: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xxl,
-    color: colors.chalk,
+    color: colors.bg,
   },
   logoDot: {
-    color: colors.yellow,
+    color: colors.mango,
   },
   headline: {
     fontFamily: fonts.body,
     fontSize: fontSizes.md,
-    color: colors.concreteLight,
+    color: colors.inkMuted,
     marginBottom: spacing.sm,
   },
   field: {
@@ -159,15 +159,15 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concreteLight,
+    color: colors.inkMuted,
   },
   input: {
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   errorBox: {
     gap: spacing.xs,
@@ -175,29 +175,29 @@ const styles = StyleSheet.create({
   errorText: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.rust,
+    color: colors.coral,
   },
   link: {
     fontFamily: fonts.bodySemiBold,
-    color: colors.yellow,
+    color: colors.mango,
   },
   button: {
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.mango,
     padding: spacing.lg,
     alignItems: 'center',
     marginTop: spacing.sm,
   },
   buttonDisabled: {
-    backgroundColor: colors.asphalt2,
+    backgroundColor: colors.inkRaised,
   },
   buttonText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
     textTransform: 'uppercase',
-    color: colors.asphalt,
+    color: colors.ink,
   },
   buttonTextDisabled: {
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   footer: {
     alignItems: 'center',
@@ -206,6 +206,6 @@ const styles = StyleSheet.create({
   footerText: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concreteLight,
+    color: colors.inkMuted,
   },
 });

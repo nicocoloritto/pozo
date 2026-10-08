@@ -33,17 +33,17 @@ const styles = StyleSheet.create({
   container: {
     padding: spacing.lg,
     gap: spacing.sm,
-    backgroundColor: colors.asphalt2,
+    backgroundColor: colors.inkRaised,
   },
   title: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.md,
-    color: colors.chalk,
+    color: colors.bg,
   },
   message: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concreteLight,
+    color: colors.inkMuted,
     lineHeight: 20,
   },
   actions: {
@@ -53,14 +53,14 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.mango,
     paddingVertical: spacing.sm,
     alignItems: 'center',
   },
   buttonOutline: {
     flex: 1,
     borderWidth: 1,
-    borderColor: colors.concrete,
+    borderColor: colors.inkSoft,
     paddingVertical: spacing.sm,
     alignItems: 'center',
   },
@@ -70,13 +70,13 @@ const styles = StyleSheet.create({
   buttonText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
     textTransform: 'uppercase',
   },
   buttonOutlineText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    color: colors.chalk,
+    color: colors.bg,
     textTransform: 'uppercase',
   },
 });

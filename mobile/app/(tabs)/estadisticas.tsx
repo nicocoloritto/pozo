@@ -141,7 +141,7 @@ export default function EstadisticasScreen() {
             </Text>
             <Text style={styles.barrioNombre}>{barrio?.nombre ?? 'Elegí un barrio'}</Text>
           </View>
-          <Ionicons name="chevron-expand-outline" size={20} color={colors.concrete} />
+          <Ionicons name="chevron-expand-outline" size={20} color={colors.inkSoft} />
         </Pressable>
 
         {cargandoEstadisticas || !estadisticas ? (
@@ -170,12 +170,12 @@ export default function EstadisticasScreen() {
 
             <Text style={styles.sectionTitle}>Reclamos por categoría</Text>
             <View style={styles.card}>
-              <BarChart data={categoriaData} color={colors.yellow} />
+              <BarChart data={categoriaData} color={colors.mango} />
             </View>
 
             <Text style={styles.sectionTitle}>Evolución últimos 6 meses</Text>
             <View style={styles.card}>
-              <BarChart data={evolucionData} color={colors.blue} />
+              <BarChart data={evolucionData} color={colors.sky} />
             </View>
 
             <Text style={styles.sectionTitle}>Distribución por estado</Text>
@@ -210,7 +210,7 @@ export default function EstadisticasScreen() {
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar barrio…"
-            placeholderTextColor={colors.concrete}
+            placeholderTextColor={colors.inkSoft}
             value={busqueda}
             onChangeText={setBusqueda}
             autoCapitalize="words"
@@ -247,7 +247,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   scrollContent: {
     padding: spacing.lg,
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xl,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   pressed: {
     opacity: 0.7,
@@ -266,20 +266,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.asphalt,
+    borderColor: colors.ink,
     padding: spacing.md,
   },
   barrioLabel: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
     marginBottom: 2,
   },
   barrioNombre: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.md,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   skeletonBlock: {
     gap: spacing.md,
@@ -300,37 +300,37 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
     marginBottom: 4,
   },
   statValue: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xl,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   rankingBox: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.mango,
     padding: spacing.md,
   },
   rankingBig: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xxl,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   rankingText: {
     flex: 1,
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   sectionTitle: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
     marginTop: spacing.sm,
   },
   card: {
@@ -351,13 +351,13 @@ const styles = StyleSheet.create({
   estadoLabel: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.asphalt,
+    color: colors.ink,
     width: 130,
   },
   estadoBarTrack: {
     flex: 1,
     height: 8,
-    backgroundColor: colors.chalk2,
+    backgroundColor: colors.surfaceAlt,
     overflow: 'hidden',
   },
   estadoBarFill: {
@@ -366,13 +366,13 @@ const styles = StyleSheet.create({
   estadoCantidad: {
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
-    color: colors.asphalt,
+    color: colors.ink,
     width: 28,
     textAlign: 'right',
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -383,17 +383,17 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.lg,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   searchInput: {
     marginHorizontal: spacing.lg,
     marginBottom: spacing.sm,
-    backgroundColor: colors.chalk2,
+    backgroundColor: colors.surfaceAlt,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   modalRow: {
     flexDirection: 'row',
@@ -406,11 +406,11 @@ const styles = StyleSheet.create({
   modalRowText: {
     fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   modalRowComuna: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
 });

@@ -94,20 +94,20 @@ export default function MapaAdminScreen() {
           onPress={() => setFiltrosAbiertos(true)}
           style={[styles.filterButton, filtrosActivos && styles.filterButtonActive]}
         >
-          <Ionicons name="options-outline" size={18} color={filtrosActivos ? colors.chalk : colors.asphalt} />
+          <Ionicons name="options-outline" size={18} color={filtrosActivos ? colors.bg : colors.ink} />
         </Pressable>
       </View>
 
       <View style={styles.legend}>
         <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: colors.rust }]}>
-            <Ionicons name="alarm" size={9} color={colors.chalk} />
+          <View style={[styles.legendDot, { backgroundColor: colors.coral }]}>
+            <Ionicons name="alarm" size={9} color={colors.bg} />
           </View>
           <Text style={styles.legendText}>Vencido</Text>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: colors.yellow }]}>
-            <Ionicons name="warning" size={9} color={colors.asphalt} />
+          <View style={[styles.legendDot, { backgroundColor: colors.mango }]}>
+            <Ionicons name="warning" size={9} color={colors.ink} />
           </View>
           <Text style={styles.legendText}>Peligroso</Text>
         </View>
@@ -141,7 +141,7 @@ export default function MapaAdminScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   header: {
     flexDirection: 'row',
@@ -154,24 +154,24 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xl,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   subtitle: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   filterButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: colors.asphalt,
+    borderColor: colors.ink,
     alignItems: 'center',
     justifyContent: 'center',
   },
   filterButtonActive: {
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
   },
   legend: {
     flexDirection: 'row',
@@ -194,16 +194,16 @@ const styles = StyleSheet.create({
   legendText: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   aviso: {
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
   },
   avisoText: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.chalk,
+    color: colors.bg,
   },
 });

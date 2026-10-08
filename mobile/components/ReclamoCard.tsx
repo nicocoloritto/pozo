@@ -47,11 +47,11 @@ export default function ReclamoCard({ reclamo, distanciaMetros, onPress }: Recla
         <View style={styles.footer}>
           <View style={styles.votes}>
             <View style={styles.vote}>
-              <Ionicons name="thumbs-up-outline" size={13} color={colors.concrete} />
+              <Ionicons name="thumbs-up-outline" size={13} color={colors.inkSoft} />
               <Text style={styles.voteText}>{reclamo.confirmaciones.length}</Text>
             </View>
             <View style={styles.vote}>
-              <Ionicons name="thumbs-down-outline" size={13} color={colors.concrete} />
+              <Ionicons name="thumbs-down-outline" size={13} color={colors.inkSoft} />
               <Text style={styles.voteText}>{reclamo.votosYaNoEsta?.length ?? 0}</Text>
             </View>
           </View>
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   photo: {
     width: 56,
     height: 56,
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
   },
   body: {
     flex: 1,
@@ -91,18 +91,18 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.md,
-    color: colors.asphalt,
+    color: colors.ink,
     flexShrink: 1,
   },
   days: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   address: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   footer: {
     flexDirection: 'row',
@@ -123,6 +123,6 @@ const styles = StyleSheet.create({
   voteText: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
 });

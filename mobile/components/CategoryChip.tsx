@@ -18,7 +18,7 @@ export default function CategoryChip({ category, selected = false, onPress }: Ca
       <Ionicons
         name={categoryIcons[category]}
         size={22}
-        color={selected ? colors.asphalt : colors.yellow}
+        color={selected ? colors.ink : colors.mango}
       />
     </View>
   );
@@ -53,16 +53,16 @@ const styles = StyleSheet.create({
   rombo: {
     width: 56,
     height: 56,
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
     borderWidth: 2,
-    borderColor: colors.yellow,
+    borderColor: colors.mango,
     alignItems: 'center',
     justifyContent: 'center',
     transform: [{ rotate: '45deg' }],
   },
   romboSelected: {
-    backgroundColor: colors.yellow,
-    borderColor: colors.yellow,
+    backgroundColor: colors.mango,
+    borderColor: colors.mango,
   },
   pressed: {
     opacity: 0.7,
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
     textAlign: 'center',
   },
 });

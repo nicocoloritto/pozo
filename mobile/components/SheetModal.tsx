@@ -99,7 +99,7 @@ export default function SheetModal({ visible, onClose, title, children, footer, 
                 accessibilityRole="button"
                 accessibilityLabel="Cerrar"
               >
-                <Ionicons name="close" size={24} color={colors.asphalt} />
+                <Ionicons name="close" size={24} color={colors.ink} />
               </Pressable>
             </View>
           </View>
@@ -126,10 +126,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(28,27,26,0.5)',
   },
   sheet: {
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
     maxHeight: '100%',
     borderTopWidth: 3,
-    borderTopColor: colors.asphalt,
+    borderTopColor: colors.ink,
   },
   sheetFill: {
     flex: 1,
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.lg,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   footer: {
     flexDirection: 'row',
@@ -164,6 +164,6 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.08)',
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
 });

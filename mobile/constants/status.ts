@@ -10,31 +10,35 @@ export const statusLabels: Record<EstadoReclamo, string> = {
   Rechazado: 'Rechazado',
 };
 
-// Colores de los sellos y tags (design/pozo-pantallas-hifi.html): concrete = recién
-// ingresado, amarillo = validado por la comunidad, rust = ya está en el municipio,
-// azul = en reparación, verde = resuelto, asfalto = rechazado (un sello "muerto",
-// nunca se confunde con el verde de resuelto).
+// Cada estado tiene un color propio: neutro = recién ingresado, mango = validado por la
+// comunidad, lavanda = ya está en el municipio, cielo = en reparación, menta = resuelto,
+// coral = rechazado. `statusColors` es el tono vivo (puntos, barras, marcadores);
+// las píldoras usan el fondo suave con el texto en el tono profundo del mismo color.
 export const statusColors: Record<EstadoReclamo, string> = {
-  Reportado: colors.concrete,
-  ConfirmadoPorVecinos: colors.yellow,
-  EnviadoAlMunicipio: colors.rust,
-  EnReparacion: colors.blue,
-  Resuelto: colors.green,
-  Rechazado: colors.asphalt,
+  Reportado: colors.inkMuted,
+  ConfirmadoPorVecinos: colors.mango,
+  EnviadoAlMunicipio: colors.lavender,
+  EnReparacion: colors.sky,
+  Resuelto: colors.mint,
+  Rechazado: colors.coral,
 };
 
-// Texto claro sobre fondos oscuros (rust/blue/green/asphalt), texto oscuro sobre
-// fondos claros (concrete/yellow) — contraste suficiente en los tags de estado
-// chicos, incluso sobre fondos de pantalla oscuros: el tag de "Rechazado" lleva su
-// propio fondo asfalto con texto chalk (igual a los demás estados oscuros), nunca
-// texto oscuro flotando directamente sobre un fondo oscuro.
+export const statusSoftColors: Record<EstadoReclamo, string> = {
+  Reportado: colors.surfaceAlt,
+  ConfirmadoPorVecinos: colors.mangoSoft,
+  EnviadoAlMunicipio: colors.lavenderSoft,
+  EnReparacion: colors.skySoft,
+  Resuelto: colors.mintSoft,
+  Rechazado: colors.coralSoft,
+};
+
 export const statusTextColors: Record<EstadoReclamo, string> = {
-  Reportado: colors.asphalt,
-  ConfirmadoPorVecinos: colors.asphalt,
-  EnviadoAlMunicipio: colors.chalk,
-  EnReparacion: colors.chalk,
-  Resuelto: colors.chalk,
-  Rechazado: colors.chalk,
+  Reportado: colors.inkSoft,
+  ConfirmadoPorVecinos: colors.mangoDeep,
+  EnviadoAlMunicipio: colors.lavenderDeep,
+  EnReparacion: colors.skyDeep,
+  Resuelto: colors.mintDeep,
+  Rechazado: colors.coralDeep,
 };
 
 export const severityLabels: Record<Severidad, string> = {

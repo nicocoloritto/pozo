@@ -42,7 +42,7 @@ export default function MiniMapaReclamo({ reclamo, onPress, style }: Props) {
         </Marker>
       </MapView>
       <View style={styles.hint} pointerEvents="none">
-        <Ionicons name="expand" size={14} color={colors.chalk} />
+        <Ionicons name="expand" size={14} color={colors.bg} />
         <Text style={styles.hintText}>Ver en el mapa</Text>
       </View>
     </Pressable>
@@ -75,6 +75,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.chalk,
+    color: colors.bg,
   },
 });

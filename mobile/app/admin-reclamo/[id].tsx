@@ -363,7 +363,7 @@ export default function AdminReclamoDetail() {
               value={notaTexto}
               onChangeText={setNotaTexto}
               placeholder="Agregar una nota pública…"
-              placeholderTextColor={colors.concrete}
+              placeholderTextColor={colors.inkSoft}
               multiline
             />
             <Pressable
@@ -422,7 +422,7 @@ export default function AdminReclamoDetail() {
               value={fechaInput}
               onChangeText={setFechaInput}
               placeholder="DD/MM/AAAA"
-              placeholderTextColor={colors.concrete}
+              placeholderTextColor={colors.inkSoft}
               keyboardType="number-pad"
             />
             <View style={styles.fechaRapidaRow}>
@@ -455,7 +455,7 @@ export default function AdminReclamoDetail() {
               value={motivoRechazo}
               onChangeText={setMotivoRechazo}
               placeholder="Motivo del rechazo…"
-              placeholderTextColor={colors.concrete}
+              placeholderTextColor={colors.inkSoft}
               multiline
             />
             {error && <Text style={styles.errorText}>{error}</Text>}
@@ -504,14 +504,14 @@ function ActionButton({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   loadingContent: {
     padding: spacing.lg,
     gap: spacing.md,
   },
   navSafeArea: {
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   nav: {
     flexDirection: 'row',
@@ -522,11 +522,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   photoWrap: {
     height: 190,
-    backgroundColor: colors.asphalt2,
+    backgroundColor: colors.inkRaised,
   },
   photo: {
     width: '100%',
@@ -540,17 +540,17 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.rust,
+    color: colors.coral,
   },
   title: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xl,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   address: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concrete,
+    color: colors.inkSoft,
     marginBottom: spacing.xs,
   },
   statusRow: {
@@ -559,14 +559,14 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   resueltoChip: {
-    backgroundColor: colors.green,
+    backgroundColor: colors.mint,
     paddingHorizontal: spacing.xs,
     paddingVertical: 2,
   },
   resueltoChipText: {
     fontFamily: fonts.monoSemiBold,
     fontSize: 9,
-    color: colors.chalk,
+    color: colors.bg,
   },
   statGrid: {
     flexDirection: 'row',
@@ -583,13 +583,13 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: 9,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
     marginBottom: 4,
   },
   statValue: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   miniMapWrap: {
     marginTop: spacing.sm,
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
   metaBox: {
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: colors.concrete,
+    borderColor: colors.inkSoft,
     padding: spacing.md,
   },
   metaRow: {
@@ -608,15 +608,15 @@ const styles = StyleSheet.create({
   metaKey: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   metaValue: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   rechazadoBox: {
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
     padding: spacing.md,
     gap: 4,
   },
@@ -624,18 +624,18 @@ const styles = StyleSheet.create({
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.chalk,
+    color: colors.bg,
   },
   rechazadoTexto: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concreteLight,
+    color: colors.inkMuted,
   },
   sectionTitle: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
     marginTop: spacing.sm,
   },
   beforeAfterRow: {
@@ -649,19 +649,19 @@ const styles = StyleSheet.create({
   beforeAfterPhoto: {
     width: '100%',
     height: 120,
-    backgroundColor: colors.asphalt2,
+    backgroundColor: colors.inkRaised,
   },
   beforeAfterLabel: {
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
     textAlign: 'center',
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   errorText: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.rust,
+    color: colors.coral,
   },
   actionsBox: {
     gap: spacing.sm,
@@ -673,12 +673,12 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     borderWidth: 1,
-    borderColor: colors.asphalt,
+    borderColor: colors.ink,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
   actionButtonDestructivo: {
-    borderColor: colors.rust,
+    borderColor: colors.coral,
   },
   actionButtonDisabled: {
     opacity: 0.4,
@@ -690,10 +690,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.asphalt,
+    color: colors.ink,
   },
   actionButtonTextDestructivo: {
-    color: colors.rust,
+    color: colors.coral,
   },
   notasBox: {
     gap: spacing.sm,
@@ -701,23 +701,23 @@ const styles = StyleSheet.create({
   notaVacia: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   notaRow: {
     borderLeftWidth: 2,
-    borderLeftColor: colors.yellow,
+    borderLeftColor: colors.mango,
     paddingLeft: spacing.sm,
     gap: 2,
   },
   notaFecha: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   notaTexto: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   notaForm: {
     gap: spacing.xs,
@@ -729,24 +729,24 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
     minHeight: 60,
     textAlignVertical: 'top',
   },
   notaButton: {
     alignSelf: 'flex-end',
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.mango,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
   notaButtonDisabled: {
-    backgroundColor: colors.concreteLight,
+    backgroundColor: colors.inkMuted,
   },
   notaButtonText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.asphalt,
+    color: colors.ink,
   },
   timeline: {
     gap: spacing.md,
@@ -762,7 +762,7 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
     marginTop: 4,
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.mango,
   },
   timelineTextWrap: {
     flex: 1,
@@ -770,16 +770,16 @@ const styles = StyleSheet.create({
   timelineLabel: {
     fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   timelineFecha: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -790,13 +790,13 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.lg,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   modalClose: {
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
     textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   modalContent: {
     padding: spacing.lg,
@@ -810,17 +810,17 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(0,0,0,0.08)',
   },
   modalRowActive: {
-    backgroundColor: colors.chalk2,
+    backgroundColor: colors.surfaceAlt,
   },
   modalRowText: {
     fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   modalRowMeta: {
     fontFamily: fonts.mono,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   fechaInput: {
     borderWidth: 1,
@@ -828,7 +828,7 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   fechaRapidaRow: {
     flexDirection: 'row',
@@ -836,17 +836,17 @@ const styles = StyleSheet.create({
   },
   fechaRapidaChip: {
     borderWidth: 1,
-    borderColor: colors.asphalt,
+    borderColor: colors.ink,
     paddingHorizontal: spacing.sm,
     paddingVertical: 6,
   },
   fechaRapidaText: {
     fontFamily: fonts.monoSemiBold,
     fontSize: fontSizes.xs,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   primaryButton: {
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.mango,
     padding: spacing.md,
     alignItems: 'center',
   },
@@ -854,10 +854,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
     textTransform: 'uppercase',
-    color: colors.asphalt,
+    color: colors.ink,
   },
   destructiveButton: {
-    backgroundColor: colors.rust,
+    backgroundColor: colors.coral,
     padding: spacing.md,
     alignItems: 'center',
   },
@@ -865,6 +865,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
     textTransform: 'uppercase',
-    color: colors.chalk,
+    color: colors.bg,
   },
 });

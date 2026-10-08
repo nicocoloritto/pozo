@@ -14,7 +14,7 @@ type EmptyStateProps = {
 export default function EmptyState({ message, icon = 'file-tray-outline', actionLabel, onAction }: EmptyStateProps) {
   return (
     <View style={styles.container}>
-      <Ionicons name={icon} size={40} color={colors.concrete} />
+      <Ionicons name={icon} size={40} color={colors.inkSoft} />
       <Text style={styles.text}>{message}</Text>
       {actionLabel && onAction && (
         <Pressable
@@ -39,12 +39,12 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concrete,
+    color: colors.inkSoft,
     textAlign: 'center',
   },
   button: {
     marginTop: spacing.sm,
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.mango,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
   },
@@ -55,6 +55,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
     textTransform: 'uppercase',
-    color: colors.asphalt,
+    color: colors.ink,
   },
 });
