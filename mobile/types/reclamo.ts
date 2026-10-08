@@ -1,5 +1,4 @@
-// See docs/diseno-funcional.md y docs/modelo-de-datos.md — desactualizados respecto a
-// este archivo; esta es la fuente de verdad actual.
+// Ver docs/diseno-funcional.md para las reglas de negocio y el circuito de estados.
 
 // El vecino solo produce "Reportado" (al publicar) y "ConfirmadoPorVecinos" (al llegar
 // a CONFIRMACIONES_NECESARIAS, o de inmediato si el municipio toma un reclamo

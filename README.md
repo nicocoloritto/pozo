@@ -29,22 +29,25 @@ de su área.
 
 ## Capturas
 
-<!-- Las capturas van en docs/capturas/. Reemplazar cada ruta por la imagen real. -->
+### Ingreso
 
-| Vecino: mapa | Vecino: nuevo reclamo | Vecino: detalle |
+<img src="docs/capturas/login.jpg" width="220" alt="Ingresar" />
+
+### Vecino
+
+| Mapa | Nuevo reclamo | Detalle |
 |---|---|---|
-| ![Mapa del vecino](docs/capturas/vecino-mapa.png) | ![Nuevo reclamo](docs/capturas/vecino-nuevo-reclamo.png) | ![Detalle del reclamo](docs/capturas/vecino-detalle.png) |
-| `docs/capturas/vecino-mapa.png` | `docs/capturas/vecino-nuevo-reclamo.png` | `docs/capturas/vecino-detalle.png` |
+| <img src="docs/capturas/vecino-mapa.jpg" width="220" /> | <img src="docs/capturas/vecino-nuevo-reclamo.jpg" width="220" /> | <img src="docs/capturas/vecino-detalle.jpg" width="220" /> |
 
-| Vecino: aviso de reclamo cercano | Vecino: grupos en el mapa |
-|---|---|
-| ![Aviso de reclamo cercano](docs/capturas/vecino-reclamo-cercano.png) | ![Marcadores agrupados](docs/capturas/vecino-clusters.png) |
-| `docs/capturas/vecino-reclamo-cercano.png` | `docs/capturas/vecino-clusters.png` |
+| Mis reclamos | Estadísticas del barrio | Perfil |
+|---|---|---|
+| <img src="docs/capturas/vecino-mis-reclamos.jpg" width="220" /> | <img src="docs/capturas/vecino-estadisticas.jpg" width="220" /> | <img src="docs/capturas/vecino-perfil.jpg" width="220" /> |
 
-| Municipio: bandeja | Municipio: mapa | Municipio: tablero | Municipio: gestión |
-|---|---|---|---|
-| ![Bandeja](docs/capturas/municipio-bandeja.png) | ![Mapa del municipio](docs/capturas/municipio-mapa.png) | ![Tablero](docs/capturas/municipio-tablero.png) | ![Gestión del reclamo](docs/capturas/municipio-gestion.png) |
-| `docs/capturas/municipio-bandeja.png` | `docs/capturas/municipio-mapa.png` | `docs/capturas/municipio-tablero.png` | `docs/capturas/municipio-gestion.png` |
+### Municipio
+
+| Bandeja | Mapa | Tablero | Gestión del reclamo | Perfil |
+|---|---|---|---|---|
+| <img src="docs/capturas/municipio-bandeja.jpg" width="180" /> | <img src="docs/capturas/municipio-mapa.jpg" width="180" /> | <img src="docs/capturas/municipio-tablero.jpg" width="180" /> | <img src="docs/capturas/municipio-gestion.jpg" width="180" /> | <img src="docs/capturas/municipio-perfil.jpg" width="180" /> |
 
 ## Funcionalidades
 
@@ -74,7 +77,7 @@ de su área.
   una tarjeta que abre el detalle con gestión.
 - **Gestión del reclamo:** tomar, asignar área, fijar fecha estimada, pasar a reparación,
   resolver (la foto del "después" es obligatoria), rechazar (el motivo es obligatorio) y
-  agregar notas internas.
+  agregar notas públicas.
 - **Tablero** con estadísticas del municipio.
 
 ### Circuito de estados de un reclamo
@@ -136,7 +139,7 @@ Decisiones:
 ```
 mobile/
   app/             Pantallas y rutas (expo-router)
-    (tabs)/        Tabs del vecino: Mapa, Mis reclamos, Estadísticas, Perfil
+    (tabs)/        Tabs del vecino: Mapa, Mis reclamos, Nuevo, Barrio, Perfil
     (admin)/       Tabs del municipio: Bandeja, Mapa, Tablero, Perfil
     reclamos/      Nuevo reclamo, reclamo publicado y detalle del vecino
     admin-reclamo/ Detalle con gestión del municipio
@@ -150,7 +153,6 @@ mobile/
   types/           Tipos compartidos
   assets/reclamos/ Fotos de los reclamos de prueba
 docs/              Diseño funcional, modelo de datos, ADRs y sprints
-design/            Prototipo y capturas de referencia
 backend/           API (en construcción, Sprint 2)
 ```
 
@@ -214,35 +216,35 @@ desde la app.
 
 | Color | HEX | Uso |
 |---|---|---|
-| Asfalto | `#1C1B1A` | Texto y fondos oscuros |
-| Asfalto 2 | `#26241F` | Bordes sobre fondo oscuro |
-| Hormigón | `#8A857D` | Texto secundario, estado "Reportado" |
-| Hormigón claro | `#C9C4B8` | Estados deshabilitados |
-| Tiza | `#EDEAE2` | Fondo de pantallas |
-| Tiza 2 | `#E2DDCF` | Fondos de tarjetas |
-| Amarillo | `#E8B23D` | Acento y confirmado por vecinos |
-| Óxido | `#C0472B` | Enviado al municipio, alertas y vencidos |
-| Verde | `#4C7A5E` | Resuelto |
-| Azul | `#2E4C59` | En reparación |
+| Cobalto | `#5653FF` | Color principal: botones, pestaña activa, fondos de marca |
+| Cobalto profundo | `#3431B8` | Texto e íconos sobre cobalto suave |
+| Mandarina | `#FF7A21` | Acento: pozo, gráficos y destacados |
+| Lima | `#C8F45D` | Acento: cifras destacadas y avatar |
+| Rosa | `#FF5C8A` | Alertas y semáforo |
+| Cielo | `#53C8FF` | Luz/agua y estados informativos |
+| Tinta | `#17202A` | Texto principal |
+| Fondo | `#F7F8FF` | Fondo de pantallas |
 
-Tipografías: **Archivo Black** para títulos, **Inter** (400 a 800) para texto y **IBM Plex
-Mono** (400 a 600) para datos, etiquetas y números de expediente.
+Cada color de acento tiene una variante `Deep` para texto y una `Soft` para fondos (ver `mobile/theme/colors.ts`).
+
+Tipografías: **Bricolage Grotesque** (700 y 800) para títulos y **Inter** (400 a 800) para el resto del texto.
 
 ## Equipo
 
 - Martín Allende ([@martinallende02](https://github.com/martinallende02))
-- [@nicocoloritto](https://github.com/nicocoloritto)
-- _(completar: tercer integrante)_
+- Nicolas Coloritto ([@nicocoloritto](https://github.com/nicocoloritto))
+- Isidro Pasman ([@isidropasman](https://github.com/isidropasman))
 
-Convenciones del equipo y flujo de ramas: [`CONTRIBUTORS.md`](CONTRIBUTORS.md).
 
-## Enlaces y créditos
+## Documentación y créditos
 
-- **Prototipo interactivo (Figma):** [abrir prototipo](https://www.figma.com/proto/Kx7jqo5TdRHpUCyFCRYtKX/Pozo-%E2%80%94-Prototipo?node-id=5-1729&p=f&t=RrBYOwYcdLcOki0d-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=5%3A1729)
-  (el flujo y los datos definitivos están en el código, no en el prototipo).
-- **Capturas de referencia del diseño:** [`design/figma/`](design/figma/).
-- **Diseño funcional:** [`docs/diseno-funcional.md`](docs/diseno-funcional.md) (desactualizado
-  en varios puntos respecto de `mobile/`, que es la fuente de verdad).
+- **Entrega del Sprint 1:**
+  - [`Pozo-Sprint1-Presentacion.pdf`](docs/Entrega-Sprint1/Pozo-Sprint1-Presentacion.pdf):
+    temática, público objetivo, diferencial, modelo de negocio, branding y componentes nativos.
+  - [`Pozo-Mockup.pdf`](docs/Entrega-Sprint1/Pozo-Mockup.pdf): mockup con las pantallas del
+    vecino y del municipio, y el circuito de estados.
+- **Diseño funcional:** [`docs/diseno-funcional.md`](docs/diseno-funcional.md): roles, estados, reglas
+  de negocio y comportamiento de cada pantalla.
 - **Fotos de los reclamos de prueba:** autor y fuente de cada una en
   [`mobile/assets/reclamos/CREDITOS.md`](mobile/assets/reclamos/CREDITOS.md) (Unsplash y/o Pexels).
 

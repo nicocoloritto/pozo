@@ -22,7 +22,7 @@ export function distanciaEnMetros(a: Coordenada, b: Coordenada): number {
   return 2 * RADIO_TIERRA_METROS * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
-// Radio del listado "Cerca tuyo" (design/figma/02-mapa.png: "RADIO 500 m").
+// Radio del listado "Cerca tuyo" (500 m).
 export const RADIO_CERCA_TUYO_METROS = 500;
 
 export type ReclamoConDistancia = { reclamo: Reclamo; distanciaMetros: number };

@@ -14,7 +14,7 @@ export const categoryLabels: Record<Categoria, string> = {
   OverflowingBin: 'Residuos',
 };
 
-// Ionicons names matching the road-sign rombo look of the mockup (design/pozo-pantallas-hifi.html).
+// Ionicons names matching the road-sign rombo look of the mockup.
 // Picked to read clearly at 22px inside a small rombo — verified against a real device,
 // not just that the glyph name exists (TypeScript doesn't catch a bad-but-valid name).
 export const categoryIcons: Record<Categoria, keyof typeof import('@expo/vector-icons').Ionicons.glyphMap> = {
