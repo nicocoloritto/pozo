@@ -54,7 +54,9 @@ export default function ReclamoCard({ reclamo, distanciaMetros, onPress }: Recla
           <StatusStamp status={reclamo.status} />
           <View style={styles.votes}>
             <Ionicons name="people" size={13} color={colors.inkMuted} />
-            <Text style={styles.voteText}>{reclamo.confirmaciones.length}</Text>
+            <Text style={styles.voteText}>
+              {reclamo.confirmaciones.length} sigue · {reclamo.votosYaNoEsta?.length ?? 0} ya no
+            </Text>
           </View>
         </View>
       </View>
@@ -67,14 +69,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    padding: spacing.sm + 2,
+    padding: spacing.sm,
     borderRadius: radii.lg,
     backgroundColor: colors.surface,
     ...shadows.card,
   },
   photo: {
-    width: 76,
-    height: 76,
+    width: 88,
+    height: 88,
     borderRadius: radii.md,
     backgroundColor: colors.surfaceAlt,
   },

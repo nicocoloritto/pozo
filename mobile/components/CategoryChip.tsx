@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
 import PressableScale from './PressableScale';
 import { categoryIcons, categoryLabels, categoryTints } from '../constants/categories';
 import type { Categoria } from '../types/reclamo';
@@ -11,22 +11,20 @@ type CategoryChipProps = {
   category: Categoria;
   selected?: boolean;
   onPress?: () => void;
-  // Sin etiqueta debajo: para tarjetas, donde el nombre ya está en el título.
   compact?: boolean;
 };
 
-// Ícono de categoría en un cuadrado redondeado con el color de su familia. Con
-// `onPress` funciona como selector (Nuevo reclamo): al elegirlo se llena del tono vivo
-// y salta con un resorte.
 export default function CategoryChip({ category, selected = false, onPress, compact = false }: CategoryChipProps) {
   const tint = categoryTints[category];
+  const selectedIconColor = tint.base === colors.cobalt ? colors.surface : colors.ink;
   const pop = useSharedValue(1);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
-    if (!selected) return;
+    if (!selected || reducedMotion) return;
     pop.value = 0.85;
     pop.value = withSpring(1, { damping: 8, stiffness: 260 });
-  }, [selected, pop]);
+  }, [selected, pop, reducedMotion]);
 
   const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.value }] }));
 
@@ -39,7 +37,7 @@ export default function CategoryChip({ category, selected = false, onPress, comp
         popStyle,
       ]}
     >
-      <Ionicons name={categoryIcons[category]} size={compact ? 20 : 24} color={selected ? colors.surface : tint.deep} />
+      <Ionicons name={categoryIcons[category]} size={compact ? 20 : 24} color={selected ? selectedIconColor : tint.deep} />
     </Animated.View>
   );
 

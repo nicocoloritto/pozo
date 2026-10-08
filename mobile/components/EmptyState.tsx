@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeInUp } from 'react-native-reanimated';
+import Animated, { FadeInUp, useReducedMotion } from 'react-native-reanimated';
 import PressableScale from './PressableScale';
 import { colors, fonts, fontSizes, radii, spacing } from '../theme';
 
@@ -11,13 +11,13 @@ type EmptyStateProps = {
   onAction?: () => void;
 };
 
-// Required by US-05: "una lista vacía muestra un mensaje", never a blank screen. The
-// icon + optional action keep it from feeling like an error state.
 export default function EmptyState({ message, icon = 'file-tray-outline', actionLabel, onAction }: EmptyStateProps) {
+  const reducedMotion = useReducedMotion();
+
   return (
-    <Animated.View entering={FadeInUp.springify().damping(16)} style={styles.container}>
+    <Animated.View entering={reducedMotion ? undefined : FadeInUp.springify().damping(16)} style={styles.container}>
       <View style={styles.iconBubble}>
-        <Ionicons name={icon} size={30} color={colors.mangoDeep} />
+        <Ionicons name={icon} size={30} color={colors.cobaltDeep} />
       </View>
       <Text style={styles.text}>{message}</Text>
       {actionLabel && onAction && (
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: colors.mangoSoft,
+    backgroundColor: colors.cobaltSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: spacing.sm,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.cobalt,
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
     borderRadius: radii.pill,

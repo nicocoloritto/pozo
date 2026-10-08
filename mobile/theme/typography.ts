@@ -8,9 +8,6 @@ export const fonts = {
   bodySemiBold: 'Inter_600SemiBold',
   bodyBold: 'Inter_700Bold',
   bodyExtraBold: 'Inter_800ExtraBold',
-  mono: 'IBMPlexMono_400Regular',
-  monoMedium: 'IBMPlexMono_500Medium',
-  monoSemiBold: 'IBMPlexMono_600SemiBold',
 } as const;
 
 export const fontSizes = {

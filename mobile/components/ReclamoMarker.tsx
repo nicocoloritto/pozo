@@ -13,6 +13,8 @@ type ReclamoMarkerProps = {
 // Pin del mapa y del mini-mapa del Detalle: un círculo del color del estado con el
 // ícono de la categoría, así de un vistazo se ve qué es y en qué etapa está.
 export default function ReclamoMarker({ reclamo, size = 34 }: ReclamoMarkerProps) {
+  const iconColor = reclamo.status === 'EnviadoAlMunicipio' ? colors.surface : colors.ink;
+
   return (
     <View style={styles.wrap}>
       <View
@@ -21,7 +23,7 @@ export default function ReclamoMarker({ reclamo, size = 34 }: ReclamoMarkerProps
           { width: size, height: size, borderRadius: size / 2, backgroundColor: statusColors[reclamo.status] },
         ]}
       >
-        <Ionicons name={categoryIcons[reclamo.category]} size={size * 0.5} color={colors.surface} />
+        <Ionicons name={categoryIcons[reclamo.category]} size={size * 0.5} color={iconColor} />
       </View>
       <View style={[styles.tail, { backgroundColor: statusColors[reclamo.status] }]} />
     </View>

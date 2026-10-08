@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeInDown, useReducedMotion } from 'react-native-reanimated';
 import EmptyState from './EmptyState';
 import ReclamoCard from './ReclamoCard';
 import { useUbicacionUsuario } from '../hooks/useUbicacionUsuario';
@@ -19,6 +19,7 @@ type Props = {
 // está la persona, del más cercano al más lejano y con la distancia.
 export default function CercaTuyoPanel({ reclamos, onOpenReclamo }: Props) {
   const { coords, estado, reintentar } = useUbicacionUsuario();
+  const reducedMotion = useReducedMotion();
 
   const cercanos = useMemo(() => (coords ? reclamosCercanos(reclamos, coords) : []), [reclamos, coords]);
   // Si no hay ninguno dentro del radio, se dice a qué distancia está el más próximo: así
@@ -68,7 +69,7 @@ export default function CercaTuyoPanel({ reclamos, onOpenReclamo }: Props) {
             />
           }
           renderItem={({ item, index }) => (
-            <Animated.View entering={FadeInDown.delay(index * 60).springify().damping(16)}>
+            <Animated.View entering={reducedMotion ? undefined : FadeInDown.delay(index * 60).springify().damping(16)}>
               <ReclamoCard
                 reclamo={item.reclamo}
                 distanciaMetros={item.distanciaMetros}
@@ -101,7 +102,7 @@ const styles = StyleSheet.create({
     color: colors.ink,
   },
   counter: {
-    backgroundColor: colors.mangoSoft,
+    backgroundColor: colors.mandarinSoft,
     paddingHorizontal: spacing.sm + 2,
     paddingVertical: 4,
     borderRadius: radii.pill,
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
   counterText: {
     fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.xs + 1,
-    color: colors.mangoDeep,
+    color: colors.mandarinDeep,
   },
   hint: {
     fontFamily: fonts.bodyMedium,

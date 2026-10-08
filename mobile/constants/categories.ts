@@ -45,20 +45,20 @@ export const categoryOrder: Categoria[] = [
 // Agrupadas por familia (calzada, luz, verde, cielo) para que el mapa no sea un arcoíris.
 type CategoryTint = { soft: string; deep: string; base: string };
 
-const MANGO: CategoryTint = { soft: colors.mangoSoft, deep: colors.mangoDeep, base: colors.mango };
-const CORAL: CategoryTint = { soft: colors.coralSoft, deep: colors.coralDeep, base: colors.coral };
-const MINT: CategoryTint = { soft: colors.mintSoft, deep: colors.mintDeep, base: colors.mint };
+const MANDARIN: CategoryTint = { soft: colors.mandarinSoft, deep: colors.mandarinDeep, base: colors.mandarin };
+const PINK: CategoryTint = { soft: colors.pinkSoft, deep: colors.pinkDeep, base: colors.pink };
+const LIME: CategoryTint = { soft: colors.limeSoft, deep: colors.limeDeep, base: colors.lime };
 const SKY: CategoryTint = { soft: colors.skySoft, deep: colors.skyDeep, base: colors.sky };
-const LAVENDER: CategoryTint = { soft: colors.lavenderSoft, deep: colors.lavenderDeep, base: colors.lavender };
+const COBALT: CategoryTint = { soft: colors.cobaltSoft, deep: colors.cobaltDeep, base: colors.cobalt };
 
 export const categoryTints: Record<Categoria, CategoryTint> = {
-  Pothole: MANGO,
-  BrokenSidewalk: LAVENDER,
-  TrafficLight: CORAL,
-  StreetLight: MANGO,
+  Pothole: MANDARIN,
+  BrokenSidewalk: COBALT,
+  TrafficLight: PINK,
+  StreetLight: MANDARIN,
   FallenPole: SKY,
-  FallenTree: MINT,
-  Trench: LAVENDER,
+  FallenTree: LIME,
+  Trench: COBALT,
   Outage: SKY,
-  OverflowingBin: MINT,
+  OverflowingBin: LIME,
 };

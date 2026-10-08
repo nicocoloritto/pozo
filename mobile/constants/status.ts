@@ -16,29 +16,29 @@ export const statusLabels: Record<EstadoReclamo, string> = {
 // las píldoras usan el fondo suave con el texto en el tono profundo del mismo color.
 export const statusColors: Record<EstadoReclamo, string> = {
   Reportado: colors.inkMuted,
-  ConfirmadoPorVecinos: colors.mango,
-  EnviadoAlMunicipio: colors.lavender,
+  ConfirmadoPorVecinos: colors.mandarin,
+  EnviadoAlMunicipio: colors.cobalt,
   EnReparacion: colors.sky,
-  Resuelto: colors.mint,
-  Rechazado: colors.coral,
+  Resuelto: colors.lime,
+  Rechazado: colors.pink,
 };
 
 export const statusSoftColors: Record<EstadoReclamo, string> = {
   Reportado: colors.surfaceAlt,
-  ConfirmadoPorVecinos: colors.mangoSoft,
-  EnviadoAlMunicipio: colors.lavenderSoft,
+  ConfirmadoPorVecinos: colors.mandarinSoft,
+  EnviadoAlMunicipio: colors.cobaltSoft,
   EnReparacion: colors.skySoft,
-  Resuelto: colors.mintSoft,
-  Rechazado: colors.coralSoft,
+  Resuelto: colors.limeSoft,
+  Rechazado: colors.pinkSoft,
 };
 
 export const statusTextColors: Record<EstadoReclamo, string> = {
   Reportado: colors.inkSoft,
-  ConfirmadoPorVecinos: colors.mangoDeep,
-  EnviadoAlMunicipio: colors.lavenderDeep,
+  ConfirmadoPorVecinos: colors.mandarinDeep,
+  EnviadoAlMunicipio: colors.cobaltDeep,
   EnReparacion: colors.skyDeep,
-  Resuelto: colors.mintDeep,
-  Rechazado: colors.coralDeep,
+  Resuelto: colors.limeDeep,
+  Rechazado: colors.pinkDeep,
 };
 
 export const severityLabels: Record<Severidad, string> = {

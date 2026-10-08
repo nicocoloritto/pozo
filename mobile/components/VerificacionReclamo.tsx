@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { haceCuanto } from '../lib/verificacion';
 import type { ResumenVerificacion } from '../lib/verificacion';
 import type { Reclamo, TipoVoto } from '../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../theme';
+import { colors, fonts, fontSizes, radii, spacing } from '../theme';
 
 type Props = {
   reclamo: Reclamo;
@@ -34,7 +34,7 @@ export default function VerificacionReclamo({ reclamo, resumen, esAutor, puedeVo
           accessibilityLabel={`Sigue ahí, ${sigue} ${sigue === 1 ? 'voto' : 'votos'}${miVoto === 'sigue' ? ', es tu voto' : ''}`}
           style={({ pressed }) => [
             styles.button,
-            miVoto === 'sigue' && { backgroundColor: colors.mango, borderColor: colors.mango },
+            miVoto === 'sigue' && { backgroundColor: colors.mandarin, borderColor: colors.mandarin },
             sigueDeshabilitado && styles.buttonDisabled,
             pressed && !sigueDeshabilitado && styles.pressed,
           ]}
@@ -42,7 +42,7 @@ export default function VerificacionReclamo({ reclamo, resumen, esAutor, puedeVo
           <Ionicons
             name={miVoto === 'sigue' ? 'thumbs-up' : 'thumbs-up-outline'}
             size={22}
-            color={miVoto === 'sigue' ? colors.ink : colors.mango}
+            color={miVoto === 'sigue' ? colors.ink : colors.mandarin}
           />
           <Text style={styles.buttonLabel}>Sigue ahí</Text>
           <Text style={styles.count}>{sigue}</Text>
@@ -55,7 +55,7 @@ export default function VerificacionReclamo({ reclamo, resumen, esAutor, puedeVo
           accessibilityLabel={`Ya no está, ${yaNoEsta} ${yaNoEsta === 1 ? 'voto' : 'votos'}${miVoto === 'yaNoEsta' ? ', es tu voto' : ''}`}
           style={({ pressed }) => [
             styles.button,
-            miVoto === 'yaNoEsta' && { backgroundColor: colors.mint, borderColor: colors.mint },
+            miVoto === 'yaNoEsta' && { backgroundColor: colors.lime, borderColor: colors.lime },
             yaNoEstaDeshabilitado && styles.buttonDisabled,
             pressed && !yaNoEstaDeshabilitado && styles.pressed,
           ]}
@@ -63,10 +63,10 @@ export default function VerificacionReclamo({ reclamo, resumen, esAutor, puedeVo
           <Ionicons
             name={miVoto === 'yaNoEsta' ? 'thumbs-down' : 'thumbs-down-outline'}
             size={22}
-            color={miVoto === 'yaNoEsta' ? colors.bg : colors.mint}
+            color={miVoto === 'yaNoEsta' ? colors.ink : colors.limeDeep}
           />
-          <Text style={[styles.buttonLabel, miVoto === 'yaNoEsta' && { color: colors.bg }]}>Ya no está</Text>
-          <Text style={[styles.count, miVoto === 'yaNoEsta' && { color: colors.bg }]}>{yaNoEsta}</Text>
+          <Text style={styles.buttonLabel}>Ya no está</Text>
+          <Text style={styles.count}>{yaNoEsta}</Text>
         </Pressable>
       </View>
 
@@ -83,7 +83,7 @@ export default function VerificacionReclamo({ reclamo, resumen, esAutor, puedeVo
 
       {posiblementeResuelto && (
         <View style={styles.aviso}>
-          <Ionicons name="information-circle" size={18} color={colors.mint} />
+          <Ionicons name="information-circle" size={18} color={colors.lime} />
           <Text style={styles.avisoText}>Varios vecinos dicen que ya no está. El municipio lo va a revisar.</Text>
         </View>
       )}
@@ -93,17 +93,16 @@ export default function VerificacionReclamo({ reclamo, resumen, esAutor, puedeVo
 
 const styles = StyleSheet.create({
   box: {
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.12)',
-    padding: spacing.md,
-    gap: spacing.sm,
+    backgroundColor: colors.mandarinSoft,
+    borderRadius: radii.lg,
+    padding: spacing.lg,
+    gap: spacing.md,
     marginBottom: spacing.lg,
   },
   title: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.inkSoft,
+    fontFamily: fonts.displayBold,
+    fontSize: fontSizes.lg,
+    color: colors.ink,
   },
   buttons: {
     flexDirection: 'row',
@@ -114,8 +113,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     paddingVertical: spacing.md,
-    borderWidth: 1.5,
-    borderColor: 'rgba(0,0,0,0.2)',
+    borderRadius: radii.md,
+    backgroundColor: colors.surface,
   },
   buttonDisabled: {
     opacity: 0.45,
@@ -124,9 +123,8 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   buttonLabel: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs + 1,
     color: colors.ink,
   },
   count: {
@@ -142,10 +140,10 @@ const styles = StyleSheet.create({
   error: {
     fontFamily: fonts.body,
     fontSize: fontSizes.xs,
-    color: colors.coral,
+    color: colors.pinkDeep,
   },
   ultimo: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.body,
     fontSize: fontSizes.xs,
     color: colors.inkSoft,
   },
@@ -154,7 +152,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.xs,
     borderLeftWidth: 3,
-    borderLeftColor: colors.mint,
+    borderLeftColor: colors.lime,
     paddingLeft: spacing.sm,
   },
   avisoText: {

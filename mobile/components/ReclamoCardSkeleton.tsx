@@ -7,7 +7,7 @@ import { colors, radii, shadows, spacing } from '../theme';
 export default function ReclamoCardSkeleton() {
   return (
     <View style={styles.card}>
-      <Skeleton width={76} height={76} style={styles.photo} />
+      <Skeleton width={88} height={88} style={styles.photo} />
       <View style={styles.body}>
         <Skeleton width="55%" height={16} />
         <Skeleton width="85%" height={12} />
@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    padding: spacing.sm + 2,
+    padding: spacing.sm,
     borderRadius: radii.lg,
     backgroundColor: colors.surface,
     ...shadows.card,

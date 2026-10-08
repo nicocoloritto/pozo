@@ -13,25 +13,23 @@ export const spacing = {
 } as const;
 
 export const radii = {
-  sm: 10,
-  md: 16,
-  lg: 22,
-  xl: 28,
+  sm: 14,
+  md: 20,
+  lg: 28,
+  xl: 36,
   pill: 999,
 } as const;
 
-// Sombras cálidas (no gris puro) para que las tarjetas blancas floten sobre el crema.
-// `elevation` es el equivalente en Android.
 export const shadows = {
   card: {
-    shadowColor: '#5A3E16',
-    shadowOpacity: 0.08,
+    shadowColor: '#3431B8',
+    shadowOpacity: 0.09,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 6 },
     elevation: 3,
   },
   float: {
-    shadowColor: '#5A3E16',
+    shadowColor: '#3431B8',
     shadowOpacity: 0.16,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 10 },

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import barriosData from '../data/barrios.json';
 import { categoryLabels, categoryOrder } from '../constants/categories';
 import { FILTROS_VACIOS } from '../lib/filtrosMunicipio';
@@ -7,7 +7,8 @@ import type { FiltrosMunicipio } from '../lib/filtrosMunicipio';
 import { AREAS } from '../services/areas';
 import type { Barrio } from '../types/estadisticas';
 import type { Categoria } from '../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../theme';
+import { colors, fonts, fontSizes, radii, spacing } from '../theme';
+import PressableScale from './PressableScale';
 import SheetModal from './SheetModal';
 
 const barrios = barriosData as Barrio[];
@@ -39,16 +40,16 @@ export default function FiltrosMunicipioModal({ visible, municipioId, filtros, o
       title="Filtros"
       footer={
         <>
-          <Pressable
-            style={({ pressed }) => [styles.clearButton, pressed && styles.pressed]}
+          <PressableScale
+            style={styles.clearButton}
             onPress={() => setBorrador(FILTROS_VACIOS)}
             accessibilityRole="button"
             accessibilityLabel="Limpiar filtros"
           >
             <Text style={styles.clearButtonText}>Limpiar</Text>
-          </Pressable>
-          <Pressable
-            style={({ pressed }) => [styles.applyButton, pressed && styles.pressed]}
+          </PressableScale>
+          <PressableScale
+            style={styles.applyButton}
             onPress={() => {
               onApply(borrador);
               onClose();
@@ -57,7 +58,7 @@ export default function FiltrosMunicipioModal({ visible, municipioId, filtros, o
             accessibilityLabel="Aplicar filtros"
           >
             <Text style={styles.applyButtonText}>Aplicar</Text>
-          </Pressable>
+          </PressableScale>
         </>
       }
     >
@@ -109,7 +110,7 @@ function FiltroSeccion({
       <Text style={styles.seccionTitulo}>{titulo}</Text>
       <View style={styles.opciones}>
         {opciones.map((opcion) => (
-          <Pressable
+          <PressableScale
             key={opcion.id}
             onPress={() => onChange(valor === opcion.id ? null : opcion.id)}
             accessibilityRole="button"
@@ -117,7 +118,7 @@ function FiltroSeccion({
             style={[styles.chip, valor === opcion.id && styles.chipActive]}
           >
             <Text style={[styles.chipText, valor === opcion.id && styles.chipTextActive]}>{opcion.label}</Text>
-          </Pressable>
+          </PressableScale>
         ))}
       </View>
     </View>
@@ -133,10 +134,9 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   seccionTitulo: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.inkSoft,
+    fontFamily: fonts.displayBold,
+    fontSize: fontSizes.lg,
+    color: colors.ink,
   },
   opciones: {
     flexDirection: 'row',
@@ -144,48 +144,45 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   chip: {
-    borderWidth: 1,
-    borderColor: colors.ink,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 6,
+    borderRadius: radii.pill,
+    backgroundColor: colors.surfaceAlt,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   chipActive: {
-    backgroundColor: colors.ink,
+    backgroundColor: colors.cobalt,
   },
   chipText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
     color: colors.ink,
   },
   chipTextActive: {
-    color: colors.bg,
-  },
-  pressed: {
-    opacity: 0.7,
+    color: colors.surface,
   },
   clearButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: colors.coral,
+    borderColor: colors.cobalt,
     padding: spacing.md,
     alignItems: 'center',
+    borderRadius: radii.pill,
   },
   clearButtonText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    textTransform: 'uppercase',
-    color: colors.coral,
+    color: colors.cobalt,
   },
   applyButton: {
     flex: 1,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.cobalt,
     padding: spacing.md,
     alignItems: 'center',
+    borderRadius: radii.pill,
   },
   applyButtonText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    textTransform: 'uppercase',
-    color: colors.bg,
+    color: colors.surface,
   },
 });

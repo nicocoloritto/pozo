@@ -7,8 +7,6 @@ type StatusStampProps = {
   status: EstadoReclamo;
 };
 
-// Píldora de estado para tarjetas y listas: fondo suave, punto del tono vivo y texto
-// en el tono profundo del mismo color.
 export default function StatusStamp({ status }: StatusStampProps) {
   return (
     <View style={[styles.pill, { backgroundColor: statusSoftColors[status] }]}>

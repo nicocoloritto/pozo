@@ -3,7 +3,7 @@ import * as Location from 'expo-location';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutDown } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutDown, useReducedMotion } from 'react-native-reanimated';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import type { Region } from 'react-native-maps';
 import Supercluster from 'supercluster';
@@ -63,6 +63,7 @@ type Props = {
   // llama a onEnfocado para que la pantalla limpie el parámetro y no se repita solo.
   enfocarId?: string | null;
   onEnfocado?: () => void;
+  overlayBottom?: number;
 };
 
 // Mapa compartido por el vecino (app/(tabs)/map.tsx) y el municipio (app/(admin)/mapa.tsx).
@@ -84,9 +85,11 @@ export default function ReclamosMap({
   onOpenReclamo,
   enfocarId,
   onEnfocado,
+  overlayBottom = 0,
 }: Props) {
   const mapRef = useRef<MapView>(null);
   const movidoPorUsuario = useRef(false);
+  const reducedMotion = useReducedMotion();
 
   const [userCoords, setUserCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationDenied, setLocationDenied] = useState(false);
@@ -122,13 +125,13 @@ export default function ReclamosMap({
 
   useEffect(() => {
     if (!userCoords || !centrarEnUsuario || movidoPorUsuario.current) return;
-    mapRef.current?.animateToRegion({ ...userCoords, latitudeDelta: 0.04, longitudeDelta: 0.04 }, 400);
-  }, [userCoords, centrarEnUsuario]);
+    mapRef.current?.animateToRegion({ ...userCoords, latitudeDelta: 0.04, longitudeDelta: 0.04 }, reducedMotion ? 0 : 400);
+  }, [userCoords, centrarEnUsuario, reducedMotion]);
 
   const handleRecenter = useCallback(() => {
     if (!userCoords) return;
-    mapRef.current?.animateToRegion({ ...userCoords, latitudeDelta: 0.04, longitudeDelta: 0.04 }, 400);
-  }, [userCoords]);
+    mapRef.current?.animateToRegion({ ...userCoords, latitudeDelta: 0.04, longitudeDelta: 0.04 }, reducedMotion ? 0 : 400);
+  }, [userCoords, reducedMotion]);
 
   const reclamosPorId = useMemo(() => new Map(reclamos.map((r) => [r.id, r])), [reclamos]);
 
@@ -228,13 +231,13 @@ export default function ReclamosMap({
     const zoom = Math.min(zoomParaSepararlo(reclamo) + 0.2, MAX_ZOOM + 0.9);
     mapRef.current?.animateToRegion(
       zoomARegion(zoom, size.width, size.height, reclamo.latitude, reclamo.longitude),
-      400
+      reducedMotion ? 0 : 400
     );
     setTarjeta({ tipo: 'uno', reclamo });
     onEnfocado?.();
     // size y onEnfocado no entran a propósito: es un efecto de una sola vez por pedido.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enfocarId, mapaListo, reclamosPorId, zoomParaSepararlo]);
+  }, [enfocarId, mapaListo, reclamosPorId, zoomParaSepararlo, reducedMotion]);
 
   const items = useMemo(() => {
     // Sin agrupar: pedir el zoom donde nada se agrupa devuelve todos los puntos sueltos.
@@ -279,8 +282,8 @@ export default function ReclamosMap({
     }
     setTarjeta(null);
     const destino = zoomARegion(Math.min(zoomSeparacion + 0.2, MAX_ZOOM + 0.9), tam.width, tam.height, latitude, longitude);
-    mapRef.current?.animateToRegion(destino, 350);
-  }, []);
+    mapRef.current?.animateToRegion(destino, reducedMotion ? 0 : 350);
+  }, [reducedMotion]);
 
   return (
     <View style={styles.container}>
@@ -343,7 +346,7 @@ export default function ReclamosMap({
                   <ReclamoMarker reclamo={reclamo} />
                   {vencido > 0 && (
                     <View style={[styles.badge, styles.badgeVencido]}>
-                      <Ionicons name="alarm" size={11} color={colors.bg} />
+                      <Ionicons name="alarm" size={11} color={colors.ink} />
                     </View>
                   )}
                   {peligroso > 0 && (
@@ -362,20 +365,20 @@ export default function ReclamosMap({
           accessibilityLabel="Volver a mi ubicación"
           onPress={handleRecenter}
           pressedScale={0.86}
-          style={styles.locateButton}
+          style={[styles.locateButton, { bottom: overlayBottom + spacing.lg }]}
         >
           <Ionicons name="navigate" size={20} color={colors.skyDeep} />
         </PressableScale>
 
         {locationDenied && (
-          <Animated.View entering={FadeInDown} exiting={FadeOut} style={styles.locationNotice} pointerEvents="none">
+          <Animated.View entering={reducedMotion ? undefined : FadeInDown} exiting={reducedMotion ? undefined : FadeOut} style={styles.locationNotice} pointerEvents="none">
             <Ionicons name="location-outline" size={14} color={colors.inkSoft} />
             <Text style={styles.locationNoticeText}>Sin tu ubicación, el mapa arranca centrado en CABA.</Text>
           </Animated.View>
         )}
 
         {loading && (
-          <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.loadingOverlay} pointerEvents="none">
+          <Animated.View entering={reducedMotion ? undefined : FadeIn} exiting={reducedMotion ? undefined : FadeOut} style={[styles.loadingOverlay, { bottom: overlayBottom + spacing.lg }]} pointerEvents="none">
             <Text style={styles.loadingText}>Cargando reclamos…</Text>
           </Animated.View>
         )}
@@ -384,9 +387,9 @@ export default function ReclamosMap({
       {tarjeta?.tipo === 'uno' && (
         <Animated.View
           key={tarjeta.reclamo.id}
-          entering={FadeInDown.springify().damping(16)}
-          exiting={FadeOutDown.duration(150)}
-          style={styles.floatingCard}
+          entering={reducedMotion ? undefined : FadeInDown.springify().damping(16)}
+          exiting={reducedMotion ? undefined : FadeOutDown.duration(150)}
+          style={[styles.floatingCard, { bottom: overlayBottom + spacing.lg }]}
         >
           <PressableScale
             style={styles.selectedCard}
@@ -401,9 +404,9 @@ export default function ReclamosMap({
 
       {tarjeta?.tipo === 'lista' && (
         <Animated.View
-          entering={FadeInDown.springify().damping(16)}
-          exiting={FadeOutDown.duration(150)}
-          style={[styles.floatingCard, styles.listCard]}
+          entering={reducedMotion ? undefined : FadeInDown.springify().damping(16)}
+          exiting={reducedMotion ? undefined : FadeOutDown.duration(150)}
+          style={[styles.floatingCard, styles.listCard, { bottom: overlayBottom + spacing.lg }]}
         >
           <View style={styles.listHeader}>
             <Text style={styles.listTitle}>{tarjeta.reclamos.length} reclamos en este punto</Text>
@@ -537,8 +540,6 @@ const styles = StyleSheet.create({
   },
   mapWrap: {
     flex: 1,
-    marginHorizontal: spacing.lg,
-    borderRadius: radii.xl,
     overflow: 'hidden',
     backgroundColor: colors.surfaceAlt,
   },
@@ -563,26 +564,26 @@ const styles = StyleSheet.create({
   badgeVencido: {
     top: 0,
     right: 0,
-    backgroundColor: colors.coral,
+    backgroundColor: colors.pink,
   },
   badgePeligroso: {
     top: 0,
     left: 0,
-    backgroundColor: colors.mango,
+    backgroundColor: colors.mandarin,
   },
   cluster: {
     minWidth: 42,
     height: 42,
     borderRadius: 21,
     paddingHorizontal: 8,
-    backgroundColor: colors.mango,
+    backgroundColor: colors.mandarin,
     borderWidth: 3,
     borderColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
   clusterVencido: {
-    backgroundColor: colors.coral,
+    backgroundColor: colors.pink,
   },
   clusterText: {
     fontFamily: fonts.display,
@@ -638,8 +639,9 @@ const styles = StyleSheet.create({
     color: colors.inkSoft,
   },
   floatingCard: {
-    marginHorizontal: spacing.lg,
-    marginTop: spacing.md,
+    position: 'absolute',
+    left: spacing.lg,
+    right: spacing.lg,
     borderRadius: radii.lg,
     backgroundColor: colors.surface,
     ...shadows.float,
@@ -674,7 +676,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: colors.mangoSoft,
+    backgroundColor: colors.mandarinSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
