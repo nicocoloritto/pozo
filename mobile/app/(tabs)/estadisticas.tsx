@@ -18,7 +18,7 @@ import {
 } from '../../services/estadisticas';
 import { ESTADOS_RECLAMO } from '../../services/reclamos';
 import type { Barrio, EstadisticasBarrio, RankingBarrio } from '../../types/estadisticas';
-import { colors, fonts, fontSizes, spacing } from '../../theme';
+import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
 const MUNICIPIO_ID = 'caba';
 
@@ -152,10 +152,14 @@ export default function EstadisticasScreen() {
           </View>
         ) : (
           <>
+            <View style={styles.heroStat}>
+              <Text style={styles.heroValue}>{estadisticas.porcentajeResolucion}%</Text>
+              <Text style={styles.heroLabel}>de los reclamos del barrio ya fueron resueltos</Text>
+            </View>
+
             <View style={styles.statGrid}>
               <StatCard label="Total reclamos" value={String(estadisticas.totalReclamos)} />
               <StatCard label="Resueltos" value={String(estadisticas.resueltos)} />
-              <StatCard label="% Resolución" value={`${estadisticas.porcentajeResolucion}%`} />
               <StatCard label="Días promedio" value={String(estadisticas.tiempoPromedioResolucionDias)} />
             </View>
 
@@ -169,12 +173,12 @@ export default function EstadisticasScreen() {
             )}
 
             <Text style={styles.sectionTitle}>Reclamos por categoría</Text>
-            <View style={styles.card}>
-              <BarChart data={categoriaData} color={colors.mango} />
+            <View style={[styles.card, styles.categoryCard]}>
+              <BarChart data={categoriaData} color={colors.mandarin} height={170} />
             </View>
 
             <Text style={styles.sectionTitle}>Evolución últimos 6 meses</Text>
-            <View style={styles.card}>
+            <View style={[styles.card, styles.evolutionCard]}>
               <BarChart data={evolucionData} color={colors.sky} />
             </View>
 
@@ -251,6 +255,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: spacing.lg,
+    paddingBottom: 120,
     gap: spacing.md,
   },
   title: {
@@ -265,14 +270,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.ink,
-    padding: spacing.md,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
+    padding: spacing.lg,
+    ...shadows.card,
   },
   barrioLabel: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.sm,
     color: colors.inkSoft,
     marginBottom: 2,
   },
@@ -284,22 +289,42 @@ const styles = StyleSheet.create({
   skeletonBlock: {
     gap: spacing.md,
   },
+  heroStat: {
+    minHeight: 178,
+    justifyContent: 'flex-end',
+    padding: spacing.xl,
+    borderRadius: radii.xl,
+    backgroundColor: colors.cobalt,
+    overflow: 'hidden',
+    ...shadows.float,
+  },
+  heroValue: {
+    fontFamily: fonts.display,
+    fontSize: 64,
+    lineHeight: 68,
+    color: colors.lime,
+  },
+  heroLabel: {
+    maxWidth: 260,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.md,
+    lineHeight: 22,
+    color: colors.surface,
+  },
   statGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: spacing.sm,
   },
   statCard: {
-    flexBasis: '47%',
-    flexGrow: 1,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.12)',
+    flex: 1,
+    minHeight: 104,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
     padding: spacing.md,
   },
   statLabel: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
     color: colors.inkSoft,
     marginBottom: 4,
   },
@@ -312,8 +337,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.mango,
-    padding: spacing.md,
+    backgroundColor: colors.mandarin,
+    padding: spacing.lg,
+    borderRadius: radii.lg,
   },
   rankingBig: {
     fontFamily: fonts.display,
@@ -322,21 +348,26 @@ const styles = StyleSheet.create({
   },
   rankingText: {
     flex: 1,
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
     color: colors.ink,
   },
   sectionTitle: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.inkSoft,
+    fontFamily: fonts.displayBold,
+    fontSize: fontSizes.lg,
+    color: colors.ink,
     marginTop: spacing.sm,
   },
   card: {
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.12)',
-    padding: spacing.md,
+    borderRadius: radii.xl,
+    backgroundColor: colors.surface,
+    padding: spacing.lg,
+  },
+  categoryCard: {
+    backgroundColor: colors.mandarinSoft,
+  },
+  evolutionCard: {
+    backgroundColor: colors.skySoft,
   },
   estadoRow: {
     flexDirection: 'row',
@@ -347,9 +378,10 @@ const styles = StyleSheet.create({
   estadoDot: {
     width: 10,
     height: 10,
+    borderRadius: 5,
   },
   estadoLabel: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.xs,
     color: colors.ink,
     width: 130,
@@ -359,12 +391,14 @@ const styles = StyleSheet.create({
     height: 8,
     backgroundColor: colors.surfaceAlt,
     overflow: 'hidden',
+    borderRadius: radii.pill,
   },
   estadoBarFill: {
     height: '100%',
+    borderRadius: radii.pill,
   },
   estadoCantidad: {
-    fontFamily: fonts.monoSemiBold,
+    fontFamily: fonts.bodyBold,
     fontSize: fontSizes.xs,
     color: colors.ink,
     width: 28,
@@ -389,6 +423,7 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.lg,
     marginBottom: spacing.sm,
     backgroundColor: colors.surfaceAlt,
+    borderRadius: radii.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     fontFamily: fonts.body,
@@ -400,8 +435,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.08)',
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.xs,
+    borderRadius: radii.md,
+    backgroundColor: colors.surfaceAlt,
   },
   modalRowText: {
     fontFamily: fonts.bodyMedium,
@@ -409,7 +446,7 @@ const styles = StyleSheet.create({
     color: colors.ink,
   },
   modalRowComuna: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.xs,
     color: colors.inkSoft,
   },

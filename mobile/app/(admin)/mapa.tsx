@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import FiltrosMunicipioModal from '../../components/FiltrosMunicipioModal';
 import ReclamosMap from '../../components/ReclamosMap';
 import { useAuth } from '../../contexts/AuthContext';
@@ -10,13 +10,14 @@ import { aplicarFiltros, FILTROS_VACIOS, hayFiltrosActivos } from '../../lib/fil
 import type { FiltrosMunicipio } from '../../lib/filtrosMunicipio';
 import { obtenerReclamosPorMunicipio } from '../../services/reclamos';
 import type { Reclamo } from '../../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../../theme';
+import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
 // Mapa del municipio: el mismo mapa del vecino con todos los reclamos del municipio, los
 // mismos filtros que la Bandeja, y marcas para los vencidos y los peligrosos. La tarjeta
 // del marcador abre el Detalle con gestión.
 export default function MapaAdminScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   // router.setParams manda SET_PARAMS al navegador raíz y el param termina en la ruta
   // "(admin)", no en esta pantalla: reclamoId nunca se borraba. navigation.setParams actúa
   // sobre la ruta de esta pantalla.
@@ -100,13 +101,13 @@ export default function MapaAdminScreen() {
 
       <View style={styles.legend}>
         <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: colors.coral }]}>
-            <Ionicons name="alarm" size={9} color={colors.bg} />
+          <View style={[styles.legendDot, { backgroundColor: colors.pink }]}>
+            <Ionicons name="alarm" size={9} color={colors.ink} />
           </View>
           <Text style={styles.legendText}>Vencido</Text>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: colors.mango }]}>
+          <View style={[styles.legendDot, { backgroundColor: colors.mandarin }]}>
             <Ionicons name="warning" size={9} color={colors.ink} />
           </View>
           <Text style={styles.legendText}>Peligroso</Text>
@@ -124,6 +125,7 @@ export default function MapaAdminScreen() {
         enfocarId={reclamoId}
         onEnfocado={limpiarReclamoId}
         modoMunicipio
+        overlayBottom={82 + insets.bottom}
         onOpenReclamo={(reclamo) => router.push(`/admin-reclamo/${reclamo.id}`)}
       />
 
@@ -149,7 +151,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
-    paddingBottom: spacing.xs,
+    margin: spacing.lg,
+    marginBottom: spacing.sm,
+    padding: spacing.lg,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
+    ...shadows.card,
   },
   title: {
     fontFamily: fonts.display,
@@ -157,21 +164,20 @@ const styles = StyleSheet.create({
     color: colors.ink,
   },
   subtitle: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.sm,
     color: colors.inkSoft,
   },
   filterButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: colors.ink,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.cobaltSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
   filterButtonActive: {
-    backgroundColor: colors.ink,
+    backgroundColor: colors.cobalt,
   },
   legend: {
     flexDirection: 'row',
@@ -192,18 +198,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   legendText: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
     color: colors.ink,
   },
   aviso: {
-    backgroundColor: colors.ink,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
+    borderRadius: radii.pill,
+    backgroundColor: colors.cobalt,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
   },
   avisoText: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    color: colors.bg,
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.sm,
+    color: colors.surface,
   },
 });
