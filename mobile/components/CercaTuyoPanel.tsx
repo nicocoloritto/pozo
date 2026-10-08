@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import EmptyState from './EmptyState';
 import ReclamoCard from './ReclamoCard';
 import { useUbicacionUsuario } from '../hooks/useUbicacionUsuario';
 import { formatearDistancia, RADIO_CERCA_TUYO_METROS, reclamosCercanos } from '../lib/distancia';
 import type { Reclamo } from '../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../theme';
+import { colors, fonts, fontSizes, radii, spacing } from '../theme';
 
 type Props = {
   // Ya filtrados por categoría y estado en la pantalla del mapa: la lista y el mapa
@@ -31,9 +32,13 @@ export default function CercaTuyoPanel({ reclamos, onOpenReclamo }: Props) {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Cerca tuyo</Text>
-        <Text style={styles.subtitle}>
-          {estado === 'lista' ? `${cercanos.length} activos · radio ${RADIO_CERCA_TUYO_METROS} m` : ''}
-        </Text>
+        {estado === 'lista' && (
+          <View style={styles.counter}>
+            <Text style={styles.counterText}>
+              {cercanos.length} activos · {RADIO_CERCA_TUYO_METROS} m
+            </Text>
+          </View>
+        )}
       </View>
 
       {estado === 'buscando' && <Text style={styles.hint}>Buscando tu ubicación…</Text>}
@@ -62,12 +67,14 @@ export default function CercaTuyoPanel({ reclamos, onOpenReclamo }: Props) {
               }
             />
           }
-          renderItem={({ item }) => (
-            <ReclamoCard
-              reclamo={item.reclamo}
-              distanciaMetros={item.distanciaMetros}
-              onPress={() => onOpenReclamo(item.reclamo)}
-            />
+          renderItem={({ item, index }) => (
+            <Animated.View entering={FadeInDown.delay(index * 60).springify().damping(16)}>
+              <ReclamoCard
+                reclamo={item.reclamo}
+                distanciaMetros={item.distanciaMetros}
+                onPress={() => onOpenReclamo(item.reclamo)}
+              />
+            </Animated.View>
           )}
         />
       )}
@@ -77,36 +84,43 @@ export default function CercaTuyoPanel({ reclamos, onOpenReclamo }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    maxHeight: 260,
+    maxHeight: 300,
     backgroundColor: colors.bg,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.12)',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'baseline',
+    alignItems: 'center',
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.sm,
   },
   title: {
     fontFamily: fonts.display,
-    fontSize: fontSizes.md,
+    fontSize: fontSizes.lg,
     color: colors.ink,
   },
-  subtitle: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.inkSoft,
+  counter: {
+    backgroundColor: colors.mangoSoft,
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: 4,
+    borderRadius: radii.pill,
+  },
+  counterText: {
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs + 1,
+    color: colors.mangoDeep,
   },
   hint: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.sm,
     color: colors.inkSoft,
     padding: spacing.lg,
   },
   list: {
     paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.lg,
+    gap: spacing.md,
   },
 });

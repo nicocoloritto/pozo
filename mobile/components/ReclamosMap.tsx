@@ -3,6 +3,7 @@ import * as Location from 'expo-location';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutDown } from 'react-native-reanimated';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import type { Region } from 'react-native-maps';
 import Supercluster from 'supercluster';
@@ -11,7 +12,8 @@ import { estaVencido } from '../lib/prioridad';
 import { AREAS } from '../services/areas';
 import { CATEGORIAS_PELIGROSAS } from '../types/reclamo';
 import type { Reclamo } from '../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../theme';
+import { colors, fonts, fontSizes, radii, shadows, spacing } from '../theme';
+import PressableScale from './PressableScale';
 import ReclamoMarker from './ReclamoMarker';
 import StatusStamp from './StatusStamp';
 
@@ -355,41 +357,54 @@ export default function ReclamosMap({
           })}
         </MapView>
 
-        <Pressable
+        <PressableScale
           accessibilityRole="button"
           accessibilityLabel="Volver a mi ubicación"
           onPress={handleRecenter}
-          style={({ pressed }) => [styles.locateButton, pressed && styles.pressed]}
+          pressedScale={0.86}
+          style={styles.locateButton}
         >
-          <Ionicons name="locate" size={20} color={colors.ink} />
-        </Pressable>
+          <Ionicons name="navigate" size={20} color={colors.skyDeep} />
+        </PressableScale>
 
         {locationDenied && (
-          <View style={styles.locationNotice} pointerEvents="none">
+          <Animated.View entering={FadeInDown} exiting={FadeOut} style={styles.locationNotice} pointerEvents="none">
+            <Ionicons name="location-outline" size={14} color={colors.inkSoft} />
             <Text style={styles.locationNoticeText}>Sin tu ubicación, el mapa arranca centrado en CABA.</Text>
-          </View>
+          </Animated.View>
         )}
 
         {loading && (
-          <View style={styles.loadingOverlay} pointerEvents="none">
+          <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.loadingOverlay} pointerEvents="none">
             <Text style={styles.loadingText}>Cargando reclamos…</Text>
-          </View>
+          </Animated.View>
         )}
       </View>
 
       {tarjeta?.tipo === 'uno' && (
-        <Pressable
-          style={styles.selectedCard}
-          onPress={() => onOpenReclamo(tarjeta.reclamo)}
-          accessibilityRole="button"
-          accessibilityLabel={`Ver reclamo de ${categoryLabels[tarjeta.reclamo.category]}`}
+        <Animated.View
+          key={tarjeta.reclamo.id}
+          entering={FadeInDown.springify().damping(16)}
+          exiting={FadeOutDown.duration(150)}
+          style={styles.floatingCard}
         >
-          <FilaReclamo reclamo={tarjeta.reclamo} />
-        </Pressable>
+          <PressableScale
+            style={styles.selectedCard}
+            onPress={() => onOpenReclamo(tarjeta.reclamo)}
+            accessibilityRole="button"
+            accessibilityLabel={`Ver reclamo de ${categoryLabels[tarjeta.reclamo.category]}`}
+          >
+            <FilaReclamo reclamo={tarjeta.reclamo} />
+          </PressableScale>
+        </Animated.View>
       )}
 
       {tarjeta?.tipo === 'lista' && (
-        <View style={styles.listCard}>
+        <Animated.View
+          entering={FadeInDown.springify().damping(16)}
+          exiting={FadeOutDown.duration(150)}
+          style={[styles.floatingCard, styles.listCard]}
+        >
           <View style={styles.listHeader}>
             <Text style={styles.listTitle}>{tarjeta.reclamos.length} reclamos en este punto</Text>
             <Pressable onPress={() => setTarjeta(null)} hitSlop={10} accessibilityRole="button" accessibilityLabel="Cerrar lista">
@@ -409,7 +424,7 @@ export default function ReclamosMap({
               </Pressable>
             ))}
           </ScrollView>
-        </View>
+        </Animated.View>
       )}
     </View>
   );
@@ -430,7 +445,9 @@ function FilaReclamo({ reclamo }: { reclamo: Reclamo }) {
         </Text>
         <StatusStamp status={reclamo.status} />
       </View>
-      <Ionicons name="chevron-forward" size={20} color={colors.inkSoft} />
+      <View style={styles.chevron}>
+        <Ionicons name="arrow-forward" size={16} color={colors.ink} />
+      </View>
     </>
   );
 }
@@ -520,6 +537,10 @@ const styles = StyleSheet.create({
   },
   mapWrap: {
     flex: 1,
+    marginHorizontal: spacing.lg,
+    borderRadius: radii.xl,
+    overflow: 'hidden',
+    backgroundColor: colors.surfaceAlt,
   },
   map: {
     flex: 1,
@@ -534,8 +555,8 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    borderWidth: 1.5,
-    borderColor: colors.bg,
+    borderWidth: 2,
+    borderColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -550,39 +571,35 @@ const styles = StyleSheet.create({
     backgroundColor: colors.mango,
   },
   cluster: {
-    minWidth: 40,
-    height: 40,
-    borderRadius: 20,
-    paddingHorizontal: 6,
-    backgroundColor: colors.ink,
+    minWidth: 42,
+    height: 42,
+    borderRadius: 21,
+    paddingHorizontal: 8,
+    backgroundColor: colors.mango,
     borderWidth: 3,
-    borderColor: colors.mango,
+    borderColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
   clusterVencido: {
-    borderColor: colors.coral,
+    backgroundColor: colors.coral,
   },
   clusterText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.sm,
-    color: colors.bg,
+    fontFamily: fonts.display,
+    fontSize: fontSizes.md,
+    color: colors.ink,
   },
   locateButton: {
     position: 'absolute',
     bottom: spacing.lg,
     right: spacing.lg,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.bg,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.ink,
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
+    ...shadows.float,
   },
   pressed: {
     opacity: 0.7,
@@ -590,38 +607,48 @@ const styles = StyleSheet.create({
   locationNotice: {
     position: 'absolute',
     top: spacing.md,
-    left: spacing.md,
-    right: spacing.md,
-    backgroundColor: 'rgba(28,27,26,0.85)',
-    padding: spacing.sm,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radii.pill,
+    ...shadows.card,
   },
   locationNoticeText: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    color: colors.bg,
-    textAlign: 'center',
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.xs + 1,
+    color: colors.inkSoft,
   },
   loadingOverlay: {
     position: 'absolute',
     bottom: spacing.lg,
     left: spacing.lg,
-    backgroundColor: 'rgba(28,27,26,0.85)',
+    backgroundColor: colors.surface,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    borderRadius: radii.pill,
+    ...shadows.card,
   },
   loadingText: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    color: colors.bg,
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.xs + 1,
+    color: colors.inkSoft,
+  },
+  floatingCard: {
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
+    ...shadows.float,
   },
   selectedCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     padding: spacing.md,
-    backgroundColor: colors.bg,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.08)',
   },
   selectedPhotoWrap: {
     width: 48,
@@ -634,8 +661,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   selectedTitle: {
-    fontFamily: fonts.bodyBold,
-    fontSize: fontSizes.md,
+    fontFamily: fonts.displayBold,
+    fontSize: fontSizes.md + 1,
     color: colors.ink,
   },
   selectedAddress: {
@@ -643,25 +670,30 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.sm,
     color: colors.inkSoft,
   },
+  chevron: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.mangoSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   listCard: {
-    backgroundColor: colors.bg,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.08)',
-    maxHeight: 280,
+    maxHeight: 300,
+    overflow: 'hidden',
   },
   listHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.xs,
   },
   listTitle: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.inkSoft,
+    fontFamily: fonts.displayBold,
+    fontSize: fontSizes.md,
+    color: colors.ink,
   },
   listScroll: {
     flexGrow: 0,
@@ -670,8 +702,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    padding: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 2,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.08)',
+    borderTopColor: colors.line,
   },
 });
