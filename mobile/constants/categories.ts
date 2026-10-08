@@ -1,4 +1,5 @@
 import type { Categoria } from '../types/reclamo';
+import { colors } from '../theme';
 
 // Spanish labels for the UI. Screen-visible text is Spanish; identifiers stay English.
 export const categoryLabels: Record<Categoria, string> = {
@@ -39,3 +40,25 @@ export const categoryOrder: Categoria[] = [
   'Outage',
   'OverflowingBin',
 ];
+
+// Color de cada categoría: fondo suave e ícono en el tono profundo del mismo acento.
+// Agrupadas por familia (calzada, luz, verde, cielo) para que el mapa no sea un arcoíris.
+type CategoryTint = { soft: string; deep: string; base: string };
+
+const MANDARIN: CategoryTint = { soft: colors.mandarinSoft, deep: colors.mandarinDeep, base: colors.mandarin };
+const PINK: CategoryTint = { soft: colors.pinkSoft, deep: colors.pinkDeep, base: colors.pink };
+const LIME: CategoryTint = { soft: colors.limeSoft, deep: colors.limeDeep, base: colors.lime };
+const SKY: CategoryTint = { soft: colors.skySoft, deep: colors.skyDeep, base: colors.sky };
+const COBALT: CategoryTint = { soft: colors.cobaltSoft, deep: colors.cobaltDeep, base: colors.cobalt };
+
+export const categoryTints: Record<Categoria, CategoryTint> = {
+  Pothole: MANDARIN,
+  BrokenSidewalk: COBALT,
+  TrafficLight: PINK,
+  StreetLight: MANDARIN,
+  FallenPole: SKY,
+  FallenTree: LIME,
+  Trench: COBALT,
+  Outage: SKY,
+  OverflowingBin: LIME,
+};

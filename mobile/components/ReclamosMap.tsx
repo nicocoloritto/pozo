@@ -3,6 +3,7 @@ import * as Location from 'expo-location';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutDown, useReducedMotion } from 'react-native-reanimated';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import type { Region } from 'react-native-maps';
 import Supercluster from 'supercluster';
@@ -11,7 +12,8 @@ import { estaVencido } from '../lib/prioridad';
 import { AREAS } from '../services/areas';
 import { CATEGORIAS_PELIGROSAS } from '../types/reclamo';
 import type { Reclamo } from '../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../theme';
+import { colors, fonts, fontSizes, radii, shadows, spacing } from '../theme';
+import PressableScale from './PressableScale';
 import ReclamoMarker from './ReclamoMarker';
 import StatusStamp from './StatusStamp';
 
@@ -61,6 +63,7 @@ type Props = {
   // llama a onEnfocado para que la pantalla limpie el parámetro y no se repita solo.
   enfocarId?: string | null;
   onEnfocado?: () => void;
+  overlayBottom?: number;
 };
 
 // Mapa compartido por el vecino (app/(tabs)/map.tsx) y el municipio (app/(admin)/mapa.tsx).
@@ -82,9 +85,11 @@ export default function ReclamosMap({
   onOpenReclamo,
   enfocarId,
   onEnfocado,
+  overlayBottom = 0,
 }: Props) {
   const mapRef = useRef<MapView>(null);
   const movidoPorUsuario = useRef(false);
+  const reducedMotion = useReducedMotion();
 
   const [userCoords, setUserCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationDenied, setLocationDenied] = useState(false);
@@ -120,13 +125,13 @@ export default function ReclamosMap({
 
   useEffect(() => {
     if (!userCoords || !centrarEnUsuario || movidoPorUsuario.current) return;
-    mapRef.current?.animateToRegion({ ...userCoords, latitudeDelta: 0.04, longitudeDelta: 0.04 }, 400);
-  }, [userCoords, centrarEnUsuario]);
+    mapRef.current?.animateToRegion({ ...userCoords, latitudeDelta: 0.04, longitudeDelta: 0.04 }, reducedMotion ? 0 : 400);
+  }, [userCoords, centrarEnUsuario, reducedMotion]);
 
   const handleRecenter = useCallback(() => {
     if (!userCoords) return;
-    mapRef.current?.animateToRegion({ ...userCoords, latitudeDelta: 0.04, longitudeDelta: 0.04 }, 400);
-  }, [userCoords]);
+    mapRef.current?.animateToRegion({ ...userCoords, latitudeDelta: 0.04, longitudeDelta: 0.04 }, reducedMotion ? 0 : 400);
+  }, [userCoords, reducedMotion]);
 
   const reclamosPorId = useMemo(() => new Map(reclamos.map((r) => [r.id, r])), [reclamos]);
 
@@ -226,13 +231,13 @@ export default function ReclamosMap({
     const zoom = Math.min(zoomParaSepararlo(reclamo) + 0.2, MAX_ZOOM + 0.9);
     mapRef.current?.animateToRegion(
       zoomARegion(zoom, size.width, size.height, reclamo.latitude, reclamo.longitude),
-      400
+      reducedMotion ? 0 : 400
     );
     setTarjeta({ tipo: 'uno', reclamo });
     onEnfocado?.();
     // size y onEnfocado no entran a propósito: es un efecto de una sola vez por pedido.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enfocarId, mapaListo, reclamosPorId, zoomParaSepararlo]);
+  }, [enfocarId, mapaListo, reclamosPorId, zoomParaSepararlo, reducedMotion]);
 
   const items = useMemo(() => {
     // Sin agrupar: pedir el zoom donde nada se agrupa devuelve todos los puntos sueltos.
@@ -277,8 +282,8 @@ export default function ReclamosMap({
     }
     setTarjeta(null);
     const destino = zoomARegion(Math.min(zoomSeparacion + 0.2, MAX_ZOOM + 0.9), tam.width, tam.height, latitude, longitude);
-    mapRef.current?.animateToRegion(destino, 350);
-  }, []);
+    mapRef.current?.animateToRegion(destino, reducedMotion ? 0 : 350);
+  }, [reducedMotion]);
 
   return (
     <View style={styles.container}>
@@ -341,12 +346,12 @@ export default function ReclamosMap({
                   <ReclamoMarker reclamo={reclamo} />
                   {vencido > 0 && (
                     <View style={[styles.badge, styles.badgeVencido]}>
-                      <Ionicons name="alarm" size={11} color={colors.chalk} />
+                      <Ionicons name="alarm" size={11} color={colors.ink} />
                     </View>
                   )}
                   {peligroso > 0 && (
                     <View style={[styles.badge, styles.badgePeligroso]}>
-                      <Ionicons name="warning" size={11} color={colors.asphalt} />
+                      <Ionicons name="warning" size={11} color={colors.ink} />
                     </View>
                   )}
                 </View>
@@ -355,45 +360,58 @@ export default function ReclamosMap({
           })}
         </MapView>
 
-        <Pressable
+        <PressableScale
           accessibilityRole="button"
           accessibilityLabel="Volver a mi ubicación"
           onPress={handleRecenter}
-          style={({ pressed }) => [styles.locateButton, pressed && styles.pressed]}
+          pressedScale={0.86}
+          style={[styles.locateButton, { bottom: overlayBottom + spacing.lg }]}
         >
-          <Ionicons name="locate" size={20} color={colors.asphalt} />
-        </Pressable>
+          <Ionicons name="navigate" size={20} color={colors.skyDeep} />
+        </PressableScale>
 
         {locationDenied && (
-          <View style={styles.locationNotice} pointerEvents="none">
+          <Animated.View entering={reducedMotion ? undefined : FadeInDown} exiting={reducedMotion ? undefined : FadeOut} style={styles.locationNotice} pointerEvents="none">
+            <Ionicons name="location-outline" size={14} color={colors.inkSoft} />
             <Text style={styles.locationNoticeText}>Sin tu ubicación, el mapa arranca centrado en CABA.</Text>
-          </View>
+          </Animated.View>
         )}
 
         {loading && (
-          <View style={styles.loadingOverlay} pointerEvents="none">
+          <Animated.View entering={reducedMotion ? undefined : FadeIn} exiting={reducedMotion ? undefined : FadeOut} style={[styles.loadingOverlay, { bottom: overlayBottom + spacing.lg }]} pointerEvents="none">
             <Text style={styles.loadingText}>Cargando reclamos…</Text>
-          </View>
+          </Animated.View>
         )}
       </View>
 
       {tarjeta?.tipo === 'uno' && (
-        <Pressable
-          style={styles.selectedCard}
-          onPress={() => onOpenReclamo(tarjeta.reclamo)}
-          accessibilityRole="button"
-          accessibilityLabel={`Ver reclamo de ${categoryLabels[tarjeta.reclamo.category]}`}
+        <Animated.View
+          key={tarjeta.reclamo.id}
+          entering={reducedMotion ? undefined : FadeInDown.springify().damping(16)}
+          exiting={reducedMotion ? undefined : FadeOutDown.duration(150)}
+          style={[styles.floatingCard, { bottom: overlayBottom + spacing.lg }]}
         >
-          <FilaReclamo reclamo={tarjeta.reclamo} />
-        </Pressable>
+          <PressableScale
+            style={styles.selectedCard}
+            onPress={() => onOpenReclamo(tarjeta.reclamo)}
+            accessibilityRole="button"
+            accessibilityLabel={`Ver reclamo de ${categoryLabels[tarjeta.reclamo.category]}`}
+          >
+            <FilaReclamo reclamo={tarjeta.reclamo} />
+          </PressableScale>
+        </Animated.View>
       )}
 
       {tarjeta?.tipo === 'lista' && (
-        <View style={styles.listCard}>
+        <Animated.View
+          entering={reducedMotion ? undefined : FadeInDown.springify().damping(16)}
+          exiting={reducedMotion ? undefined : FadeOutDown.duration(150)}
+          style={[styles.floatingCard, styles.listCard, { bottom: overlayBottom + spacing.lg }]}
+        >
           <View style={styles.listHeader}>
             <Text style={styles.listTitle}>{tarjeta.reclamos.length} reclamos en este punto</Text>
             <Pressable onPress={() => setTarjeta(null)} hitSlop={10} accessibilityRole="button" accessibilityLabel="Cerrar lista">
-              <Ionicons name="close" size={20} color={colors.asphalt} />
+              <Ionicons name="close" size={20} color={colors.ink} />
             </Pressable>
           </View>
           <ScrollView style={styles.listScroll}>
@@ -409,7 +427,7 @@ export default function ReclamosMap({
               </Pressable>
             ))}
           </ScrollView>
-        </View>
+        </Animated.View>
       )}
     </View>
   );
@@ -430,7 +448,9 @@ function FilaReclamo({ reclamo }: { reclamo: Reclamo }) {
         </Text>
         <StatusStamp status={reclamo.status} />
       </View>
-      <Ionicons name="chevron-forward" size={20} color={colors.concrete} />
+      <View style={styles.chevron}>
+        <Ionicons name="arrow-forward" size={16} color={colors.ink} />
+      </View>
     </>
   );
 }
@@ -443,7 +463,7 @@ function ClusterBubble({ count, vencido, peligroso }: { count: number; vencido: 
       </View>
       {peligroso && (
         <View style={[styles.badge, styles.badgePeligroso]}>
-          <Ionicons name="warning" size={11} color={colors.asphalt} />
+          <Ionicons name="warning" size={11} color={colors.ink} />
         </View>
       )}
     </View>
@@ -516,10 +536,12 @@ const ANCLA_CENTRO = { x: 0.5, y: 0.5 };
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   mapWrap: {
     flex: 1,
+    overflow: 'hidden',
+    backgroundColor: colors.surfaceAlt,
   },
   map: {
     flex: 1,
@@ -534,55 +556,51 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    borderWidth: 1.5,
-    borderColor: colors.chalk,
+    borderWidth: 2,
+    borderColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
   badgeVencido: {
     top: 0,
     right: 0,
-    backgroundColor: colors.rust,
+    backgroundColor: colors.pink,
   },
   badgePeligroso: {
     top: 0,
     left: 0,
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.mandarin,
   },
   cluster: {
-    minWidth: 40,
-    height: 40,
-    borderRadius: 20,
-    paddingHorizontal: 6,
-    backgroundColor: colors.asphalt,
+    minWidth: 42,
+    height: 42,
+    borderRadius: 21,
+    paddingHorizontal: 8,
+    backgroundColor: colors.mandarin,
     borderWidth: 3,
-    borderColor: colors.yellow,
+    borderColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
   clusterVencido: {
-    borderColor: colors.rust,
+    backgroundColor: colors.pink,
   },
   clusterText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.sm,
-    color: colors.chalk,
+    fontFamily: fonts.display,
+    fontSize: fontSizes.md,
+    color: colors.ink,
   },
   locateButton: {
     position: 'absolute',
     bottom: spacing.lg,
     right: spacing.lg,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.chalk,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.asphalt,
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
+    ...shadows.float,
   },
   pressed: {
     opacity: 0.7,
@@ -590,38 +608,49 @@ const styles = StyleSheet.create({
   locationNotice: {
     position: 'absolute',
     top: spacing.md,
-    left: spacing.md,
-    right: spacing.md,
-    backgroundColor: 'rgba(28,27,26,0.85)',
-    padding: spacing.sm,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radii.pill,
+    ...shadows.card,
   },
   locationNoticeText: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    color: colors.chalk,
-    textAlign: 'center',
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.xs + 1,
+    color: colors.inkSoft,
   },
   loadingOverlay: {
     position: 'absolute',
     bottom: spacing.lg,
     left: spacing.lg,
-    backgroundColor: 'rgba(28,27,26,0.85)',
+    backgroundColor: colors.surface,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    borderRadius: radii.pill,
+    ...shadows.card,
   },
   loadingText: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    color: colors.chalk,
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.xs + 1,
+    color: colors.inkSoft,
+  },
+  floatingCard: {
+    position: 'absolute',
+    left: spacing.lg,
+    right: spacing.lg,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
+    ...shadows.float,
   },
   selectedCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     padding: spacing.md,
-    backgroundColor: colors.chalk,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.08)',
   },
   selectedPhotoWrap: {
     width: 48,
@@ -634,34 +663,39 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   selectedTitle: {
-    fontFamily: fonts.bodyBold,
-    fontSize: fontSizes.md,
-    color: colors.asphalt,
+    fontFamily: fonts.displayBold,
+    fontSize: fontSizes.md + 1,
+    color: colors.ink,
   },
   selectedAddress: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concrete,
+    color: colors.inkSoft,
+  },
+  chevron: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.mandarinSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   listCard: {
-    backgroundColor: colors.chalk,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.08)',
-    maxHeight: 280,
+    maxHeight: 300,
+    overflow: 'hidden',
   },
   listHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.xs,
   },
   listTitle: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.concrete,
+    fontFamily: fonts.displayBold,
+    fontSize: fontSizes.md,
+    color: colors.ink,
   },
   listScroll: {
     flexGrow: 0,
@@ -670,8 +704,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    padding: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 2,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.08)',
+    borderTopColor: colors.line,
   },
 });

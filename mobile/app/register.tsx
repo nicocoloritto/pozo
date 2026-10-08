@@ -6,6 +6,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -13,11 +14,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PermissionNotice from '../components/PermissionNotice';
+import PressableScale from '../components/PressableScale';
 import { useAuth } from '../contexts/AuthContext';
 import { DniParseError, parseDniBarcode } from '../lib/dni';
 import type { ParsedDni } from '../lib/dni';
 import { AuthError } from '../services/auth';
-import { colors, fonts, fontSizes, spacing } from '../theme';
+import { colors, fonts, fontSizes, radii, shadows, spacing } from '../theme';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 6;
@@ -98,6 +100,11 @@ export default function Register() {
           <View style={styles.headerSpacer} />
         </View>
 
+        <View style={styles.steps}>
+          <View style={[styles.step, styles.stepActive]} />
+          <View style={styles.step} />
+        </View>
+
         {!cameraPermission ? (
           <View style={styles.flex} />
         ) : !cameraPermission.granted ? (
@@ -107,27 +114,29 @@ export default function Register() {
             onRetry={requestCameraPermission}
           />
         ) : (
-          <View style={styles.camera}>
+          <View style={styles.cameraStage}>
             <CameraView
               style={styles.preview}
               facing="back"
               barcodeScannerSettings={{ barcodeTypes: ['pdf417'] }}
               onBarcodeScanned={scanned && !scanError ? undefined : handleBarcodeScanned}
             >
+              <View style={styles.scanFrame} />
               <View style={styles.hintBox}>
-                <Text style={styles.hint}>ENCUADRÁ EL CÓDIGO DEL DORSO</Text>
+                <Text style={styles.hint}>Encuadrá el código del dorso</Text>
               </View>
             </CameraView>
 
             {scanError && (
               <View style={styles.errorBox}>
                 <Text style={styles.errorText}>{scanError}</Text>
-                <Pressable
-                  style={({ pressed }) => [styles.retryButton, pressed && styles.pressed]}
+                <PressableScale
+                  style={styles.retryButton}
                   onPress={handleRetry}
+                  accessibilityRole="button"
                 >
                   <Text style={styles.retryText}>Volver a escanear</Text>
-                </Pressable>
+                </PressableScale>
               </View>
             )}
           </View>
@@ -150,70 +159,82 @@ export default function Register() {
           <View style={styles.headerSpacer} />
         </View>
 
-        <View style={styles.content}>
-          <View style={styles.dniBox}>
-            <Text style={styles.dniRow}>
-              {dni.firstName} {dni.lastName}
-            </Text>
-            <Text style={styles.dniRowSmall}>
-              DNI {dni.documentNumber} · {dni.sex} · Nacimiento {dni.birthDate}
-            </Text>
-          </View>
-
-          <View style={styles.field}>
-            <Text style={styles.lbl}>Email</Text>
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                setFormError(null);
-              }}
-              placeholder="tu@email.com"
-              placeholderTextColor={colors.concrete}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-            />
-          </View>
-
-          <View style={styles.field}>
-            <Text style={styles.lbl}>Contraseña</Text>
-            <TextInput
-              style={styles.input}
-              value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                setFormError(null);
-              }}
-              placeholder={`Mínimo ${MIN_PASSWORD_LENGTH} caracteres`}
-              placeholderTextColor={colors.concrete}
-              secureTextEntry
-              autoCapitalize="none"
-            />
-          </View>
-
-          {formError && (
-            <View style={styles.formErrorBox}>
-              <Text style={styles.formErrorText}>{formError}</Text>
-              {offerLogin && (
-                <Pressable onPress={() => router.replace('/login')}>
-                  <Text style={styles.link}>Ir a iniciar sesión</Text>
-                </Pressable>
-              )}
-            </View>
-          )}
-
-          <Pressable
-            disabled={!canSubmit}
-            onPress={handleSubmit}
-            style={[styles.button, !canSubmit && styles.buttonDisabled]}
-          >
-            <Text style={[styles.buttonText, !canSubmit && styles.buttonTextDisabled]}>
-              {submitting ? 'Creando cuenta…' : 'Registrarme'}
-            </Text>
-          </Pressable>
+        <View style={styles.steps}>
+          <View style={styles.stepDone} />
+          <View style={[styles.step, styles.stepActive]} />
         </View>
+
+        <ScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.formCard}>
+            <View style={styles.dniBox}>
+              <Text style={styles.dniRow}>
+                {dni.firstName} {dni.lastName}
+              </Text>
+              <Text style={styles.dniRowSmall}>
+                DNI {dni.documentNumber} · {dni.sex} · Nacimiento {dni.birthDate}
+              </Text>
+            </View>
+
+            <View style={styles.field}>
+              <Text style={styles.lbl}>Email</Text>
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  setFormError(null);
+                }}
+                placeholder="tu@email.com"
+                placeholderTextColor={colors.inkSoft}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+              />
+            </View>
+
+            <View style={styles.field}>
+              <Text style={styles.lbl}>Contraseña</Text>
+              <TextInput
+                style={styles.input}
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  setFormError(null);
+                }}
+                placeholder={`Mínimo ${MIN_PASSWORD_LENGTH} caracteres`}
+                placeholderTextColor={colors.inkSoft}
+                secureTextEntry
+                autoCapitalize="none"
+              />
+            </View>
+
+            {formError && (
+              <View style={styles.formErrorBox}>
+                <Text style={styles.formErrorText}>{formError}</Text>
+                {offerLogin && (
+                  <Pressable onPress={() => router.replace('/login')}>
+                    <Text style={styles.link}>Ir a iniciar sesión</Text>
+                  </Pressable>
+                )}
+              </View>
+            )}
+
+            <PressableScale
+              disabled={!canSubmit}
+              onPress={handleSubmit}
+              style={[styles.button, !canSubmit && styles.buttonDisabled]}
+              accessibilityRole="button"
+            >
+              <Text style={[styles.buttonText, !canSubmit && styles.buttonTextDisabled]}>
+                {submitting ? 'Creando cuenta…' : 'Registrarme'}
+              </Text>
+            </PressableScale>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -222,7 +243,7 @@ export default function Register() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.cobalt,
   },
   flex: {
     flex: 1,
@@ -243,18 +264,44 @@ const styles = StyleSheet.create({
     width: 56,
   },
   cancel: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.sm,
-    textTransform: 'uppercase',
-    color: colors.concreteLight,
+    color: colors.surface,
   },
   headerTitle: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.sm,
-    color: colors.chalk,
+    fontFamily: fonts.displayBold,
+    fontSize: fontSizes.lg,
+    color: colors.surface,
   },
-  camera: {
+  steps: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
+  },
+  step: {
     flex: 1,
+    height: 5,
+    borderRadius: radii.pill,
+    backgroundColor: 'rgba(255,255,255,0.28)',
+  },
+  stepActive: {
+    backgroundColor: colors.lime,
+  },
+  stepDone: {
+    flex: 1,
+    height: 5,
+    borderRadius: radii.pill,
+    backgroundColor: colors.surface,
+  },
+  cameraStage: {
+    flex: 1,
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    borderRadius: radii.xl,
+    overflow: 'hidden',
+    backgroundColor: colors.ink,
+    ...shadows.float,
   },
   preview: {
     flex: 1,
@@ -265,104 +312,126 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: spacing.xl,
     alignItems: 'center',
+    backgroundColor: 'rgba(23,32,42,0.76)',
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
   },
   hint: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.sm,
-    color: colors.concreteLight,
+    color: colors.surface,
+  },
+  scanFrame: {
+    width: '84%',
+    height: 180,
+    borderWidth: 2,
+    borderColor: colors.lime,
+    borderRadius: radii.lg,
   },
   errorBox: {
     gap: spacing.sm,
     padding: spacing.lg,
-    backgroundColor: colors.asphalt2,
+    backgroundColor: colors.pinkSoft,
   },
   errorText: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.rust,
+    color: colors.pinkDeep,
   },
   retryButton: {
     alignSelf: 'flex-start',
-    borderWidth: 1,
-    borderColor: colors.yellow,
+    backgroundColor: colors.pink,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-  },
-  pressed: {
-    opacity: 0.7,
+    borderRadius: radii.pill,
   },
   retryText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.yellow,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.surface,
   },
   content: {
-    flex: 1,
-    gap: spacing.md,
+    flexGrow: 1,
+    justifyContent: 'flex-end',
+    paddingTop: spacing.md,
+  },
+  formCard: {
+    gap: spacing.lg,
     padding: spacing.xl,
+    paddingBottom: spacing.xxl,
+    borderTopLeftRadius: radii.xl,
+    borderTopRightRadius: radii.xl,
+    backgroundColor: colors.surface,
+    ...shadows.float,
   },
   dniBox: {
     gap: spacing.xs,
-    padding: spacing.md,
-    backgroundColor: colors.asphalt2,
+    padding: spacing.lg,
+    borderRadius: radii.lg,
+    backgroundColor: colors.limeSoft,
     marginBottom: spacing.sm,
   },
   dniRow: {
     fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.md,
-    color: colors.chalk,
+    color: colors.ink,
   },
   dniRowSmall: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.body,
     fontSize: fontSizes.xs,
-    color: colors.concreteLight,
+    color: colors.limeDeep,
   },
   field: {
     gap: spacing.xs,
   },
   lbl: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.concreteLight,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.inkSoft,
   },
   input: {
-    backgroundColor: colors.chalk,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    minHeight: 56,
+    borderRadius: radii.md,
+    backgroundColor: colors.surfaceAlt,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   formErrorBox: {
     gap: spacing.xs,
+    padding: spacing.md,
+    borderRadius: radii.md,
+    backgroundColor: colors.pinkSoft,
   },
   formErrorText: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.rust,
+    color: colors.pinkDeep,
   },
   link: {
     fontFamily: fonts.bodySemiBold,
-    color: colors.yellow,
+    color: colors.cobalt,
   },
   button: {
-    backgroundColor: colors.yellow,
+    minHeight: 56,
+    borderRadius: radii.pill,
+    backgroundColor: colors.cobalt,
     padding: spacing.lg,
     alignItems: 'center',
     marginTop: spacing.sm,
   },
   buttonDisabled: {
-    backgroundColor: colors.asphalt2,
+    backgroundColor: colors.line,
   },
   buttonText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    textTransform: 'uppercase',
-    color: colors.asphalt,
+    color: colors.surface,
   },
   buttonTextDisabled: {
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
 });

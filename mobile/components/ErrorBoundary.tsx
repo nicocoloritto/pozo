@@ -46,16 +46,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.sm,
     padding: spacing.xl,
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.ink,
   },
   title: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.md,
-    color: colors.chalk,
+    color: colors.bg,
   },
   message: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concreteLight,
+    color: colors.inkMuted,
   },
 });

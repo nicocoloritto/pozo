@@ -1,5 +1,6 @@
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, fonts, fontSizes, spacing } from '../theme';
+import { Linking, StyleSheet, Text, View } from 'react-native';
+import PressableScale from './PressableScale';
+import { colors, fonts, fontSizes, radii, spacing } from '../theme';
 
 type PermissionNoticeProps = {
   title: string;
@@ -7,23 +8,22 @@ type PermissionNoticeProps = {
   onRetry: () => void;
 };
 
-// US-06: "Si rechazo un permiso, veo un mensaje que explica qué se pierde; la app no
-// se cierra." Used for both camera and location denial in Nuevo reclamo.
 export default function PermissionNotice({ title, message, onRetry }: PermissionNoticeProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.message}>{message}</Text>
       <View style={styles.actions}>
-        <Pressable style={({ pressed }) => [styles.button, pressed && styles.pressed]} onPress={onRetry}>
+        <PressableScale style={styles.button} onPress={onRetry} accessibilityRole="button">
           <Text style={styles.buttonText}>Reintentar</Text>
-        </Pressable>
-        <Pressable
-          style={({ pressed }) => [styles.buttonOutline, pressed && styles.pressed]}
+        </PressableScale>
+        <PressableScale
+          style={styles.buttonOutline}
           onPress={() => Linking.openSettings()}
+          accessibilityRole="button"
         >
           <Text style={styles.buttonOutlineText}>Abrir configuración</Text>
-        </Pressable>
+        </PressableScale>
       </View>
     </View>
   );
@@ -31,19 +31,21 @@ export default function PermissionNotice({ title, message, onRetry }: Permission
 
 const styles = StyleSheet.create({
   container: {
-    padding: spacing.lg,
-    gap: spacing.sm,
-    backgroundColor: colors.asphalt2,
+    margin: spacing.lg,
+    padding: spacing.xl,
+    gap: spacing.md,
+    borderRadius: radii.xl,
+    backgroundColor: colors.surface,
   },
   title: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.md,
-    color: colors.chalk,
+    color: colors.ink,
   },
   message: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concreteLight,
+    color: colors.inkSoft,
     lineHeight: 20,
   },
   actions: {
@@ -53,30 +55,27 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    backgroundColor: colors.yellow,
-    paddingVertical: spacing.sm,
+    backgroundColor: colors.cobalt,
+    paddingVertical: spacing.md,
     alignItems: 'center',
+    borderRadius: radii.pill,
   },
   buttonOutline: {
     flex: 1,
     borderWidth: 1,
-    borderColor: colors.concrete,
-    paddingVertical: spacing.sm,
+    borderColor: colors.cobalt,
+    paddingVertical: spacing.md,
     alignItems: 'center',
-  },
-  pressed: {
-    opacity: 0.7,
+    borderRadius: radii.pill,
   },
   buttonText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
-    textTransform: 'uppercase',
+    color: colors.surface,
   },
   buttonOutlineText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    color: colors.chalk,
-    textTransform: 'uppercase',
+    color: colors.cobalt,
   },
 });

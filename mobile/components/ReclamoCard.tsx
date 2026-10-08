@@ -1,12 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import CategoryChip from './CategoryChip';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import PressableScale from './PressableScale';
 import StatusStamp from './StatusStamp';
 import { categoryLabels } from '../constants/categories';
 import { formatearDistancia } from '../lib/distancia';
 import { fotoSource } from '../lib/fotoReclamo';
 import type { Reclamo } from '../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../theme';
+import { colors, fonts, fontSizes, radii, shadows, spacing } from '../theme';
 
 type ReclamoCardProps = {
   reclamo: Reclamo;
@@ -20,15 +20,21 @@ function daysSince(isoDate: string): number {
   return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)));
 }
 
-// Reused across el mapa, "Mis reclamos" y resultados de búsqueda
-// (design/pozo-pantallas-hifi.html).
+function antiguedad(isoDate: string): string {
+  const dias = daysSince(isoDate);
+  if (dias === 0) return 'hoy';
+  if (dias === 1) return 'ayer';
+  return `hace ${dias} d`;
+}
+
+// Reused across el mapa, "Mis reclamos" y resultados de búsqueda.
 export default function ReclamoCard({ reclamo, distanciaMetros, onPress }: ReclamoCardProps) {
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`Reclamo de ${categoryLabels[reclamo.category]} en ${reclamo.address ?? 'ubicación sin resolver'}`}
-      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+      style={styles.card}
     >
       <Image source={fotoSource(reclamo)} style={styles.photo} resizeMode="cover" />
       <View style={styles.body}>
@@ -36,30 +42,25 @@ export default function ReclamoCard({ reclamo, distanciaMetros, onPress }: Recla
           <Text style={styles.title} numberOfLines={1}>
             {categoryLabels[reclamo.category]}
           </Text>
-          <Text style={styles.days}>
+          <Text style={styles.meta}>
             {distanciaMetros !== undefined ? `${formatearDistancia(distanciaMetros)} · ` : ''}
-            {daysSince(reclamo.createdAt)}d
+            {antiguedad(reclamo.createdAt)}
           </Text>
         </View>
         <Text style={styles.address} numberOfLines={1}>
           {reclamo.address ?? 'Ubicación sin resolver'}
         </Text>
         <View style={styles.footer}>
-          <View style={styles.votes}>
-            <View style={styles.vote}>
-              <Ionicons name="thumbs-up-outline" size={13} color={colors.concrete} />
-              <Text style={styles.voteText}>{reclamo.confirmaciones.length}</Text>
-            </View>
-            <View style={styles.vote}>
-              <Ionicons name="thumbs-down-outline" size={13} color={colors.concrete} />
-              <Text style={styles.voteText}>{reclamo.votosYaNoEsta?.length ?? 0}</Text>
-            </View>
-          </View>
           <StatusStamp status={reclamo.status} />
+          <View style={styles.votes}>
+            <Ionicons name="people" size={13} color={colors.inkMuted} />
+            <Text style={styles.voteText}>
+              {reclamo.confirmaciones.length} sigue · {reclamo.votosYaNoEsta?.length ?? 0} ya no
+            </Text>
+          </View>
         </View>
       </View>
-      <CategoryChip category={reclamo.category} />
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -68,41 +69,43 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.08)',
-  },
-  pressed: {
-    opacity: 0.7,
+    padding: spacing.sm,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
+    ...shadows.card,
   },
   photo: {
-    width: 56,
-    height: 56,
-    backgroundColor: colors.asphalt,
+    width: 88,
+    height: 88,
+    borderRadius: radii.md,
+    backgroundColor: colors.surfaceAlt,
   },
   body: {
     flex: 1,
-    gap: 4,
+    gap: 3,
+    paddingRight: spacing.xs,
   },
   topLine: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'baseline',
+    gap: spacing.sm,
   },
   title: {
-    fontFamily: fonts.bodyBold,
-    fontSize: fontSizes.md,
-    color: colors.asphalt,
+    fontFamily: fonts.displayBold,
+    fontSize: fontSizes.md + 1,
+    color: colors.ink,
     flexShrink: 1,
   },
-  days: {
-    fontFamily: fonts.mono,
+  meta: {
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkMuted,
   },
   address: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   footer: {
     flexDirection: 'row',
@@ -113,16 +116,11 @@ const styles = StyleSheet.create({
   votes: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-  },
-  vote: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
+    gap: 4,
   },
   voteText: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    color: colors.concrete,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs + 1,
+    color: colors.inkSoft,
   },
 });

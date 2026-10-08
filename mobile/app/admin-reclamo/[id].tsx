@@ -27,7 +27,7 @@ import {
 import { areaPorId, AREAS } from '../../services/areas';
 import { CATEGORIAS_PELIGROSAS } from '../../types/reclamo';
 import type { Reclamo } from '../../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../../theme';
+import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
 function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleString('es-AR', {
@@ -238,7 +238,7 @@ export default function AdminReclamoDetail() {
           <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Volver">
             <Text style={styles.navText}>‹ Volver</Text>
           </Pressable>
-          <Text style={styles.navText}>Reclamo · {reclamo.caseNumber}</Text>
+          <Text style={styles.caseNumber}>{reclamo.caseNumber}</Text>
         </View>
       </SafeAreaView>
 
@@ -256,7 +256,7 @@ export default function AdminReclamoDetail() {
           <StatusStamp status={reclamo.status} />
           {resumenVerificacion(reclamo, null).posiblementeResuelto && (
             <View style={styles.resueltoChip}>
-              <Text style={styles.resueltoChipText}>POSIBLEMENTE RESUELTO</Text>
+              <Text style={styles.resueltoChipText}>Posiblemente resuelto</Text>
             </View>
           )}
         </View>
@@ -363,7 +363,7 @@ export default function AdminReclamoDetail() {
               value={notaTexto}
               onChangeText={setNotaTexto}
               placeholder="Agregar una nota pública…"
-              placeholderTextColor={colors.concrete}
+              placeholderTextColor={colors.inkSoft}
               multiline
             />
             <Pressable
@@ -384,7 +384,10 @@ export default function AdminReclamoDetail() {
         <View style={styles.timeline}>
           {reclamo.history.map((entry, index) => (
             <View key={index} style={styles.timelineRow}>
-              <View style={styles.timelineDot} />
+              <View style={styles.timelineRail}>
+                {index < reclamo.history.length - 1 && <View style={styles.timelineLine} />}
+                <View style={styles.timelineDot} />
+              </View>
               <View style={styles.timelineTextWrap}>
                 <Text style={styles.timelineLabel}>{entry.description}</Text>
                 <Text style={styles.timelineFecha}>{formatDateTime(entry.createdAt)}</Text>
@@ -422,7 +425,7 @@ export default function AdminReclamoDetail() {
               value={fechaInput}
               onChangeText={setFechaInput}
               placeholder="DD/MM/AAAA"
-              placeholderTextColor={colors.concrete}
+              placeholderTextColor={colors.inkSoft}
               keyboardType="number-pad"
             />
             <View style={styles.fechaRapidaRow}>
@@ -455,7 +458,7 @@ export default function AdminReclamoDetail() {
               value={motivoRechazo}
               onChangeText={setMotivoRechazo}
               placeholder="Motivo del rechazo…"
-              placeholderTextColor={colors.concrete}
+              placeholderTextColor={colors.inkSoft}
               multiline
             />
             {error && <Text style={styles.errorText}>{error}</Text>}
@@ -504,14 +507,14 @@ function ActionButton({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   loadingContent: {
     padding: spacing.lg,
     gap: spacing.md,
   },
   navSafeArea: {
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.cobalt,
   },
   nav: {
     flexDirection: 'row',
@@ -519,38 +522,47 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   navText: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.surface,
+  },
+  caseNumber: {
+    fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.surface,
   },
   photoWrap: {
-    height: 190,
-    backgroundColor: colors.asphalt2,
+    height: 280,
+    backgroundColor: colors.inkRaised,
   },
   photo: {
     width: '100%',
     height: '100%',
   },
   body: {
+    marginTop: -32,
+    marginHorizontal: spacing.sm,
     padding: spacing.lg,
+    paddingBottom: spacing.xxl,
     gap: spacing.sm,
+    borderRadius: radii.xl,
+    backgroundColor: colors.surface,
+    ...shadows.float,
   },
   category: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.rust,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.pinkDeep,
   },
   title: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xl,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   address: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concrete,
+    color: colors.inkSoft,
     marginBottom: spacing.xs,
   },
   statusRow: {
@@ -559,83 +571,84 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   resueltoChip: {
-    backgroundColor: colors.green,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 2,
+    borderRadius: radii.pill,
+    backgroundColor: colors.limeSoft,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 5,
   },
   resueltoChipText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: 9,
-    color: colors.chalk,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs,
+    color: colors.limeDeep,
   },
   statGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
     marginTop: spacing.sm,
   },
   statBox: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.12)',
-    padding: spacing.sm,
+    flexBasis: '46%',
+    flexGrow: 1,
+    minHeight: 82,
+    borderRadius: radii.md,
+    backgroundColor: colors.surfaceAlt,
+    padding: spacing.md,
   },
   statLabel: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    textTransform: 'uppercase',
-    color: colors.concrete,
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.xs,
+    color: colors.inkSoft,
     marginBottom: 4,
   },
   statValue: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   miniMapWrap: {
     marginTop: spacing.sm,
   },
   metaBox: {
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: colors.concrete,
-    padding: spacing.md,
+    borderRadius: radii.lg,
+    backgroundColor: colors.cobaltSoft,
+    padding: spacing.lg,
   },
   metaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: spacing.xs,
+    gap: spacing.md,
   },
   metaKey: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    color: colors.concrete,
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.sm,
+    color: colors.inkSoft,
   },
   metaValue: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    color: colors.asphalt,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.ink,
   },
   rechazadoBox: {
-    backgroundColor: colors.asphalt,
-    padding: spacing.md,
+    borderRadius: radii.lg,
+    backgroundColor: colors.pinkSoft,
+    padding: spacing.lg,
     gap: 4,
   },
   rechazadoTitulo: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.chalk,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.pinkDeep,
   },
   rechazadoTexto: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concreteLight,
+    color: colors.ink,
   },
   sectionTitle: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.concrete,
+    fontFamily: fonts.displayBold,
+    fontSize: fontSizes.lg,
+    color: colors.ink,
     marginTop: spacing.sm,
   },
   beforeAfterRow: {
@@ -649,22 +662,26 @@ const styles = StyleSheet.create({
   beforeAfterPhoto: {
     width: '100%',
     height: 120,
-    backgroundColor: colors.asphalt2,
+    backgroundColor: colors.inkRaised,
+    borderRadius: radii.md,
   },
   beforeAfterLabel: {
-    fontFamily: fonts.monoSemiBold,
+    fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
     textAlign: 'center',
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   errorText: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.rust,
+    color: colors.pinkDeep,
   },
   actionsBox: {
     gap: spacing.sm,
+    marginTop: spacing.md,
+    padding: spacing.lg,
+    borderRadius: radii.lg,
+    backgroundColor: colors.cobaltSoft,
   },
   actionsGrid: {
     flexDirection: 'row',
@@ -672,13 +689,13 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   actionButton: {
-    borderWidth: 1,
-    borderColor: colors.asphalt,
+    borderRadius: radii.pill,
+    backgroundColor: colors.cobalt,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
   actionButtonDestructivo: {
-    borderColor: colors.rust,
+    backgroundColor: colors.pinkSoft,
   },
   actionButtonDisabled: {
     opacity: 0.4,
@@ -687,13 +704,12 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   actionButtonText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.asphalt,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.surface,
   },
   actionButtonTextDestructivo: {
-    color: colors.rust,
+    color: colors.pinkDeep,
   },
   notasBox: {
     gap: spacing.sm,
@@ -701,52 +717,52 @@ const styles = StyleSheet.create({
   notaVacia: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   notaRow: {
     borderLeftWidth: 2,
-    borderLeftColor: colors.yellow,
+    borderLeftColor: colors.mandarin,
     paddingLeft: spacing.sm,
     gap: 2,
   },
   notaFecha: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   notaTexto: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   notaForm: {
     gap: spacing.xs,
     marginTop: spacing.xs,
   },
   notaInput: {
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.15)',
-    padding: spacing.sm,
+    borderRadius: radii.md,
+    backgroundColor: colors.surfaceAlt,
+    padding: spacing.md,
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
     minHeight: 60,
     textAlignVertical: 'top',
   },
   notaButton: {
     alignSelf: 'flex-end',
-    backgroundColor: colors.yellow,
+    borderRadius: radii.pill,
+    backgroundColor: colors.cobalt,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
   notaButtonDisabled: {
-    backgroundColor: colors.concreteLight,
+    backgroundColor: colors.inkMuted,
   },
   notaButtonText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.asphalt,
+    color: colors.surface,
   },
   timeline: {
     gap: spacing.md,
@@ -756,13 +772,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.sm,
+    minHeight: 48,
+  },
+  timelineRail: {
+    width: 16,
+    alignItems: 'center',
+    alignSelf: 'stretch',
+  },
+  timelineLine: {
+    position: 'absolute',
+    top: 13,
+    bottom: -spacing.md,
+    width: 3,
+    borderRadius: radii.pill,
+    backgroundColor: colors.cobaltSoft,
   },
   timelineDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
     marginTop: 4,
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.cobalt,
   },
   timelineTextWrap: {
     flex: 1,
@@ -770,16 +800,16 @@ const styles = StyleSheet.create({
   timelineLabel: {
     fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   timelineFecha: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.body,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -790,13 +820,12 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.lg,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   modalClose: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.concrete,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.inkSoft,
   },
   modalContent: {
     padding: spacing.lg,
@@ -806,65 +835,66 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.08)',
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.surfaceAlt,
   },
   modalRowActive: {
-    backgroundColor: colors.chalk2,
+    backgroundColor: colors.surfaceAlt,
   },
   modalRowText: {
     fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   modalRowMeta: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   fechaInput: {
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.15)',
+    borderRadius: radii.md,
+    backgroundColor: colors.surfaceAlt,
     padding: spacing.md,
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   fechaRapidaRow: {
     flexDirection: 'row',
     gap: spacing.xs,
   },
   fechaRapidaChip: {
-    borderWidth: 1,
-    borderColor: colors.asphalt,
+    borderRadius: radii.pill,
+    backgroundColor: colors.cobaltSoft,
     paddingHorizontal: spacing.sm,
     paddingVertical: 6,
   },
   fechaRapidaText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    color: colors.asphalt,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.cobaltDeep,
   },
   primaryButton: {
-    backgroundColor: colors.yellow,
+    borderRadius: radii.pill,
+    backgroundColor: colors.cobalt,
     padding: spacing.md,
     alignItems: 'center',
   },
   primaryButtonText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    textTransform: 'uppercase',
-    color: colors.asphalt,
+    color: colors.surface,
   },
   destructiveButton: {
-    backgroundColor: colors.rust,
+    backgroundColor: colors.pink,
     padding: spacing.md,
     alignItems: 'center',
+    borderRadius: radii.pill,
   },
   destructiveButtonText: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    textTransform: 'uppercase',
-    color: colors.chalk,
+    color: colors.surface,
   },
 });

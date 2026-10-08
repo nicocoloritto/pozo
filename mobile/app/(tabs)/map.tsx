@@ -1,17 +1,46 @@
 import { useFocusEffect, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeInDown, FadeOutUp, useReducedMotion } from 'react-native-reanimated';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import CercaTuyoPanel from '../../components/CercaTuyoPanel';
+import PressableScale from '../../components/PressableScale';
 import ReclamosMap from '../../components/ReclamosMap';
-import { categoryLabels, categoryOrder } from '../../constants/categories';
-import { statusLabels } from '../../constants/status';
+import { categoryLabels, categoryOrder, categoryTints } from '../../constants/categories';
+import { statusColors, statusLabels } from '../../constants/status';
+import { useAuth } from '../../contexts/AuthContext';
 import { ESTADOS_RECLAMO, obtenerReclamos } from '../../services/reclamos';
 import type { Categoria, EstadoReclamo, Reclamo } from '../../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../../theme';
+import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
+
+type FilterChipProps = {
+  label: string;
+  dotColor: string;
+  active: boolean;
+  onPress: () => void;
+};
+
+function FilterChip({ label, dotColor, active, onPress }: FilterChipProps) {
+  return (
+    <PressableScale
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+      accessibilityLabel={`Filtrar por ${label}`}
+      onPress={onPress}
+      pressedScale={0.92}
+      style={[styles.chip, active && styles.chipActive]}
+    >
+      <View style={[styles.chipDot, { backgroundColor: dotColor }]} />
+      <Text style={[styles.chipText, active && styles.chipTextActive]}>{label}</Text>
+    </PressableScale>
+  );
+}
 
 export default function MapScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const reducedMotion = useReducedMotion();
+  const { user } = useAuth();
   // router.setParams manda SET_PARAMS al navegador raíz y el param termina en la ruta
   // "(tabs)", no en esta pantalla: reclamoId nunca se borraba. navigation.setParams actúa
   // sobre la ruta de esta pantalla.
@@ -28,6 +57,7 @@ export default function MapScreen() {
 
   const [avisoFiltros, setAvisoFiltros] = useState(false);
   const [reclamos, setReclamos] = useState<Reclamo[] | null>(null);
+  const [nearbyHeight, setNearbyHeight] = useState(280);
   const [categoriaFiltro, setCategoriaFiltro] = useState<Set<Categoria>>(new Set());
   const [estadoFiltro, setEstadoFiltro] = useState<Set<EstadoReclamo>>(new Set());
 
@@ -99,109 +129,178 @@ export default function MapScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filterRow}
-        style={styles.filterScroll}
-      >
-        {categoryOrder.map((categoria) => (
-          <Pressable
-            key={categoria}
-            accessibilityRole="button"
-            accessibilityLabel={`Filtrar por ${categoryLabels[categoria]}`}
-            onPress={() => toggleCategoria(categoria)}
-            style={[styles.chip, categoriaFiltro.has(categoria) && styles.chipActive]}
-          >
-            <Text style={[styles.chipText, categoriaFiltro.has(categoria) && styles.chipTextActive]}>
-              {categoryLabels[categoria]}
-            </Text>
-          </Pressable>
-        ))}
-        <View style={styles.filterDivider} />
-        {ESTADOS_RECLAMO.map((estado) => (
-          <Pressable
-            key={estado}
-            accessibilityRole="button"
-            accessibilityLabel={`Filtrar por ${statusLabels[estado]}`}
-            onPress={() => toggleEstado(estado)}
-            style={[styles.chip, estadoFiltro.has(estado) && styles.chipActive]}
-          >
-            <Text style={[styles.chipText, estadoFiltro.has(estado) && styles.chipTextActive]}>
-              {statusLabels[estado]}
-            </Text>
-          </Pressable>
-        ))}
-      </ScrollView>
-
-      {avisoFiltros && (
-        <View style={styles.aviso}>
-          <Text style={styles.avisoText}>Quitamos los filtros para mostrar ese reclamo.</Text>
-        </View>
-      )}
+    <View style={styles.container}>
       <ReclamosMap
         reclamos={reclamosFiltrados}
         loading={reclamos === null}
         enfocarId={reclamoId}
         onEnfocado={limpiarReclamoId}
         centrarEnUsuario
+        overlayBottom={82 + insets.bottom + nearbyHeight}
         onOpenReclamo={(reclamo) => router.push(`/reclamos/${reclamo.id}`)}
       />
-      <CercaTuyoPanel
-        reclamos={reclamosFiltrados}
-        onOpenReclamo={(reclamo) => router.push(`/reclamos/${reclamo.id}`)}
-      />
-    </SafeAreaView>
+
+      <SafeAreaView style={styles.controls} edges={['top']} pointerEvents="box-none">
+        <View style={styles.header}>
+          <Text style={styles.greeting}>Hola{user ? `, ${user.firstName}` : ''}</Text>
+          <Text style={styles.title}>¿Qué pasa en tu barrio?</Text>
+        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterRow}
+          style={styles.filterScroll}
+        >
+          {categoryOrder.map((categoria) => (
+            <FilterChip
+              key={categoria}
+              label={categoryLabels[categoria]}
+              dotColor={categoryTints[categoria].base}
+              active={categoriaFiltro.has(categoria)}
+              onPress={() => toggleCategoria(categoria)}
+            />
+          ))}
+          <View style={styles.filterDivider} />
+          {ESTADOS_RECLAMO.map((estado) => (
+            <FilterChip
+              key={estado}
+              label={statusLabels[estado]}
+              dotColor={statusColors[estado]}
+              active={estadoFiltro.has(estado)}
+              onPress={() => toggleEstado(estado)}
+            />
+          ))}
+        </ScrollView>
+      </SafeAreaView>
+
+      {avisoFiltros && (
+        <Animated.View
+          entering={reducedMotion ? undefined : FadeInDown.springify().damping(15)}
+          exiting={reducedMotion ? undefined : FadeOutUp}
+          style={[styles.aviso, { top: insets.top + 150 }]}
+        >
+          <Text style={styles.avisoText}>Quitamos los filtros para mostrar ese reclamo.</Text>
+        </Animated.View>
+      )}
+      <View
+        style={[styles.nearby, { bottom: 82 + insets.bottom }]}
+        onLayout={(event) => setNearbyHeight(event.nativeEvent.layout.height)}
+      >
+        <View style={styles.handle} />
+        <CercaTuyoPanel
+          reclamos={reclamosFiltrados}
+          onOpenReclamo={(reclamo) => router.push(`/reclamos/${reclamo.id}`)}
+        />
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
+  },
+  controls: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+  },
+  header: {
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
+    gap: 2,
+    ...shadows.float,
+  },
+  greeting: {
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.sm,
+    color: colors.inkSoft,
+  },
+  title: {
+    fontFamily: fonts.display,
+    fontSize: fontSizes.xl + 2,
+    color: colors.ink,
+    letterSpacing: -0.5,
   },
   filterScroll: {
     flexGrow: 0,
-    backgroundColor: colors.chalk,
+    marginTop: spacing.xs,
   },
   filterRow: {
-    gap: spacing.xs,
-    padding: spacing.md,
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     alignItems: 'center',
   },
   filterDivider: {
     width: 1,
-    height: 20,
-    backgroundColor: 'rgba(0,0,0,0.12)',
+    height: 22,
+    backgroundColor: colors.line,
     marginHorizontal: spacing.xs,
   },
   chip: {
-    borderWidth: 1,
-    borderColor: colors.asphalt,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radii.pill,
+    backgroundColor: colors.surface,
+    ...shadows.card,
   },
   chipActive: {
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.cobalt,
+  },
+  chipDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   chipText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.asphalt,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.ink,
   },
   chipTextActive: {
-    color: colors.chalk,
+    color: colors.surface,
   },
   aviso: {
-    backgroundColor: colors.asphalt,
+    position: 'absolute',
+    zIndex: 4,
+    alignSelf: 'center',
+    backgroundColor: colors.cobalt,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
+    borderRadius: radii.pill,
   },
   avisoText: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    color: colors.chalk,
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.xs + 1,
+    color: colors.surface,
+  },
+  nearby: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    maxHeight: 280,
+    borderTopLeftRadius: radii.xl,
+    borderTopRightRadius: radii.xl,
+    overflow: 'hidden',
+    backgroundColor: colors.bg,
+    ...shadows.float,
+  },
+  handle: {
+    alignSelf: 'center',
+    width: 48,
+    height: 5,
+    marginTop: spacing.sm,
+    borderRadius: radii.pill,
+    backgroundColor: colors.inkMuted,
   },
 });

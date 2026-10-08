@@ -1,9 +1,4 @@
-import { ArchivoBlack_400Regular } from '@expo-google-fonts/archivo-black';
-import {
-  IBMPlexMono_400Regular,
-  IBMPlexMono_500Medium,
-  IBMPlexMono_600SemiBold,
-} from '@expo-google-fonts/ibm-plex-mono';
+import { BricolageGrotesque_700Bold, BricolageGrotesque_800ExtraBold } from '@expo-google-fonts/bricolage-grotesque';
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -92,7 +87,7 @@ function AppNavigator({ fontsReady }: { fontsReady: boolean }) {
   return (
     <>
       <AuthGate />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.chalk } }}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />
@@ -109,15 +104,13 @@ function AppNavigator({ fontsReady }: { fontsReady: boolean }) {
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
-    ArchivoBlack_400Regular,
+    BricolageGrotesque_700Bold,
+    BricolageGrotesque_800ExtraBold,
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,
     Inter_700Bold,
     Inter_800ExtraBold,
-    IBMPlexMono_400Regular,
-    IBMPlexMono_500Medium,
-    IBMPlexMono_600SemiBold,
   });
   const [fontsTimedOut, setFontsTimedOut] = useState(false);
 

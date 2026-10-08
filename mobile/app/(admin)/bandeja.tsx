@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Image, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EmptyState from '../../components/EmptyState';
 import FiltrosMunicipioModal from '../../components/FiltrosMunicipioModal';
@@ -12,12 +12,13 @@ import { useAuth } from '../../contexts/AuthContext';
 import { aplicarFiltros, FILTROS_VACIOS, hayFiltrosActivos } from '../../lib/filtrosMunicipio';
 import type { FiltrosMunicipio } from '../../lib/filtrosMunicipio';
 import { estaVencido, ordenarPorPrioridad } from '../../lib/prioridad';
+import { fotoSource } from '../../lib/fotoReclamo';
 import { resumenVerificacion } from '../../lib/verificacion';
 import { areaPorId, AREAS } from '../../services/areas';
 import { obtenerReclamosPorMunicipio } from '../../services/reclamos';
 import { CATEGORIAS_PELIGROSAS } from '../../types/reclamo';
 import type { Reclamo } from '../../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../../theme';
+import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
 type Segmento = 'nuevos' | 'gestion' | 'cerrados';
 
@@ -103,16 +104,16 @@ export default function BandejaScreen() {
           onPress={() => setFiltrosAbiertos(true)}
           style={[styles.filterButton, filtrosActivos && styles.filterButtonActive]}
         >
-          <Ionicons name="options-outline" size={18} color={filtrosActivos ? colors.chalk : colors.asphalt} />
+          <Ionicons name="options-outline" size={18} color={filtrosActivos ? colors.bg : colors.ink} />
         </Pressable>
       </View>
 
       <View style={styles.searchBox}>
-        <Ionicons name="search-outline" size={16} color={colors.concrete} />
+        <Ionicons name="search-outline" size={16} color={colors.inkSoft} />
         <TextInput
           style={styles.searchInput}
           placeholder="Buscar por dirección…"
-          placeholderTextColor={colors.concrete}
+          placeholderTextColor={colors.inkSoft}
           value={busqueda}
           onChangeText={setBusqueda}
         />
@@ -152,7 +153,7 @@ export default function BandejaScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.concrete} />
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.inkSoft} />
           }
           ListEmptyComponent={
             <EmptyState
@@ -194,7 +195,10 @@ function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => voi
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}
     >
       <View style={styles.rowPhotoWrap}>
-        <Text style={styles.rowDays}>{daysSince(reclamo.createdAt)}d</Text>
+        <Image source={fotoSource(reclamo)} style={styles.rowPhoto} resizeMode="cover" />
+        <View style={styles.daysPill}>
+          <Text style={styles.rowDays}>{daysSince(reclamo.createdAt)}d</Text>
+        </View>
       </View>
       <View style={styles.rowBody}>
         <View style={styles.rowTopLine}>
@@ -204,12 +208,12 @@ function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => voi
           <View style={styles.chips}>
             {posiblementeResuelto && (
               <View style={styles.resueltoChip}>
-                <Text style={styles.vencidoChipText}>POSIBLEMENTE RESUELTO</Text>
+                <Text style={styles.vencidoChipText}>Posiblemente resuelto</Text>
               </View>
             )}
             {vencido && (
               <View style={styles.vencidoChip}>
-                <Text style={styles.vencidoChipText}>VENCIDO</Text>
+                <Text style={styles.vencidoChipText}>Vencido</Text>
               </View>
             )}
           </View>
@@ -231,7 +235,7 @@ function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => voi
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   header: {
     flexDirection: 'row',
@@ -243,19 +247,18 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xl,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   filterButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: colors.asphalt,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
   filterButtonActive: {
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.cobalt,
   },
   searchBox: {
     flexDirection: 'row',
@@ -263,45 +266,47 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     marginHorizontal: spacing.lg,
     marginTop: spacing.sm,
-    backgroundColor: colors.chalk2,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 8,
+    borderRadius: radii.pill,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    ...shadows.card,
   },
   searchInput: {
     flex: 1,
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   segments: {
     flexDirection: 'row',
     gap: spacing.xs,
     marginHorizontal: spacing.lg,
     marginTop: spacing.sm,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.md,
   },
   segment: {
     flex: 1,
     alignItems: 'center',
     paddingVertical: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.asphalt,
+    borderRadius: radii.pill,
+    backgroundColor: colors.surfaceAlt,
   },
   segmentActive: {
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.cobalt,
   },
   segmentText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: 10,
-    textTransform: 'uppercase',
-    color: colors.asphalt,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs,
+    color: colors.ink,
   },
   segmentTextActive: {
-    color: colors.chalk,
+    color: colors.surface,
   },
   list: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
+    paddingBottom: 120,
+    gap: spacing.sm,
   },
   pressed: {
     opacity: 0.7,
@@ -309,19 +314,35 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     gap: spacing.md,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.08)',
+    padding: spacing.sm,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
+    ...shadows.card,
   },
   rowPhotoWrap: {
-    width: 44,
+    width: 76,
+    height: 76,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  rowPhoto: {
+    width: '100%',
+    height: '100%',
+    borderRadius: radii.md,
+  },
+  daysPill: {
+    position: 'absolute',
+    left: 5,
+    bottom: 5,
+    borderRadius: radii.pill,
+    backgroundColor: 'rgba(23,32,42,0.76)',
+    paddingHorizontal: spacing.xs + 2,
+    paddingVertical: 2,
+  },
   rowDays: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyBold,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.surface,
   },
   rowBody: {
     flex: 1,
@@ -335,7 +356,7 @@ const styles = StyleSheet.create({
   rowTitle: {
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.md,
-    color: colors.asphalt,
+    color: colors.ink,
     flexShrink: 1,
   },
   chips: {
@@ -344,24 +365,26 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   resueltoChip: {
-    backgroundColor: colors.green,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 2,
+    borderRadius: radii.pill,
+    backgroundColor: colors.limeSoft,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
   },
   vencidoChip: {
-    backgroundColor: colors.rust,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 2,
+    borderRadius: radii.pill,
+    backgroundColor: colors.pinkSoft,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
   },
   vencidoChipText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: 9,
-    color: colors.chalk,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs,
+    color: colors.ink,
   },
   rowAddress: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   rowFooter: {
     flexDirection: 'row',
@@ -370,8 +393,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   rowMeta: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.body,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
 });

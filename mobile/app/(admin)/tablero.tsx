@@ -12,7 +12,7 @@ import { ESTADOS_RECLAMO, obtenerReclamosPorMunicipio } from '../../services/rec
 import type { RankingBarrio } from '../../types/estadisticas';
 import { CATEGORIAS_PELIGROSAS as PELIGROSAS } from '../../types/reclamo';
 import type { EstadoReclamo, Reclamo } from '../../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../../theme';
+import { colors, fonts, fontSizes, radii, spacing } from '../../theme';
 
 function esEstadoFinal(status: EstadoReclamo): boolean {
   return status === 'Resuelto' || status === 'Rechazado';
@@ -99,8 +99,12 @@ export default function TableroScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>Tablero</Text>
 
+        <View style={styles.heroStat}>
+          <Text style={styles.heroValue}>{abiertos}</Text>
+          <Text style={styles.heroLabel}>reclamos abiertos requieren seguimiento</Text>
+        </View>
+
         <View style={styles.statGrid}>
-          <StatCard label="Reclamos abiertos" value={String(abiertos)} />
           <StatCard label="Nuevos sin tomar" value={String(nuevosSinTomar)} />
           <StatCard label="Vencidos" value={String(vencidos)} resaltar={vencidos > 0} />
           <StatCard label="% Resuelto" value={`${porcentajeResuelto}%`} />
@@ -108,12 +112,12 @@ export default function TableroScreen() {
         </View>
 
         <Text style={styles.sectionTitle}>Reclamos por área</Text>
-        <View style={styles.card}>
-          <BarChart data={porAreaData} color={colors.yellow} />
+        <View style={[styles.card, styles.areaCard]}>
+          <BarChart data={porAreaData} color={colors.mandarin} />
         </View>
 
         <Text style={styles.sectionTitle}>Reclamos por estado</Text>
-        <View style={styles.card}>
+        <View style={[styles.card, styles.evolutionCard]}>
           {ESTADOS_RECLAMO.map((estado) => {
             const cantidad = reclamos.filter((r) => r.status === estado).length;
             const porcentaje = reclamos.length ? Math.round((cantidad / reclamos.length) * 100) : 0;
@@ -132,7 +136,7 @@ export default function TableroScreen() {
 
         <Text style={styles.sectionTitle}>Evolución últimos 6 meses (CABA)</Text>
         <View style={styles.card}>
-          <BarChart data={evolucion} color={colors.blue} />
+          <BarChart data={evolucion} color={colors.sky} />
         </View>
 
         <Text style={styles.sectionTitle}>Ranking de barrios por % de resolución</Text>
@@ -164,16 +168,37 @@ function StatCard({ label, value, resaltar }: { label: string; value: string; re
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   scrollContent: {
     padding: spacing.lg,
+    paddingBottom: 120,
     gap: spacing.md,
   },
   title: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xl,
-    color: colors.asphalt,
+    color: colors.ink,
+  },
+  heroStat: {
+    minHeight: 170,
+    justifyContent: 'flex-end',
+    padding: spacing.xl,
+    borderRadius: radii.xl,
+    backgroundColor: colors.cobalt,
+  },
+  heroValue: {
+    fontFamily: fonts.display,
+    fontSize: 64,
+    lineHeight: 68,
+    color: colors.lime,
+  },
+  heroLabel: {
+    maxWidth: 260,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.md,
+    lineHeight: 22,
+    color: colors.surface,
   },
   statGrid: {
     flexDirection: 'row',
@@ -183,43 +208,48 @@ const styles = StyleSheet.create({
   statCard: {
     flexBasis: '47%',
     flexGrow: 1,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.12)',
+    minHeight: 104,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
     padding: spacing.md,
   },
   statCardResaltado: {
-    backgroundColor: colors.rust,
-    borderColor: colors.rust,
+    backgroundColor: colors.pink,
+    borderColor: colors.pink,
   },
   statLabel: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
     marginBottom: 4,
   },
   statLabelResaltado: {
-    color: colors.chalk,
+    color: colors.bg,
   },
   statValue: {
     fontFamily: fonts.display,
     fontSize: fontSizes.xl,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   statValueResaltado: {
-    color: colors.chalk,
+    color: colors.bg,
   },
   sectionTitle: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.concrete,
+    fontFamily: fonts.displayBold,
+    fontSize: fontSizes.lg,
+    color: colors.ink,
     marginTop: spacing.sm,
   },
   card: {
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.12)',
-    padding: spacing.md,
+    borderRadius: radii.xl,
+    backgroundColor: colors.surface,
+    padding: spacing.lg,
+  },
+  areaCard: {
+    backgroundColor: colors.mandarinSoft,
+  },
+  evolutionCard: {
+    backgroundColor: colors.skySoft,
   },
   estadoRow: {
     flexDirection: 'row',
@@ -230,26 +260,29 @@ const styles = StyleSheet.create({
   estadoDot: {
     width: 10,
     height: 10,
+    borderRadius: 5,
   },
   estadoLabel: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.xs,
-    color: colors.asphalt,
+    color: colors.ink,
     width: 130,
   },
   estadoBarTrack: {
     flex: 1,
     height: 8,
-    backgroundColor: colors.chalk2,
+    backgroundColor: colors.surfaceAlt,
     overflow: 'hidden',
+    borderRadius: radii.pill,
   },
   estadoBarFill: {
     height: '100%',
+    borderRadius: radii.pill,
   },
   estadoCantidad: {
-    fontFamily: fonts.monoSemiBold,
+    fontFamily: fonts.bodyBold,
     fontSize: fontSizes.xs,
-    color: colors.asphalt,
+    color: colors.ink,
     width: 28,
     textAlign: 'right',
   },
@@ -258,24 +291,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     paddingVertical: spacing.xs,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.06)',
+    borderRadius: radii.md,
+    backgroundColor: colors.surfaceAlt,
+    paddingHorizontal: spacing.sm,
+    marginBottom: spacing.xs,
   },
   rankingPuesto: {
     fontFamily: fonts.display,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
     width: 32,
   },
   rankingNombre: {
     flex: 1,
     fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   rankingPorcentaje: {
-    fontFamily: fonts.monoSemiBold,
+    fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
 });

@@ -1,6 +1,7 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeInDown, useReducedMotion } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EmptyState from '../../components/EmptyState';
 import ReclamoCard from '../../components/ReclamoCard';
@@ -10,11 +11,12 @@ import { useAuth } from '../../contexts/AuthContext';
 import { devLog } from '../../lib/devLog';
 import { ESTADOS_RECLAMO, obtenerReclamos, obtenerReclamosPorAutor } from '../../services/reclamos';
 import type { EstadoReclamo, Reclamo } from '../../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../../theme';
+import { colors, fonts, fontSizes, radii, spacing } from '../../theme';
 
 export default function MineScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const reducedMotion = useReducedMotion();
 
   const [reclamos, setReclamos] = useState<Reclamo[] | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -66,8 +68,13 @@ export default function MineScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.title}>Mis reclamos</Text>
+        <Text style={styles.subtitle}>Seguí el avance de lo que reportaste</Text>
         {reclamos && (
-          <View style={styles.countersRow}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.countersRow}
+          >
             <Pressable
               onPress={() => setFiltro(null)}
               style={[styles.counterChip, filtro === null && styles.counterChipActive]}
@@ -89,7 +96,7 @@ export default function MineScreen() {
                 </Text>
               </Pressable>
             ))}
-          </View>
+          </ScrollView>
         )}
       </View>
 
@@ -105,7 +112,7 @@ export default function MineScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.concrete} />
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.inkSoft} />
           }
           ListEmptyComponent={
             <EmptyState
@@ -119,8 +126,10 @@ export default function MineScreen() {
               onAction={filtro ? undefined : () => router.push('/reclamos/new')}
             />
           }
-          renderItem={({ item }) => (
-            <ReclamoCard reclamo={item} onPress={() => router.push(`/reclamos/${item.id}`)} />
+          renderItem={({ item, index }) => (
+            <Animated.View entering={reducedMotion ? undefined : FadeInDown.delay(Math.min(index, 5) * 55).springify().damping(17)}>
+              <ReclamoCard reclamo={item} onPress={() => router.push(`/reclamos/${item.id}`)} />
+            </Animated.View>
           )}
         />
       )}
@@ -131,43 +140,53 @@ export default function MineScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   header: {
-    padding: spacing.lg,
-    paddingBottom: spacing.sm,
-    gap: spacing.sm,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.md,
+    gap: spacing.xs,
   },
   title: {
     fontFamily: fonts.display,
-    fontSize: fontSizes.xl,
-    color: colors.asphalt,
+    fontSize: fontSizes.xxl,
+    color: colors.ink,
+    paddingHorizontal: spacing.lg,
+  },
+  subtitle: {
+    fontFamily: fonts.body,
+    fontSize: fontSizes.sm,
+    color: colors.inkSoft,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
   },
   countersRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: spacing.xs,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.xs,
   },
   counterChip: {
-    borderWidth: 1,
-    borderColor: colors.asphalt,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 8,
+    borderRadius: radii.pill,
   },
   counterChipActive: {
-    backgroundColor: colors.asphalt,
+    backgroundColor: colors.cobalt,
   },
   counterChipText: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.asphalt,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs + 1,
+    color: colors.inkSoft,
   },
   counterChipTextActive: {
-    color: colors.chalk,
+    color: colors.surface,
   },
   list: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
+    paddingTop: spacing.sm,
+    paddingBottom: 120,
+    gap: spacing.md,
   },
 });

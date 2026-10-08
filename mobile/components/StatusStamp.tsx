@@ -1,32 +1,38 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { statusColors, statusLabels, statusTextColors } from '../constants/status';
+import { statusColors, statusLabels, statusSoftColors, statusTextColors } from '../constants/status';
 import type { EstadoReclamo } from '../types/reclamo';
-import { fonts, fontSizes, spacing } from '../theme';
+import { fonts, fontSizes, radii, spacing } from '../theme';
 
 type StatusStampProps = {
   status: EstadoReclamo;
 };
 
-// Flat tag used on report cards and lists (design/pozo-pantallas-hifi.html). The
-// circular "sello" version for the detail screen lives with that screen: this one is
-// the compact, reusable piece.
 export default function StatusStamp({ status }: StatusStampProps) {
   return (
-    <View style={[styles.tag, { backgroundColor: statusColors[status] }]}>
+    <View style={[styles.pill, { backgroundColor: statusSoftColors[status] }]}>
+      <View style={[styles.dot, { backgroundColor: statusColors[status] }]} />
       <Text style={[styles.text, { color: statusTextColors[status] }]}>{statusLabels[status]}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  tag: {
+  pill: {
     alignSelf: 'flex-start',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: 5,
+    borderRadius: radii.pill,
+  },
+  dot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
   },
   text: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs + 1,
   },
 });

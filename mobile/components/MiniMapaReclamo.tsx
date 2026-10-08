@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import type { Reclamo } from '../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../theme';
+import { colors, fonts, fontSizes, radii, spacing } from '../theme';
 import ReclamoMarker from './ReclamoMarker';
 
 type Props = {
@@ -42,7 +42,7 @@ export default function MiniMapaReclamo({ reclamo, onPress, style }: Props) {
         </Marker>
       </MapView>
       <View style={styles.hint} pointerEvents="none">
-        <Ionicons name="expand" size={14} color={colors.chalk} />
+        <Ionicons name="expand" size={14} color={colors.bg} />
         <Text style={styles.hintText}>Ver en el mapa</Text>
       </View>
     </Pressable>
@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
   wrap: {
     height: 140,
     overflow: 'hidden',
+    borderRadius: radii.lg,
   },
   pressed: {
     opacity: 0.85,
@@ -67,14 +68,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(28,27,26,0.85)',
+    backgroundColor: 'rgba(23,32,42,0.85)',
     paddingHorizontal: spacing.sm,
     paddingVertical: 6,
+    borderRadius: radii.pill,
   },
   hintText: {
-    fontFamily: fonts.monoSemiBold,
+    fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.chalk,
+    color: colors.bg,
   },
 });

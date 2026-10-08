@@ -1,9 +1,13 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeInUp, useReducedMotion } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EmptyState from '../../components/EmptyState';
 import MiniMapaReclamo from '../../components/MiniMapaReclamo';
+import ProgressBar from '../../components/ProgressBar';
+import StatusStamp from '../../components/StatusStamp';
 import VerificacionReclamo from '../../components/VerificacionReclamo';
 import RubberStamp from '../../components/RubberStamp';
 import Skeleton from '../../components/Skeleton';
@@ -20,7 +24,7 @@ import {
 } from '../../services/reclamos';
 import { areaPorId } from '../../services/areas';
 import type { EstadoReclamo, Reclamo, TipoVoto } from '../../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../../theme';
+import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
 function daysSince(isoDate: string): number {
   const ms = Date.now() - new Date(isoDate).getTime();
@@ -41,6 +45,7 @@ export default function ReclamoDetail() {
   const router = useRouter();
   const { user } = useAuth();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const reducedMotion = useReducedMotion();
 
   const [reclamo, setReclamo] = useState<Reclamo | null | undefined>(undefined);
   const [votando, setVotando] = useState(false);
@@ -110,12 +115,14 @@ export default function ReclamoDetail() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <ScrollView>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.nav}>
         <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Volver">
-          <Text style={styles.navText}>‹ Volver</Text>
+          <View style={styles.backButton}>
+            <Ionicons name="chevron-back" size={20} color={colors.ink} />
+          </View>
         </Pressable>
-        <Text style={styles.navText}>Reclamo · {reclamo.caseNumber}</Text>
+        <Text style={styles.navText}>{reclamo.caseNumber}</Text>
       </View>
 
       <View style={styles.photoWrap}>
@@ -123,25 +130,31 @@ export default function ReclamoDetail() {
         <Text style={styles.tagline}>Foto del vecino · {formatDateTime(reclamo.createdAt)}</Text>
       </View>
 
-      <View style={styles.body}>
-        <Text style={styles.category}>
-          ● {categoryLabels[reclamo.category]} · Severidad {severityLabels[reclamo.severity].toLowerCase()}
-        </Text>
+      <Animated.View entering={reducedMotion ? undefined : FadeInUp.springify().damping(18)} style={styles.body}>
+        <View style={styles.pillsRow}>
+          <View style={styles.categoryPill}>
+            <Text style={styles.category}>Severidad {severityLabels[reclamo.severity].toLowerCase()}</Text>
+          </View>
+          <StatusStamp status={reclamo.status} />
+        </View>
         <Text style={styles.title}>{categoryLabels[reclamo.category]}</Text>
         <Text style={styles.address}>{reclamo.address ?? 'Dirección sin resolver'}</Text>
 
         <View style={styles.statGrid}>
           <View style={styles.statBox}>
-            <Text style={styles.statLabel}>Sigue ahí</Text>
+            <Ionicons name="people" size={18} color={colors.mandarinDeep} />
             <Text style={styles.statValue}>{resumen.sigue}</Text>
+            <Text style={styles.statLabel}>Sigue ahí</Text>
           </View>
           <View style={styles.statBox}>
-            <Text style={styles.statLabel}>Ya no está</Text>
+            <Ionicons name="checkmark-circle" size={18} color={colors.limeDeep} />
             <Text style={styles.statValue}>{resumen.yaNoEsta}</Text>
+            <Text style={styles.statLabel}>Ya no está</Text>
           </View>
           <View style={styles.statBox}>
-            <Text style={styles.statLabel}>Días abierto</Text>
+            <Ionicons name="time" size={18} color={colors.cobaltDeep} />
             <Text style={styles.statValue}>{daysSince(reclamo.createdAt)}</Text>
+            <Text style={styles.statLabel}>Días abierto</Text>
           </View>
         </View>
 
@@ -154,7 +167,7 @@ export default function ReclamoDetail() {
         <View style={styles.metaBox}>
           <View style={styles.metaRow}>
             <Text style={styles.metaKey}>Coordenadas</Text>
-            <Text style={styles.metaValue}>
+            <Text style={styles.metaValueMono}>
               {reclamo.latitude.toFixed(5)}, {reclamo.longitude.toFixed(5)}
               {reclamo.accuracyMeters ? ` · ±${Math.round(reclamo.accuracyMeters)} m` : ''}
             </Text>
@@ -165,7 +178,7 @@ export default function ReclamoDetail() {
           </View>
           <View style={styles.metaRow}>
             <Text style={styles.metaKey}>N° expediente</Text>
-            <Text style={styles.metaValue}>{reclamo.caseNumber}</Text>
+            <Text style={styles.metaValueMono}>{reclamo.caseNumber}</Text>
           </View>
           {area && (
             <View style={styles.metaRow}>
@@ -241,17 +254,24 @@ export default function ReclamoDetail() {
             size={110}
             color={
               reclamo.status === 'Resuelto'
-                ? colors.green
+                ? colors.lime
                 : fueRechazado
-                  ? colors.asphalt
-                  : colors.yellow
+                  ? colors.ink
+                  : colors.mandarin
             }
             curvedText="RECLAMO · VECINAL ·"
             centerLines={[statusLabels[reclamo.status].toUpperCase(), formatDateTime(reclamo.createdAt).split(',')[0]]}
           />
         </View>
 
-        <Text style={styles.sectionTitle}>Línea de tiempo</Text>
+        <View style={styles.timelineHeading}>
+          <Text style={styles.sectionTitle}>Avance del reclamo</Text>
+          <Text style={styles.timelineStep}>{Math.max(1, indiceActual + 1)} de {ESTADOS_TIMELINE_VECINO.length}</Text>
+        </View>
+        <ProgressBar
+          value={(indiceActual + 1) / ESTADOS_TIMELINE_VECINO.length}
+          color={statusColors[reclamo.status]}
+        />
         <View style={styles.timeline}>
           {ESTADOS_TIMELINE_VECINO.map((estado, index) => {
             const fecha = fechaPorEstado.get(estado);
@@ -261,13 +281,18 @@ export default function ReclamoDetail() {
             const yaPaso = index <= indiceActual;
             return (
               <View key={estado} style={styles.timelineRow}>
-                <View
-                  style={[
-                    styles.timelineDot,
-                    { backgroundColor: yaPaso ? statusColors[estado] : colors.concreteLight },
-                    esActual && styles.timelineDotActual,
-                  ]}
-                />
+                <View style={styles.timelineRail}>
+                  {index < ESTADOS_TIMELINE_VECINO.length - 1 && (
+                    <View style={[styles.timelineLine, yaPaso && styles.timelineLineActive]} />
+                  )}
+                  <View
+                    style={[
+                      styles.timelineDot,
+                      { backgroundColor: yaPaso ? statusColors[estado] : colors.line },
+                      esActual && styles.timelineDotActual,
+                    ]}
+                  />
+                </View>
                 <View style={styles.timelineTextWrap}>
                   <Text style={[styles.timelineLabel, !yaPaso && styles.timelineLabelFuturo, esActual && styles.timelineLabelActual]}>
                     {statusLabels[estado]}
@@ -279,7 +304,9 @@ export default function ReclamoDetail() {
           })}
           {fueRechazado && (
             <View style={styles.timelineRow}>
-              <View style={[styles.timelineDot, styles.timelineDotActual, { backgroundColor: statusColors.Rechazado }]} />
+              <View style={styles.timelineRail}>
+                <View style={[styles.timelineDot, styles.timelineDotActual, { backgroundColor: statusColors.Rechazado }]} />
+              </View>
               <View style={styles.timelineTextWrap}>
                 <Text style={[styles.timelineLabel, styles.timelineLabelActual]}>{statusLabels.Rechazado}</Text>
                 {fechaPorEstado.get('Rechazado') && (
@@ -289,7 +316,7 @@ export default function ReclamoDetail() {
             </View>
           )}
         </View>
-      </View>
+      </Animated.View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -298,26 +325,38 @@ export default function ReclamoDetail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.chalk,
+    backgroundColor: colors.bg,
   },
   loadingContent: {
     padding: spacing.lg,
     gap: spacing.md,
   },
+  scrollContent: {
+    paddingBottom: spacing.xl,
+  },
   nav: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     padding: spacing.lg,
   },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: radii.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+    ...shadows.card,
+  },
   navText: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   photoWrap: {
-    height: 190,
-    backgroundColor: colors.asphalt2,
+    height: 260,
+    backgroundColor: colors.inkRaised,
   },
   photo: {
     width: '100%',
@@ -327,33 +366,50 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 10,
     left: 14,
-    color: colors.chalk,
+    color: colors.bg,
     backgroundColor: 'rgba(0,0,0,0.45)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    fontFamily: fonts.mono,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 7,
+    borderRadius: radii.pill,
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.xs,
   },
   body: {
+    marginTop: -30,
+    marginHorizontal: spacing.sm,
     padding: spacing.lg,
+    borderRadius: radii.xl,
+    backgroundColor: colors.surface,
+    ...shadows.float,
+  },
+  pillsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  categoryPill: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    borderRadius: radii.pill,
+    backgroundColor: colors.pinkSoft,
   },
   category: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.rust,
-    marginBottom: spacing.xs,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs + 1,
+    color: colors.pinkDeep,
   },
   title: {
     fontFamily: fonts.display,
-    fontSize: fontSizes.xl,
-    color: colors.asphalt,
+    fontSize: fontSizes.xxl,
+    color: colors.ink,
     marginBottom: 4,
   },
   address: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concrete,
+    color: colors.inkSoft,
     marginBottom: spacing.lg,
   },
   statGrid: {
@@ -363,63 +419,71 @@ const styles = StyleSheet.create({
   },
   statBox: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.12)',
-    padding: spacing.sm,
+    minHeight: 102,
+    borderRadius: radii.md,
+    padding: spacing.md,
+    backgroundColor: colors.surfaceAlt,
   },
   statLabel: {
-    fontFamily: fonts.mono,
-    fontSize: 9,
-    textTransform: 'uppercase',
-    color: colors.concrete,
-    marginBottom: 4,
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.xs,
+    color: colors.inkSoft,
   },
   statValue: {
     fontFamily: fonts.display,
-    fontSize: fontSizes.lg,
-    color: colors.asphalt,
+    fontSize: fontSizes.xl,
+    color: colors.ink,
   },
   miniMapWrap: {
     marginBottom: spacing.lg,
   },
   metaBox: {
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: colors.concrete,
-    padding: spacing.md,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surfaceAlt,
+    padding: spacing.lg,
     marginBottom: spacing.lg,
+    gap: spacing.sm,
   },
   metaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: spacing.xs,
+    gap: spacing.md,
   },
   metaKey: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    color: colors.concrete,
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.sm,
+    color: colors.inkSoft,
   },
   metaValue: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.ink,
+    flexShrink: 1,
+    textAlign: 'right',
+  },
+  metaValueMono: {
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.xs,
-    color: colors.asphalt,
+    color: colors.ink,
+    flexShrink: 1,
+    textAlign: 'right',
   },
   rechazadoBox: {
-    backgroundColor: colors.asphalt,
-    padding: spacing.md,
+    backgroundColor: colors.pinkSoft,
+    borderRadius: radii.lg,
+    padding: spacing.lg,
     gap: 4,
     marginBottom: spacing.lg,
   },
   rechazadoTitulo: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.chalk,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.pinkDeep,
   },
   rechazadoTexto: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.concreteLight,
+    color: colors.ink,
   },
   beforeAfterRow: {
     flexDirection: 'row',
@@ -433,14 +497,14 @@ const styles = StyleSheet.create({
   beforeAfterPhoto: {
     width: '100%',
     height: 120,
-    backgroundColor: colors.asphalt2,
+    borderRadius: radii.md,
+    backgroundColor: colors.inkRaised,
   },
   beforeAfterLabel: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs + 1,
     textAlign: 'center',
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   notasBox: {
     gap: spacing.sm,
@@ -448,41 +512,68 @@ const styles = StyleSheet.create({
   },
   notaRow: {
     borderLeftWidth: 2,
-    borderLeftColor: colors.yellow,
+    borderLeftColor: colors.mandarin,
     paddingLeft: spacing.sm,
     gap: 2,
   },
   notaFecha: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   notaTexto: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   stampRow: {
-    flexDirection: 'row',
+    alignSelf: 'center',
     alignItems: 'center',
-    gap: spacing.md,
     marginBottom: spacing.lg,
   },
   sectionTitle: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.concrete,
+    fontFamily: fonts.displayBold,
+    fontSize: fontSizes.lg,
+    color: colors.ink,
     marginBottom: spacing.sm,
+  },
+  timelineHeading: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    marginBottom: 0,
+  },
+  timelineStep: {
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.xs,
+    color: colors.inkSoft,
   },
   timeline: {
     gap: spacing.md,
+    marginTop: spacing.lg,
     marginBottom: spacing.xl,
   },
   timelineRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.sm,
+    minHeight: 46,
+  },
+  timelineRail: {
+    width: 18,
+    alignItems: 'center',
+    alignSelf: 'stretch',
+  },
+  timelineLine: {
+    position: 'absolute',
+    top: 14,
+    bottom: -spacing.md,
+    width: 3,
+    borderRadius: radii.pill,
+    backgroundColor: colors.line,
+  },
+  timelineLineActive: {
+    backgroundColor: colors.cobaltSoft,
   },
   timelineDot: {
     width: 14,
@@ -492,7 +583,7 @@ const styles = StyleSheet.create({
   },
   timelineDotActual: {
     borderWidth: 2,
-    borderColor: colors.asphalt,
+    borderColor: colors.ink,
   },
   timelineTextWrap: {
     flex: 1,
@@ -500,17 +591,17 @@ const styles = StyleSheet.create({
   timelineLabel: {
     fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.sm,
-    color: colors.asphalt,
+    color: colors.ink,
   },
   timelineLabelFuturo: {
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
   timelineLabelActual: {
     fontFamily: fonts.bodyBold,
   },
   timelineFecha: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.body,
     fontSize: fontSizes.xs,
-    color: colors.concrete,
+    color: colors.inkSoft,
   },
 });

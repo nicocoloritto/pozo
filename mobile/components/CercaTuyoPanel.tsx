@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeInDown, useReducedMotion } from 'react-native-reanimated';
 import EmptyState from './EmptyState';
 import ReclamoCard from './ReclamoCard';
 import { useUbicacionUsuario } from '../hooks/useUbicacionUsuario';
 import { formatearDistancia, RADIO_CERCA_TUYO_METROS, reclamosCercanos } from '../lib/distancia';
 import type { Reclamo } from '../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../theme';
+import { colors, fonts, fontSizes, radii, spacing } from '../theme';
 
 type Props = {
   // Ya filtrados por categoría y estado en la pantalla del mapa: la lista y el mapa
@@ -18,6 +19,7 @@ type Props = {
 // está la persona, del más cercano al más lejano y con la distancia.
 export default function CercaTuyoPanel({ reclamos, onOpenReclamo }: Props) {
   const { coords, estado, reintentar } = useUbicacionUsuario();
+  const reducedMotion = useReducedMotion();
 
   const cercanos = useMemo(() => (coords ? reclamosCercanos(reclamos, coords) : []), [reclamos, coords]);
   // Si no hay ninguno dentro del radio, se dice a qué distancia está el más próximo: así
@@ -31,9 +33,13 @@ export default function CercaTuyoPanel({ reclamos, onOpenReclamo }: Props) {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Cerca tuyo</Text>
-        <Text style={styles.subtitle}>
-          {estado === 'lista' ? `${cercanos.length} activos · radio ${RADIO_CERCA_TUYO_METROS} m` : ''}
-        </Text>
+        {estado === 'lista' && (
+          <View style={styles.counter}>
+            <Text style={styles.counterText}>
+              {cercanos.length} activos · {RADIO_CERCA_TUYO_METROS} m
+            </Text>
+          </View>
+        )}
       </View>
 
       {estado === 'buscando' && <Text style={styles.hint}>Buscando tu ubicación…</Text>}
@@ -62,12 +68,14 @@ export default function CercaTuyoPanel({ reclamos, onOpenReclamo }: Props) {
               }
             />
           }
-          renderItem={({ item }) => (
-            <ReclamoCard
-              reclamo={item.reclamo}
-              distanciaMetros={item.distanciaMetros}
-              onPress={() => onOpenReclamo(item.reclamo)}
-            />
+          renderItem={({ item, index }) => (
+            <Animated.View entering={reducedMotion ? undefined : FadeInDown.delay(index * 60).springify().damping(16)}>
+              <ReclamoCard
+                reclamo={item.reclamo}
+                distanciaMetros={item.distanciaMetros}
+                onPress={() => onOpenReclamo(item.reclamo)}
+              />
+            </Animated.View>
           )}
         />
       )}
@@ -77,36 +85,43 @@ export default function CercaTuyoPanel({ reclamos, onOpenReclamo }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    maxHeight: 260,
-    backgroundColor: colors.chalk,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.12)',
+    maxHeight: 300,
+    backgroundColor: colors.bg,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'baseline',
+    alignItems: 'center',
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.sm,
   },
   title: {
     fontFamily: fonts.display,
-    fontSize: fontSizes.md,
-    color: colors.asphalt,
+    fontSize: fontSizes.lg,
+    color: colors.ink,
   },
-  subtitle: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.concrete,
+  counter: {
+    backgroundColor: colors.mandarinSoft,
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: 4,
+    borderRadius: radii.pill,
+  },
+  counterText: {
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs + 1,
+    color: colors.mandarinDeep,
   },
   hint: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    color: colors.concrete,
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.sm,
+    color: colors.inkSoft,
     padding: spacing.lg,
   },
   list: {
     paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.lg,
+    gap: spacing.md,
   },
 });

@@ -1,5 +1,6 @@
-import { useId } from 'react';
+import { useEffect, useId } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring } from 'react-native-reanimated';
 import Svg, { Circle, Path, TextPath } from 'react-native-svg';
 import { fonts } from '../theme';
 
@@ -10,21 +11,26 @@ type RubberStampProps = {
   centerLines: string[];
 };
 
-// The "sello" motif from design/figma/03-detalle.png and 04c-reclamo-publicado.png: a
-// dashed circle with text curving along the top and a bold label centered inside.
-// Uses react-native-svg's TextPath, which is the only way to bend text along an arc
-// in React Native — there's no CSS text-on-a-path equivalent.
 export default function RubberStamp({ size = 140, color, curvedText, centerLines }: RubberStampProps) {
   const pathId = `stamp-path-${useId()}`;
+  const caida = useSharedValue(0);
+  const reducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    caida.value = reducedMotion ? 1 : withDelay(250, withSpring(1, { damping: 9, stiffness: 140 }));
+  }, [caida, reducedMotion]);
+
+  const caidaStyle = useAnimatedStyle(() => ({
+    opacity: caida.value,
+    transform: [{ scale: 1.8 - caida.value * 0.8 }, { rotate: `${-24 + caida.value * 14}deg` }],
+  }));
   const radius = size / 2 - 10;
   const cx = size / 2;
   const cy = size / 2;
-  // Half-circle arc from 9 o'clock to 3 o'clock, going over the top — this is what the
-  // curved text follows.
   const arc = `M ${cx - radius} ${cy} A ${radius} ${radius} 0 1 1 ${cx + radius} ${cy}`;
 
   return (
-    <View style={{ width: size, height: size }}>
+    <Animated.View style={[{ width: size, height: size }, caidaStyle]}>
       <Svg width={size} height={size}>
         <Circle
           cx={cx}
@@ -36,7 +42,7 @@ export default function RubberStamp({ size = 140, color, curvedText, centerLines
           fill="none"
         />
         <Path id={pathId} d={arc} fill="none" stroke="none" />
-        <TextPath href={`#${pathId}`} fill={color} fontSize={size * 0.085} fontFamily={fonts.monoSemiBold}>
+        <TextPath href={`#${pathId}`} fill={color} fontSize={size * 0.085} fontFamily={fonts.bodySemiBold}>
           {curvedText}
         </TextPath>
       </Svg>
@@ -54,7 +60,7 @@ export default function RubberStamp({ size = 140, color, curvedText, centerLines
           </Text>
         ))}
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -66,7 +72,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   centerText: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodySemiBold,
     textAlign: 'center',
   },
   centerTextBold: {

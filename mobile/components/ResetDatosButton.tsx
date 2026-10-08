@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
-import { colors, fonts, fontSizes, spacing } from '../theme';
+import { colors, fonts, fontSizes, radii, spacing } from '../theme';
 
 // Solo para desarrollo y demos: vuelve la app al estado inicial (usuarios y reclamos de
 // los JSON de prueba, sin sesión). En un build de producción __DEV__ es false y no se
@@ -56,19 +56,17 @@ export default function ResetDatosButton() {
 const styles = StyleSheet.create({
   button: {
     marginHorizontal: spacing.lg,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: colors.concrete,
+    backgroundColor: colors.surfaceAlt,
     padding: spacing.md,
     alignItems: 'center',
+    borderRadius: radii.pill,
   },
   pressed: {
     opacity: 0.7,
   },
   text: {
-    fontFamily: fonts.monoSemiBold,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.concrete,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.inkSoft,
   },
 });

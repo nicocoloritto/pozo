@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet } from 'react-native';
 import type { DimensionValue } from 'react-native';
-import { colors } from '../theme';
+import { useReducedMotion } from 'react-native-reanimated';
+import { colors, radii } from '../theme';
 
 type SkeletonProps = {
   width?: DimensionValue;
@@ -9,13 +10,15 @@ type SkeletonProps = {
   style?: object;
 };
 
-// Shimmer placeholder for list rows and cards while data loads. Plain `Animated` +
-// `useNativeDriver: true` (only `opacity`), no reanimated needed for something this
-// simple.
 export default function Skeleton({ width = '100%', height = 16, style }: SkeletonProps) {
   const opacity = useRef(new Animated.Value(0.4)).current;
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
+    if (reducedMotion) {
+      opacity.setValue(0.65);
+      return;
+    }
     const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(opacity, { toValue: 1, duration: 700, useNativeDriver: true }),
@@ -24,7 +27,7 @@ export default function Skeleton({ width = '100%', height = 16, style }: Skeleto
     );
     loop.start();
     return () => loop.stop();
-  }, [opacity]);
+  }, [opacity, reducedMotion]);
 
   return (
     <Animated.View
@@ -37,6 +40,7 @@ export default function Skeleton({ width = '100%', height = 16, style }: Skeleto
 
 const styles = StyleSheet.create({
   base: {
-    backgroundColor: colors.concreteLight,
+    backgroundColor: colors.line,
+    borderRadius: radii.sm,
   },
 });

@@ -1,45 +1,66 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { categoryIcons, categoryLabels } from '../constants/categories';
+import { useEffect } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
+import PressableScale from './PressableScale';
+import { categoryIcons, categoryLabels, categoryTints } from '../constants/categories';
 import type { Categoria } from '../types/reclamo';
-import { colors, fonts, fontSizes, spacing } from '../theme';
+import { colors, fonts, fontSizes, radii, spacing } from '../theme';
 
 type CategoryChipProps = {
   category: Categoria;
   selected?: boolean;
   onPress?: () => void;
+  compact?: boolean;
 };
 
-// Road-sign rombo used both as a picker (Nuevo reclamo, design/figma/04) and as a
-// read-only badge (report cards, detail screen). Pass `onPress` to make it a picker.
-export default function CategoryChip({ category, selected = false, onPress }: CategoryChipProps) {
-  const content = (
-    <View style={[styles.rombo, selected && styles.romboSelected]}>
-      <Ionicons
-        name={categoryIcons[category]}
-        size={22}
-        color={selected ? colors.asphalt : colors.yellow}
-      />
-    </View>
+export default function CategoryChip({ category, selected = false, onPress, compact = false }: CategoryChipProps) {
+  const tint = categoryTints[category];
+  const selectedIconColor = tint.base === colors.cobalt ? colors.surface : colors.ink;
+  const pop = useSharedValue(1);
+  const reducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (!selected || reducedMotion) return;
+    pop.value = 0.85;
+    pop.value = withSpring(1, { damping: 8, stiffness: 260 });
+  }, [selected, pop, reducedMotion]);
+
+  const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.value }] }));
+
+  const tile = (
+    <Animated.View
+      style={[
+        styles.tile,
+        compact && styles.tileCompact,
+        { backgroundColor: selected ? tint.base : tint.soft },
+        popStyle,
+      ]}
+    >
+      <Ionicons name={categoryIcons[category]} size={compact ? 20 : 24} color={selected ? selectedIconColor : tint.deep} />
+    </Animated.View>
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, compact && styles.containerCompact]}>
       {onPress ? (
-        <Pressable
+        <PressableScale
           onPress={onPress}
+          pressedScale={0.88}
           accessibilityRole="button"
+          accessibilityState={{ selected }}
           accessibilityLabel={categoryLabels[category]}
-          style={({ pressed }) => pressed && styles.pressed}
         >
-          {content}
-        </Pressable>
+          {tile}
+        </PressableScale>
       ) : (
-        content
+        tile
       )}
-      <Text style={styles.label} numberOfLines={1}>
-        {categoryLabels[category]}
-      </Text>
+      {!compact && (
+        <Text style={[styles.label, selected && styles.labelSelected]} numberOfLines={1}>
+          {categoryLabels[category]}
+        </Text>
+      )}
     </View>
   );
 }
@@ -47,31 +68,32 @@ export default function CategoryChip({ category, selected = false, onPress }: Ca
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    gap: spacing.xs,
-    width: 72,
+    gap: spacing.sm,
+    width: 76,
   },
-  rombo: {
-    width: 56,
-    height: 56,
-    backgroundColor: colors.asphalt,
-    borderWidth: 2,
-    borderColor: colors.yellow,
+  containerCompact: {
+    width: undefined,
+  },
+  tile: {
+    width: 60,
+    height: 60,
+    borderRadius: radii.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    transform: [{ rotate: '45deg' }],
   },
-  romboSelected: {
-    backgroundColor: colors.yellow,
-    borderColor: colors.yellow,
-  },
-  pressed: {
-    opacity: 0.7,
+  tileCompact: {
+    width: 48,
+    height: 48,
+    borderRadius: radii.md,
   },
   label: {
-    fontFamily: fonts.mono,
-    fontSize: fontSizes.xs,
-    textTransform: 'uppercase',
-    color: colors.concrete,
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.xs + 1,
+    color: colors.inkSoft,
     textAlign: 'center',
+  },
+  labelSelected: {
+    fontFamily: fonts.bodyBold,
+    color: colors.ink,
   },
 });
