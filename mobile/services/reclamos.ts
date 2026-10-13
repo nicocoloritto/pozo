@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import reclamosSeed from '../data/reclamos.json';
 import { devLog } from '../lib/devLog';
-import { borrarTodasLasFotos } from './fotos';
+import { borrarFotoPermanente, borrarTodasLasFotos } from './fotos';
 import {
   decidirPasarAReparacion,
   decidirRechazar,
@@ -159,6 +159,21 @@ export async function resetear(): Promise<void> {
     borrarTodasLasFotos();
   } catch (err) {
     console.warn('[reclamos] No se pudieron borrar los reclamos', err);
+  }
+}
+
+// Borra los reclamos que publicó un vecino, con sus fotos. Se usa al cerrar sesión de una
+// cuenta registrada con DNI (ver AuthContext.cerrarSesion). Las confirmaciones que esa
+// persona dejó en reclamos ajenos no se tocan: son parte de la historia de esos reclamos.
+export async function eliminarReclamosDeAutor(autorId: string): Promise<void> {
+  const reclamos = await loadReclamos();
+  const propios = reclamos.filter((reclamo) => reclamo.autorId === autorId);
+  if (propios.length === 0) return;
+
+  await saveReclamos(reclamos.filter((reclamo) => reclamo.autorId !== autorId));
+  for (const reclamo of propios) {
+    borrarFotoPermanente(reclamo.photoUrl);
+    if (reclamo.fotoResolucion) borrarFotoPermanente(reclamo.fotoResolucion);
   }
 }
 

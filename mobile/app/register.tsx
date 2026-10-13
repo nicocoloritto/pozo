@@ -80,7 +80,7 @@ export default function Register() {
     } catch (err) {
       if (err instanceof AuthError) {
         setFormError(err.message);
-        setOfferLogin(err.code === 'EMAIL_TAKEN');
+        setOfferLogin(err.code === 'EMAIL_TAKEN' || err.code === 'DNI_TAKEN');
       } else {
         setFormError('No se pudo crear la cuenta. Probá de nuevo.');
       }

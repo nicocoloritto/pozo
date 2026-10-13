@@ -12,6 +12,9 @@ type AuthContextValue = {
   registrar: (input: RegisterInput) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   cerrarSesion: () => Promise<void>;
+  // true si cerrar sesión va a borrar la cuenta y sus reclamos (cuentas registradas con DNI,
+  // no las de prueba): la pantalla lo usa para pedir confirmación.
+  cierreBorraDatos: boolean;
   restablecerDatosDePrueba: () => Promise<void>;
 };
 
@@ -21,6 +24,16 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 // `isHydrated` so AuthGate can move on (to /login, since `user` stays null) instead of
 // leaving the app stuck on a blank screen forever.
 const HYDRATION_TIMEOUT_MS = 5000;
+
+// Borra usuarios, sesión, reclamos y fotos guardadas, y recarga los datos de prueba de los
+// JSON. Solo lo usa el botón de restablecer del Perfil (__DEV__); cerrar sesión borra únicamente
+// la cuenta registrada con DNI y sus reclamos.
+async function borrarTodoYRecargar(): Promise<void> {
+  await authService.resetear();
+  await reclamosService.resetear();
+  await authService.init();
+  await reclamosService.init();
+}
 
 // Holds the logged-in user for the app, backed by AsyncStorage (services/auth.ts) so a
 // session survives a reload.
@@ -103,6 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       user,
       isHydrated,
+      cierreBorraDatos: user !== null && !authService.esUsuarioDePrueba(user.id),
       async registrar(input) {
         await hydration.current?.promise;
         await seed.current;
@@ -117,18 +131,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await authService.guardarSesion(found);
         setUser(found);
       },
+      // Todavía no hay backend: los datos viven solo en este teléfono. Al cerrar sesión de una
+      // cuenta registrada con DNI se borran esa cuenta, sus reclamos y sus fotos. Las cuentas de
+      // prueba (vecino1 a vecino3 y el admin) no borran nada: así se puede publicar un reclamo
+      // como vecino y gestionarlo como municipio en el mismo teléfono. Cuando exista el
+      // backend, esto vuelve a ser solo descartar la sesión.
       async cerrarSesion() {
         await hydration.current?.promise;
+        await seed.current;
+        if (user && !authService.esUsuarioDePrueba(user.id)) {
+          await reclamosService.eliminarReclamosDeAutor(user.id);
+          await authService.eliminarUsuario(user.id);
+        }
         await authService.cerrarSesion();
         setUser(null);
       },
       // Solo se usa desde el botón de desarrollo del Perfil (__DEV__).
       async restablecerDatosDePrueba() {
         await hydration.current?.promise;
-        await authService.resetear();
-        await reclamosService.resetear();
-        await authService.init();
-        await reclamosService.init();
+        await seed.current;
+        await borrarTodoYRecargar();
         setUser(null);
       },
     }),
