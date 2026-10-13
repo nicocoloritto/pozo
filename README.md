@@ -205,7 +205,14 @@ Se cargan solos la primera vez que se abre la app.
 
 También se puede crear una cuenta de vecino nueva escaneando un PDF417 con el formato
 `trámite@apellido@nombres@sexo@dni@ejemplar@nacimiento@emisión`. Los admin no se registran
-desde la app.
+desde la app. **Un DNI solo puede tener una cuenta:** si se vuelve a escanear uno ya
+registrado, la app pide iniciar sesión en vez de crear otra.
+
+**Cerrar sesión de una cuenta registrada con DNI borra esa cuenta, sus reclamos y sus fotos**
+del teléfono, porque todavía no hay backend: los datos viven solo en el dispositivo. La app
+pide confirmación antes. Las cuentas de prueba no borran nada al cerrar sesión, así que se
+puede publicar un reclamo como `vecino1` y gestionarlo después como `admin@caba.gob.ar` en el
+mismo teléfono. Cuando exista la API, cerrar sesión vuelve a ser solo descartar la sesión.
 
 ## Próximos pasos
 

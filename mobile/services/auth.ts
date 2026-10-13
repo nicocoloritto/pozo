@@ -3,6 +3,7 @@ import * as Crypto from 'expo-crypto';
 import adminSeed from '../data/usuarios-admin.json';
 import vecinosSeed from '../data/usuarios-vecinos.json';
 import { devLog } from '../lib/devLog';
+import { mismoDni } from '../lib/dni';
 import type { Admin, User, Vecino } from '../types/user';
 
 // TODO: esto guarda los usuarios en AsyncStorage porque todavía no hay backend. Cuando
@@ -36,7 +37,7 @@ type AdminSeed = { id: string; firstName: string; email: string; password: strin
 
 type StoredUser = (Vecino | Admin) & { passwordHash: string; salt: string };
 
-export type AuthErrorCode = 'EMAIL_TAKEN' | 'EMAIL_NOT_FOUND' | 'WRONG_PASSWORD';
+export type AuthErrorCode = 'EMAIL_TAKEN' | 'DNI_TAKEN' | 'EMAIL_NOT_FOUND' | 'WRONG_PASSWORD';
 
 export class AuthError extends Error {
   code: AuthErrorCode;
@@ -143,6 +144,12 @@ export async function registrar(input: RegisterInput): Promise<User> {
   if (users.some((user) => sameEmail(user.email, input.email))) {
     throw new AuthError('EMAIL_TAKEN', 'Este email ya está registrado');
   }
+  // Un DNI, una cuenta: escanear el DNI identifica a una persona real, así que la misma
+  // persona no puede abrir una segunda cuenta (con otro email) ni quedarse con sus
+  // reclamos repartidos en dos usuarios distintos.
+  if (users.some((user) => user.rol === 'vecino' && mismoDni(user.documentNumber, input.documentNumber))) {
+    throw new AuthError('DNI_TAKEN', 'Ya hay una cuenta registrada con este DNI. Iniciá sesión con tu email.');
+  }
 
   const { password, ...rest } = input;
   const salt = Crypto.randomUUID();
@@ -209,4 +216,23 @@ export async function resetear(): Promise<void> {
   } catch (err) {
     console.warn('[auth] No se pudieron borrar los datos de prueba', err);
   }
+}
+
+// Las cuentas de prueba son las de usuarios-vecinos.json y usuarios-admin.json; cualquier
+// otra se creó escaneando un DNI. Se distinguen por id: las de prueba tienen ids fijos y las
+// registradas, uno aleatorio.
+const IDS_DE_PRUEBA = new Set<string>([
+  ...(vecinosSeed as VecinoSeed[]).map((seed) => seed.id),
+  ...(adminSeed as AdminSeed[]).map((seed) => seed.id),
+]);
+
+export function esUsuarioDePrueba(id: string): boolean {
+  return IDS_DE_PRUEBA.has(id);
+}
+
+// Borra una cuenta del storage. Se usa al cerrar sesión de una cuenta registrada con DNI
+// mientras no exista el backend (ver AuthContext.cerrarSesion).
+export async function eliminarUsuario(id: string): Promise<void> {
+  const users = await loadUsers();
+  await saveUsers(users.filter((user) => user.id !== id));
 }
