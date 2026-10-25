@@ -1,6 +1,6 @@
 // A registered neighbor. See lib/dni.ts for where firstName/lastName/sex/documentNumber/
 // birthDate come from (the PDF417 on the back of the DNI). `neighborhood` only exists on
-// the seed test accounts (data/usuarios-vecinos.json); the DNI scan doesn't provide it.
+// the seed test accounts (seed del backend); the DNI scan doesn't provide it.
 export type Vecino = {
   id: string;
   rol: 'vecino';
@@ -14,7 +14,7 @@ export type Vecino = {
 };
 
 // Represents a municipality account (today only CABA). Admins never register from the
-// app: they only exist as seed data in data/usuarios-admin.json.
+// app: they only exist as seed data in the backend (pozo-backend).
 export type Admin = {
   id: string;
   rol: 'admin';

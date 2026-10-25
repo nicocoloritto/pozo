@@ -2,9 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PressableScale from '../../components/PressableScale';
-import ResetDatosButton from '../../components/ResetDatosButton';
 import { useAuth } from '../../contexts/AuthContext';
-import { useConfirmarCierreDeSesion } from '../../hooks/useConfirmarCierreDeSesion';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
 // Enmascara el DNI dejando solo los últimos 3 dígitos visibles: **.***.123.
@@ -27,8 +25,7 @@ function Dato({ etiqueta, valor }: DatoProps) {
 }
 
 export default function ProfileScreen() {
-  const { user } = useAuth();
-  const confirmarCierre = useConfirmarCierreDeSesion();
+  const { user, cerrarSesion } = useAuth();
 
   if (!user || user.rol !== 'vecino') return null;
 
@@ -65,12 +62,11 @@ export default function ProfileScreen() {
         <PressableScale
           accessibilityRole="button"
           accessibilityLabel="Cerrar sesión"
-          onPress={confirmarCierre}
+          onPress={() => cerrarSesion().catch((err) => console.warn('[auth] No se pudo cerrar la sesión', err))}
           style={styles.logoutButton}
         >
           <Text style={styles.logoutButtonText}>Cerrar sesión</Text>
         </PressableScale>
-        <ResetDatosButton />
       </ScrollView>
     </SafeAreaView>
   );

@@ -1,6 +1,6 @@
 import type { ImageSourcePropType } from 'react-native';
 
-// Fotos de los reclamos de prueba (data/reclamos.json, campos `photoKey` y
+// Fotos de los reclamos de prueba (seed del backend, prisma/data/reclamos.json, campos `photoKey` y
 // `fotoResolucionKey`), empaquetadas con la app para que se vean sin internet.
 //
 // Los require tienen que ser estáticos (Metro los resuelve al compilar): por eso es un

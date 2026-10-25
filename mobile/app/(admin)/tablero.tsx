@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BarChart from '../../components/BarChart';
+import EmptyState from '../../components/EmptyState';
 import Skeleton from '../../components/Skeleton';
 import { statusColors, statusLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
 import { estaVencido } from '../../lib/prioridad';
 import { AREAS } from '../../services/areas';
 import { obtenerEvolucionMunicipio, obtenerRanking } from '../../services/estadisticas';
+import { mensajeDeError } from '../../lib/mensajeDeError';
 import { ESTADOS_RECLAMO, obtenerReclamosPorMunicipio } from '../../services/reclamos';
 import type { RankingBarrio } from '../../types/estadisticas';
 import { CATEGORIAS_PELIGROSAS as PELIGROSAS } from '../../types/reclamo';
@@ -40,29 +42,43 @@ export default function TableroScreen() {
   const [reclamos, setReclamos] = useState<Reclamo[] | null>(null);
   const [evolucion, setEvolucion] = useState<{ label: string; value: number }[]>([]);
   const [ranking, setRanking] = useState<RankingBarrio[]>([]);
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
 
   const municipioId = user && user.rol === 'admin' ? user.municipioId : null;
 
-  useEffect(() => {
+  const cargar = useCallback(async () => {
     if (!municipioId) return;
-    let cancelled = false;
-    (async () => {
+    try {
       const [reclamosData, evolucionData, rankingData] = await Promise.all([
-        obtenerReclamosPorMunicipio(municipioId),
+        obtenerReclamosPorMunicipio(),
         obtenerEvolucionMunicipio(municipioId),
         obtenerRanking(municipioId),
       ]);
-      if (cancelled) return;
       setReclamos(reclamosData);
       setEvolucion(evolucionData.map((item) => ({ label: item.mes, value: item.reclamos })));
       setRanking(rankingData);
-    })();
-    return () => {
-      cancelled = true;
-    };
+      setErrorCarga(null);
+    } catch (err) {
+      setErrorCarga(mensajeDeError(err));
+    }
   }, [municipioId]);
 
+  useEffect(() => {
+    cargar();
+  }, [cargar]);
+
   if (!municipioId) return null;
+
+  if (!reclamos && errorCarga) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <Text style={styles.title}>Tablero</Text>
+          <EmptyState icon="cloud-offline-outline" message={errorCarga} actionLabel="Reintentar" onAction={cargar} />
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   if (!reclamos) {
     return (
@@ -78,8 +94,7 @@ export default function TableroScreen() {
   }
 
   // TODO: estos números (abiertos/nuevos/vencidos/% resuelto/tiempo promedio) van a
-  // venir de la base de datos del municipio una vez que exista el backend; hoy se
-  // calculan en el cliente a partir de lo que hay en AsyncStorage.
+  // calcular en el servidor; hoy se calculan en el cliente a partir de la lista de reclamos.
   const abiertos = reclamos.filter((r) => !esEstadoFinal(r.status)).length;
   const nuevosSinTomar = reclamos.filter(esNuevoSinTomar).length;
   const vencidos = reclamos.filter((r) => estaVencido(r, AREAS)).length;

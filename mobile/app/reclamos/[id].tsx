@@ -13,6 +13,7 @@ import RubberStamp from '../../components/RubberStamp';
 import Skeleton from '../../components/Skeleton';
 import { categoryLabels } from '../../constants/categories';
 import { fotoResolucionSource, fotoSource } from '../../lib/fotoReclamo';
+import { mensajeDeError } from '../../lib/mensajeDeError';
 import { resumenVerificacion } from '../../lib/verificacion';
 import { severityLabels, statusColors, statusLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
@@ -48,17 +49,31 @@ export default function ReclamoDetail() {
   const reducedMotion = useReducedMotion();
 
   const [reclamo, setReclamo] = useState<Reclamo | null | undefined>(undefined);
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
   const [votando, setVotando] = useState(false);
   const [votoError, setVotoError] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
-    const data = await obtenerReclamoPorId(id);
-    setReclamo(data ?? null);
+    try {
+      const data = await obtenerReclamoPorId(id);
+      setReclamo(data ?? null);
+      setErrorCarga(null);
+    } catch (err) {
+      setErrorCarga(mensajeDeError(err));
+    }
   }, [id]);
 
   useEffect(() => {
     cargar();
   }, [cargar]);
+
+  if (reclamo === undefined && errorCarga) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+        <EmptyState icon="cloud-offline-outline" message={errorCarga} actionLabel="Reintentar" onAction={cargar} />
+      </SafeAreaView>
+    );
+  }
 
   if (reclamo === undefined) {
     return (
@@ -92,7 +107,7 @@ export default function ReclamoDetail() {
     setVotando(true);
     setVotoError(null);
     try {
-      const actualizado = await votarReclamo(reclamoId, vecinoId, voto);
+      const actualizado = await votarReclamo(reclamoId, voto);
       setReclamo({ ...actualizado });
     } catch (err) {
       setVotoError(err instanceof ReclamoError ? err.message : 'No se pudo registrar tu voto. Probá de nuevo.');

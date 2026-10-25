@@ -8,8 +8,8 @@ import ReclamoCard from '../../components/ReclamoCard';
 import ReclamoCardSkeleton from '../../components/ReclamoCardSkeleton';
 import { statusLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
-import { devLog } from '../../lib/devLog';
-import { ESTADOS_RECLAMO, obtenerReclamos, obtenerReclamosPorAutor } from '../../services/reclamos';
+import { mensajeDeError } from '../../lib/mensajeDeError';
+import { ESTADOS_RECLAMO, obtenerReclamosPorAutor } from '../../services/reclamos';
 import type { EstadoReclamo, Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, radii, spacing } from '../../theme';
 
@@ -21,23 +21,17 @@ export default function MineScreen() {
   const [reclamos, setReclamos] = useState<Reclamo[] | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [filtro, setFiltro] = useState<EstadoReclamo | null>(null);
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
 
   const autorId = user && user.rol === 'vecino' ? user.id : null;
 
   const cargar = useCallback(async () => {
     if (!autorId) return;
-    const data = await obtenerReclamosPorAutor(autorId);
-    setReclamos(data);
-    if (__DEV__) {
-      // Diagnóstico: si faltan reclamos, acá se ve si el id de la sesión coincide con los
-      // autorId guardados y cuántos reclamos hay en total en el storage.
-      const todos = await obtenerReclamos();
-      devLog('mis-reclamos', {
-        idDeLaSesion: autorId,
-        reclamosEnStorage: todos.length,
-        conEseAutorId: data.length,
-        autorIdsEnStorage: Array.from(new Set(todos.map((r) => r.autorId))),
-      });
+    try {
+      setReclamos(await obtenerReclamosPorAutor());
+      setErrorCarga(null);
+    } catch (err) {
+      setErrorCarga(mensajeDeError(err));
     }
   }, [autorId]);
 
@@ -100,7 +94,9 @@ export default function MineScreen() {
         )}
       </View>
 
-      {reclamos === null ? (
+      {reclamos === null && errorCarga ? (
+        <EmptyState icon="cloud-offline-outline" message={errorCarga} actionLabel="Reintentar" onAction={cargar} />
+      ) : reclamos === null ? (
         <View style={styles.list}>
           {[1, 2, 3].map((n) => (
             <ReclamoCardSkeleton key={n} />

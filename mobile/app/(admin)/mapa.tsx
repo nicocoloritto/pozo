@@ -8,6 +8,7 @@ import ReclamosMap from '../../components/ReclamosMap';
 import { useAuth } from '../../contexts/AuthContext';
 import { aplicarFiltros, FILTROS_VACIOS, hayFiltrosActivos } from '../../lib/filtrosMunicipio';
 import type { FiltrosMunicipio } from '../../lib/filtrosMunicipio';
+import { mensajeDeError } from '../../lib/mensajeDeError';
 import { obtenerReclamosPorMunicipio } from '../../services/reclamos';
 import type { Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
@@ -38,19 +39,23 @@ export default function MapaAdminScreen() {
   const [filtros, setFiltros] = useState<FiltrosMunicipio>(FILTROS_VACIOS);
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
   const [avisoFiltros, setAvisoFiltros] = useState(false);
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!municipioId) return;
-      obtenerReclamosPorMunicipio(municipioId).then((lista) => {
+  const cargar = useCallback(() => {
+    if (!municipioId) return;
+    obtenerReclamosPorMunicipio()
+      .then((lista) => {
+        setErrorCarga(null);
         setReclamos(lista);
         // Con la lista recién leída: si el reclamo pedido ya no existe, se descarta el
         // parámetro para que no quede pendiente.
         const pedido = reclamoIdRef.current;
         if (pedido && !lista.some((r) => r.id === pedido)) limpiarReclamoId();
-      });
-    }, [municipioId, limpiarReclamoId])
-  );
+      })
+      .catch((err) => setErrorCarga(mensajeDeError(err, 'No pudimos cargar los reclamos.')));
+  }, [municipioId, limpiarReclamoId]);
+
+  useFocusEffect(cargar);
 
   // Si el reclamo pedido no pasa los filtros activos, se limpian (y se avisa) para que se
   // vea igual.
@@ -118,6 +123,16 @@ export default function MapaAdminScreen() {
         <View style={styles.aviso}>
           <Text style={styles.avisoText}>Quitamos los filtros para mostrar ese reclamo.</Text>
         </View>
+      )}
+      {errorCarga && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Reintentar la carga de reclamos"
+          onPress={cargar}
+          style={styles.aviso}
+        >
+          <Text style={styles.avisoText}>{errorCarga} Tocá para reintentar.</Text>
+        </Pressable>
       )}
       <ReclamosMap
         reclamos={visibles}

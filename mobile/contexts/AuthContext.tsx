@@ -1,9 +1,9 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { devLog } from '../lib/devLog';
+import { alSesionVencida } from '../services/api';
 import * as authService from '../services/auth';
 import type { RegisterInput } from '../services/auth';
-import * as reclamosService from '../services/reclamos';
 import type { User } from '../types/user';
 
 type AuthContextValue = {
@@ -12,55 +12,26 @@ type AuthContextValue = {
   registrar: (input: RegisterInput) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   cerrarSesion: () => Promise<void>;
-  // true si cerrar sesión va a borrar la cuenta y sus reclamos (cuentas registradas con DNI,
-  // no las de prueba): la pantalla lo usa para pedir confirmación.
-  cierreBorraDatos: boolean;
-  restablecerDatosDePrueba: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-// 5s hard cap: if the seed or AsyncStorage ever hangs, we still have to flip
-// `isHydrated` so AuthGate can move on (to /login, since `user` stays null) instead of
-// leaving the app stuck on a blank screen forever.
+// 5s hard cap: if AsyncStorage ever hangs, we still have to flip `isHydrated` so AuthGate can
+// move on (to /login, since `user` stays null) instead of leaving the app stuck on a blank
+// screen forever.
 const HYDRATION_TIMEOUT_MS = 5000;
 
-// Borra usuarios, sesión, reclamos y fotos guardadas, y recarga los datos de prueba de los
-// JSON. Solo lo usa el botón de restablecer del Perfil (__DEV__); cerrar sesión borra únicamente
-// la cuenta registrada con DNI y sus reclamos.
-async function borrarTodoYRecargar(): Promise<void> {
-  await authService.resetear();
-  await reclamosService.resetear();
-  await authService.init();
-  await reclamosService.init();
-}
-
-// Holds the logged-in user for the app, backed by AsyncStorage (services/auth.ts) so a
-// session survives a reload.
+// Holds the logged-in user for the app. El token y una copia del usuario se guardan en
+// AsyncStorage (services/auth.ts) para que la sesión sobreviva a cerrar la app.
 //
-// Flujo del storage (patrón de la clase de AsyncStorage):
-//   1. Al montar, se LEE la sesión guardada (AsyncStorage solo devuelve texto).
-//   2. Se PARSEA el JSON a un User (services/auth.ts → obtenerSesion).
-//   3. Recién ahí se marca `isHydrated = true`: la app ya sabe si hay sesión o no.
-//   4. Después se GUARDA en cada cambio (registrar / login / cerrarSesion). Nada se
-//      escribe antes de hidratar, para no pisar con "sin sesión" lo que había guardado.
+//   1. Al montar, se LEE la sesión guardada y recién ahí se marca `isHydrated = true`: la app
+//      ya sabe si hay sesión o no, sin esperar a la red.
+//   2. En segundo plano se le pregunta al servidor si la sesión sigue vigente. Si dice que no
+//      (token vencido, cuenta borrada), se cierra la sesión y AuthGate manda al login.
+//   3. Después se guarda en cada cambio (registrar / login / cerrarSesion).
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
-  // Se resuelve cuando termina la hidratación: las acciones que escriben la esperan
-  // antes de tocar el storage.
-  const hydration = useRef<{ promise: Promise<void>; resolve: () => void } | null>(null);
-  if (!hydration.current) {
-    let resolve!: () => void;
-    const promise = new Promise<void>((res) => {
-      resolve = res;
-    });
-    hydration.current = { promise, resolve };
-  }
-  // registrar/login leen y reescriben la lista entera de usuarios: si corrieran mientras
-  // el seed todavía está hasheando, su guardado se pisaría con el del seed (o el login no
-  // encontraría a los usuarios de prueba). Por eso esperan a que el seed termine.
-  const seed = useRef<Promise<void>>(Promise.resolve());
 
   useEffect(() => {
     let settled = false;
@@ -72,7 +43,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       devLog('AuthProvider:bootstrap:end', reason, session ? `${session.email} (${session.rol})` : 'sin sesión');
       setUser(session);
       setIsHydrated(true);
-      hydration.current?.resolve();
     };
 
     const timeout = setTimeout(() => {
@@ -80,17 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       finish(null, 'timeout');
     }, HYDRATION_TIMEOUT_MS);
 
-    // El seed de los JSON de prueba (usuarios-vecinos.json / usuarios-admin.json, con su
-    // hasheo SHA-256) corre en segundo plano: no bloquea que la app arranque y muestre
-    // login. Solo la lectura de la sesión guardada decide qué pantalla mostrar primero.
-    seed.current = Promise.all([
-      authService.init().catch((err) => {
-        console.warn('[auth] Falló el seed en segundo plano', err);
-      }),
-      reclamosService.init().catch((err) => {
-        console.warn('[reclamos] Falló el seed en segundo plano', err);
-      }),
-    ]).then(() => undefined);
+    alSesionVencida(() => setUser(null));
 
     (async () => {
       let session: User | null = null;
@@ -104,11 +64,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearTimeout(timeout);
         finish(session, 'ok');
       }
+      if (session) {
+        const vigente = await authService.verificarSesion();
+        if (vigente) setUser((actual) => (actual && actual.id === vigente.id ? vigente : actual));
+      }
     })();
 
     return () => {
       settled = true;
       clearTimeout(timeout);
+      alSesionVencida(null);
     };
   }, []);
 
@@ -116,41 +81,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       user,
       isHydrated,
-      cierreBorraDatos: user !== null && !authService.esUsuarioDePrueba(user.id),
       async registrar(input) {
-        await hydration.current?.promise;
-        await seed.current;
-        const created = await authService.registrar(input);
-        await authService.guardarSesion(created);
-        setUser(created);
+        setUser(await authService.registrar(input));
       },
       async login(email, password) {
-        await hydration.current?.promise;
-        await seed.current;
-        const found = await authService.login(email, password);
-        await authService.guardarSesion(found);
-        setUser(found);
+        setUser(await authService.login(email, password));
       },
-      // Todavía no hay backend: los datos viven solo en este teléfono. Al cerrar sesión de una
-      // cuenta registrada con DNI se borran esa cuenta, sus reclamos y sus fotos. Las cuentas de
-      // prueba (vecino1 a vecino3 y el admin) no borran nada: así se puede publicar un reclamo
-      // como vecino y gestionarlo como municipio en el mismo teléfono. Cuando exista el
-      // backend, esto vuelve a ser solo descartar la sesión.
       async cerrarSesion() {
-        await hydration.current?.promise;
-        await seed.current;
-        if (user && !authService.esUsuarioDePrueba(user.id)) {
-          await reclamosService.eliminarReclamosDeAutor(user.id);
-          await authService.eliminarUsuario(user.id);
-        }
         await authService.cerrarSesion();
-        setUser(null);
-      },
-      // Solo se usa desde el botón de desarrollo del Perfil (__DEV__).
-      async restablecerDatosDePrueba() {
-        await hydration.current?.promise;
-        await seed.current;
-        await borrarTodoYRecargar();
         setUser(null);
       },
     }),

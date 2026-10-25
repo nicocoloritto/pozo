@@ -24,7 +24,6 @@ import { encontrarReclamoCercano } from '../../lib/distancia';
 import { coordenadasDesdeExif } from '../../lib/exif';
 import { fotoSource } from '../../lib/fotoReclamo';
 import { obtenerBarrioPorCoordenadas } from '../../services/estadisticas';
-import { borrarFotoPermanente, guardarFotoPermanente } from '../../services/fotos';
 import { confirmarReclamo, obtenerReclamos, publicarReclamo, ReclamoError } from '../../services/reclamos';
 import type { Categoria, OrigenUbicacion, Reclamo, Severidad } from '../../types/reclamo';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
@@ -239,7 +238,7 @@ export default function NewReclamo() {
     setConfirmandoCercano(true);
     setErrorCercano(null);
     try {
-      await confirmarReclamo(cercano.id, user.id);
+      await confirmarReclamo(cercano.id);
       router.replace(`/reclamos/${cercano.id}`);
     } catch (err) {
       if (err instanceof ReclamoError && err.code === 'ALREADY_CONFIRMED') {
@@ -259,10 +258,9 @@ export default function NewReclamo() {
     await publicar();
   }
 
-  // Pasos: copiar la foto a la carpeta permanente → resolver el barrio → guardar el reclamo
-  // (autor = usuario de la sesión, estado Reportado y primer cambio del historial los pone
-  // services/reclamos.ts). Si algo falla se muestra el motivo y se queda en esta pantalla
-  // con todo lo cargado, para poder reintentar.
+  // Pasos: resolver el barrio → publicar el reclamo (publicarReclamo sube la foto; autor,
+  // estado Reportado y primer cambio del historial los pone el servidor). Si algo falla se
+  // muestra el motivo y se queda en esta pantalla con todo lo cargado, para poder reintentar.
   async function publicar() {
     if (!photoUri || !coords || !category || !severity || !user || user.rol !== 'vecino') {
       setSubmitting(false);
@@ -270,28 +268,17 @@ export default function NewReclamo() {
     }
     setErrorMsg(null);
 
-    let fotoGuardada: string;
-    try {
-      fotoGuardada = await guardarFotoPermanente(photoUri);
-    } catch (err) {
-      console.warn('[nuevo-reclamo] No se pudo copiar la foto', err);
-      setErrorMsg('No pudimos guardar la foto en el teléfono. Revisá que tengas espacio y probá de nuevo.');
-      setSubmitting(false);
-      return;
-    }
-
     try {
       // El barrio (y por lo tanto el municipio) se resuelven a partir de las
       // coordenadas reales del reclamo, no del barrio del perfil del vecino: puede
       // estar reportando un problema en un barrio distinto al suyo.
       const barrio = await obtenerBarrioPorCoordenadas(coords.latitude, coords.longitude);
       const reclamo = await publicarReclamo({
-        autorId: user.id,
         municipioId: barrio?.municipioId ?? 'caba',
         category,
         severity,
         notes: notes.trim() || undefined,
-        photoUrl: fotoGuardada,
+        photoUrl: photoUri,
         latitude: coords.latitude,
         longitude: coords.longitude,
         accuracyMeters: coords.accuracy ?? undefined,
@@ -311,12 +298,10 @@ export default function NewReclamo() {
       });
     } catch (err) {
       console.warn('[nuevo-reclamo] No se pudo publicar', err);
-      // La copia ya no sirve: se borra para no dejar fotos huérfanas.
-      borrarFotoPermanente(fotoGuardada);
-      // Una validación del servicio dice exactamente qué falta; cualquier otro error es
-      // genérico (storage lleno, etc.).
+      // Los errores del servicio dicen exactamente qué pasó (falta un dato, no hay conexión…);
+      // cualquier otro es genérico.
       setErrorMsg(
-        err instanceof ReclamoError && err.code === 'INVALID_INPUT'
+        err instanceof ReclamoError
           ? err.message
           : 'No pudimos guardar el reclamo. Tus datos siguen acá: probá publicar de nuevo.'
       );

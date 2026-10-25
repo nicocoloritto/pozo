@@ -1,6 +1,6 @@
 import { useFocusEffect, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown, FadeOutUp, useReducedMotion } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import CercaTuyoPanel from '../../components/CercaTuyoPanel';
@@ -9,6 +9,7 @@ import ReclamosMap from '../../components/ReclamosMap';
 import { categoryLabels, categoryOrder, categoryTints } from '../../constants/categories';
 import { statusColors, statusLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
+import { mensajeDeError } from '../../lib/mensajeDeError';
 import { ESTADOS_RECLAMO, obtenerReclamos } from '../../services/reclamos';
 import type { Categoria, EstadoReclamo, Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
@@ -56,6 +57,7 @@ export default function MapScreen() {
   const limpiarReclamoId = useCallback(() => navigationRef.current.setParams({ reclamoId: undefined }), []);
 
   const [avisoFiltros, setAvisoFiltros] = useState(false);
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
   const [reclamos, setReclamos] = useState<Reclamo[] | null>(null);
   const [nearbyHeight, setNearbyHeight] = useState(280);
   const [categoriaFiltro, setCategoriaFiltro] = useState<Set<Categoria>>(new Set());
@@ -63,17 +65,20 @@ export default function MapScreen() {
 
   // Se recarga cada vez que la tab vuelve a estar en foco: así se ven los reclamos
   // recién publicados o confirmados.
-  useFocusEffect(
-    useCallback(() => {
-      obtenerReclamos().then((lista) => {
+  const cargar = useCallback(() => {
+    obtenerReclamos()
+      .then((lista) => {
+        setErrorCarga(null);
         setReclamos(lista);
         // Con la lista recién leída: si el reclamo pedido ya no existe, se descarta el
         // parámetro para que no quede pendiente.
         const pedido = reclamoIdRef.current;
         if (pedido && !lista.some((r) => r.id === pedido)) limpiarReclamoId();
-      });
-    }, [limpiarReclamoId])
-  );
+      })
+      .catch((err) => setErrorCarga(mensajeDeError(err, 'No pudimos cargar los reclamos.')));
+  }, [limpiarReclamoId]);
+
+  useFocusEffect(cargar);
 
   // Si el reclamo pedido no pasa los filtros activos, se limpian (y se avisa) para que se
   // vea igual.
@@ -181,6 +186,16 @@ export default function MapScreen() {
         >
           <Text style={styles.avisoText}>Quitamos los filtros para mostrar ese reclamo.</Text>
         </Animated.View>
+      )}
+      {errorCarga && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Reintentar la carga de reclamos"
+          onPress={cargar}
+          style={[styles.aviso, { top: insets.top + 150 }]}
+        >
+          <Text style={styles.avisoText}>{errorCarga} Tocá para reintentar.</Text>
+        </Pressable>
       )}
       <View
         style={[styles.nearby, { bottom: 82 + insets.bottom }]}
