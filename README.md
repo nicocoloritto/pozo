@@ -108,21 +108,21 @@ semáforo) pueden pasar directo al municipio sin esperar confirmaciones. `Resuel
 | Ubicación | **expo-location**: GPS real y dirección aproximada (componente nativo) |
 | Mapa | **react-native-maps** (Apple Maps en iOS, Google Maps en Android) |
 | Agrupado de marcadores | **supercluster** (JavaScript puro, funciona en Expo Go) |
-| Almacenamiento local | **AsyncStorage**: usuarios, reclamos y sesión · **expo-file-system**: copia permanente de las fotos que saca el vecino |
+| Servidor | **API propia** (repo [pozo-backend](https://github.com/nicocoloritto/pozo-backend): Express, Prisma y SQLite). La app guarda solo el token de sesión en **AsyncStorage** |
 | Gráficos y sellos | react-native-svg |
 
 Decisiones:
 
-- **Servicios que simulan la API.** Las pantallas nunca tocan el almacenamiento: llaman a
-  funciones de `services/` (`login`, `publicarReclamo`, `confirmarReclamo`, `tomar`,
-  `resolver`…). Hoy esas funciones leen y escriben AsyncStorage; cuando exista el backend,
-  son lo único que hay que reemplazar.
+- **Servicios que hablan con la API.** Las pantallas nunca llaman a la red: usan funciones de
+  `services/` (`login`, `publicarReclamo`, `confirmarReclamo`, `tomar`, `resolver`…), que a su
+  vez llaman al servidor a través de `services/api.ts`. Las reglas (estados, confirmaciones,
+  permisos) las aplica el servidor; la app solo valida lo mínimo para avisar rápido.
 - **Reglas de negocio puras.** La máquina de estados (`lib/maquinaEstados.ts`), la prioridad
   y el vencimiento (`lib/prioridad.ts`) y la distancia entre reclamos (`lib/distancia.ts`)
   son funciones sin efectos, fáciles de probar.
 - **Datos de prueba en JSON.** Usuarios, reclamos, barrios y áreas se cargan una sola vez
   desde `mobile/data/` y nunca pisan lo que ya está guardado.
-- **Sesión hidratada.** `AuthProvider` lee la sesión de AsyncStorage al montar, la parsea y
+- **Sesión hidratada.** `AuthProvider` lee el token y el usuario guardados al montar, y
   recién entonces marca `isHydrated`; nada se escribe antes de eso.
 - **Tokens de diseño.** Colores, tipografías y espaciado salen de `mobile/theme/`; no hay
   valores sueltos en las pantallas.
@@ -143,12 +143,11 @@ mobile/
   contexts/        AuthContext: sesión y estado de hidratación
   data/            Datos de prueba en JSON
   lib/             Reglas puras (estados, prioridad, distancia, filtros)
-  services/        Acceso a datos: simulan la API sobre AsyncStorage
+  services/        Acceso a datos: llamadas a la API (pozo-backend)
   theme/           Colores, tipografías y espaciado
   types/           Tipos compartidos
   assets/reclamos/ Fotos de los reclamos de prueba
 docs/              Diseño funcional, modelo de datos, ADRs y sprints
-backend/           API (en construcción, Sprint 2)
 ```
 
 ## Cómo correrlo
@@ -158,6 +157,29 @@ backend/           API (en construcción, Sprint 2)
 - Node.js (versión LTS) y npm.
 - La app **Expo Go** en el celular (Android o iOS), en una versión compatible con el SDK 57.
 - Celular y computadora en la misma red Wi-Fi.
+- El **backend** corriendo en la computadora (ver abajo).
+
+### Backend
+
+La app necesita el servidor: sin él no hay login ni reclamos. Clonalo y levantalo en la
+computadora (instrucciones en el README de [pozo-backend](https://github.com/nicocoloritto/pozo-backend)):
+
+```bash
+git clone https://github.com/nicocoloritto/pozo-backend.git
+cd pozo-backend
+npm install
+cp .env.example .env
+npm run setup
+npm run dev
+```
+
+En desarrollo la app encuentra al servidor sola: usa la IP de la computadora que le da Expo y
+el puerto 3000. Si usás `--tunnel` o el servidor está en otro lado, definí la dirección antes de
+arrancar:
+
+```bash
+EXPO_PUBLIC_API_URL=http://192.168.0.10:3000 npx expo start
+```
 
 ### Instalación y arranque
 
@@ -187,14 +209,15 @@ Expo pide instalar `@expo/ngrok`: aceptá. Es más lento que la red local.
   `--tunnel`.
 - **"Project is incompatible with this version of Expo Go":** la versión de Expo Go no
   coincide con el SDK 57. Actualizá Expo Go desde la tienda de aplicaciones.
-- **El mapa no muestra datos o se ve viejo:** los reclamos se guardan en el teléfono. En
-  modo desarrollo, Perfil → **Restablecer datos de prueba** vuelve todo al estado inicial.
+- **"No pudimos conectar con el servidor":** revisá que el backend esté corriendo, que el
+  celular y la computadora estén en la misma Wi-Fi y que el firewall deje pasar el puerto 3000.
+  Para volver a los datos de prueba, en el backend: `npm run db:reset`.
 - **La caché de Metro da errores raros:** `npx expo start -c`.
 - **Revisión de tipos:** `npm run typecheck` (no hay linter ni tests configurados todavía).
 
 ### Usuarios de prueba
 
-Se cargan solos la primera vez que se abre la app.
+Las carga el backend con `npm run setup`.
 
 | Email | Contraseña | Rol |
 |---|---|---|
@@ -208,19 +231,14 @@ También se puede crear una cuenta de vecino nueva escaneando un PDF417 con el f
 desde la app. **Un DNI solo puede tener una cuenta:** si se vuelve a escanear uno ya
 registrado, la app pide iniciar sesión en vez de crear otra.
 
-**Cerrar sesión de una cuenta registrada con DNI borra esa cuenta, sus reclamos y sus fotos**
-del teléfono, porque todavía no hay backend: los datos viven solo en el dispositivo. La app
-pide confirmación antes. Las cuentas de prueba no borran nada al cerrar sesión, así que se
-puede publicar un reclamo como `vecino1` y gestionarlo después como `admin@caba.gob.ar` en el
-mismo teléfono. Cuando exista la API, cerrar sesión vuelve a ser solo descartar la sesión.
+Las cuentas y los reclamos viven en el servidor: cerrar sesión solo descarta la sesión en el
+teléfono y no borra nada, así que se puede publicar un reclamo como `vecino1` y gestionarlo
+después como `admin@caba.gob.ar`, desde cualquier teléfono conectado al mismo servidor.
 
 ## Próximos pasos
 
-- **Backend real:** API con Express, Prisma y SQLite (Sprint 2), reemplazando los servicios
-  que hoy simulan la API sobre AsyncStorage.
 - **Base de datos del municipio:** que el municipio cargue y mantenga sus áreas, plazos,
   cuadrillas y barrios, y que se pueda sumar más de un municipio.
 - **Notificaciones:** avisar al vecino cuando cambia el estado de su reclamo y al municipio
   cuando entra uno peligroso o se vence un plazo.
-- **Almacenamiento de fotos** en un servidor, en lugar de la ruta local del teléfono.
 - **Modo sin conexión** con sincronización posterior.

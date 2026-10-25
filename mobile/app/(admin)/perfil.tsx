@@ -3,9 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import municipios from '../../data/municipios.json';
 import PressableScale from '../../components/PressableScale';
-import ResetDatosButton from '../../components/ResetDatosButton';
 import { useAuth } from '../../contexts/AuthContext';
-import { useConfirmarCierreDeSesion } from '../../hooks/useConfirmarCierreDeSesion';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
 type DatoProps = { etiqueta: string; valor: string };
@@ -20,8 +18,7 @@ function Dato({ etiqueta, valor }: DatoProps) {
 }
 
 export default function PerfilAdminScreen() {
-  const { user } = useAuth();
-  const confirmarCierre = useConfirmarCierreDeSesion();
+  const { user, cerrarSesion } = useAuth();
 
   if (!user || user.rol !== 'admin') return null;
 
@@ -55,12 +52,11 @@ export default function PerfilAdminScreen() {
         <PressableScale
           accessibilityRole="button"
           accessibilityLabel="Cerrar sesión"
-          onPress={confirmarCierre}
+          onPress={() => cerrarSesion().catch((err) => console.warn('[auth] No se pudo cerrar la sesión', err))}
           style={styles.logoutButton}
         >
           <Text style={styles.logoutButtonText}>Cerrar sesión</Text>
         </PressableScale>
-        <ResetDatosButton />
       </ScrollView>
     </SafeAreaView>
   );

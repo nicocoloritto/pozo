@@ -1,21 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Crypto from 'expo-crypto';
-import adminSeed from '../data/usuarios-admin.json';
-import vecinosSeed from '../data/usuarios-vecinos.json';
 import { devLog } from '../lib/devLog';
-import { mismoDni } from '../lib/dni';
-import type { Admin, User, Vecino } from '../types/user';
+import { ApiError, borrarToken, cargarToken, guardarToken, llamar } from './api';
+import type { User } from '../types/user';
 
-// TODO: esto guarda los usuarios en AsyncStorage porque todavía no hay backend. Cuando
-// exista la API, esta es la única pieza que hay que reemplazar: las pantallas solo
-// llaman a emailExiste/registrar/login, nunca tocan el storage directamente.
-//
-// usuarios-vecinos.json y usuarios-admin.json son datos de prueba (contraseña en texto
-// plano, "123456" para todos) que se precargan una sola vez, ya hasheados, para poder
-// loguearse sin pasar por el registro con DNI. init() nunca pisa un email que ya exista
-// en el storage, así que una cuenta real registrada nunca se pierde por el seed.
+// Registro e inicio de sesión contra la API (repo pozo-backend). El servidor guarda las
+// cuentas y las contraseñas (con hash); acá solo queda el token y una copia del usuario para
+// abrir la app sin esperar a la red.
 
-const USERS_KEY = 'pozo:usuarios';
 const SESSION_KEY = 'pozo:sesion';
 
 export type RegisterInput = {
@@ -28,16 +19,23 @@ export type RegisterInput = {
   password: string;
 };
 
-type VecinoSeed = Omit<RegisterInput, 'password'> & {
-  id: string;
-  password: string;
-  neighborhood?: string;
-};
-type AdminSeed = { id: string; firstName: string; email: string; password: string; municipioId: string };
+export type AuthErrorCode =
+  | 'EMAIL_TAKEN'
+  | 'DNI_TAKEN'
+  | 'EMAIL_NOT_FOUND'
+  | 'WRONG_PASSWORD'
+  | 'INVALID_INPUT'
+  | 'NETWORK'
+  | 'SERVER';
 
-type StoredUser = (Vecino | Admin) & { passwordHash: string; salt: string };
-
-export type AuthErrorCode = 'EMAIL_TAKEN' | 'DNI_TAKEN' | 'EMAIL_NOT_FOUND' | 'WRONG_PASSWORD';
+const CODIGOS: AuthErrorCode[] = [
+  'EMAIL_TAKEN',
+  'DNI_TAKEN',
+  'EMAIL_NOT_FOUND',
+  'WRONG_PASSWORD',
+  'INVALID_INPUT',
+  'NETWORK',
+];
 
 export class AuthError extends Error {
   code: AuthErrorCode;
@@ -48,135 +46,40 @@ export class AuthError extends Error {
   }
 }
 
-function sameEmail(a: string, b: string): boolean {
-  return a.toLowerCase() === b.toLowerCase();
+function comoAuthError(err: unknown): unknown {
+  if (!(err instanceof ApiError)) return err;
+  const code = CODIGOS.find((c) => c === err.code) ?? 'SERVER';
+  return new AuthError(code, err.message);
 }
 
-async function hashPassword(password: string, salt: string): Promise<string> {
-  return Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, `${salt}:${password}`);
-}
+type RespuestaAuth = { token: string; user: User };
 
-// Nunca deja que un storage corrupto/no disponible tire abajo el arranque: si falla la
-// lectura, seguimos como si no hubiera usuarios guardados todavía.
-async function loadUsers(): Promise<StoredUser[]> {
-  devLog('auth.loadUsers:start');
-  try {
-    const raw = await AsyncStorage.getItem(USERS_KEY);
-    const users = raw ? (JSON.parse(raw) as StoredUser[]) : [];
-    devLog('auth.loadUsers:end', users.length, 'usuarios');
-    return users;
-  } catch (err) {
-    console.warn('[auth] No se pudieron leer los usuarios de AsyncStorage', err);
-    devLog('auth.loadUsers:end (error, devuelve [])');
-    return [];
-  }
-}
-
-async function saveUsers(users: StoredUser[]): Promise<void> {
-  devLog('auth.saveUsers:start', users.length, 'usuarios');
-  try {
-    await AsyncStorage.setItem(USERS_KEY, JSON.stringify(users));
-    devLog('auth.saveUsers:end');
-  } catch (err) {
-    console.warn('[auth] No se pudieron guardar los usuarios en AsyncStorage', err);
-    devLog('auth.saveUsers:end (error)');
-  }
-}
-
-function toUser(stored: StoredUser): User {
-  const { passwordHash, salt, ...user } = stored;
-  return user;
-}
-
-// Loads usuarios-vecinos.json / usuarios-admin.json into AsyncStorage, hashing each
-// test password the same way registrar() does. Call once when the app starts, before
-// reading any session. Safe to call more than once: every email already in storage is
-// skipped. Never throws: un seed roto no debe bloquear el arranque de la app.
-export async function init(): Promise<void> {
-  devLog('auth.init:start');
-  const users = await loadUsers();
-  let changed = false;
-
-  for (const seed of vecinosSeed as VecinoSeed[]) {
-    try {
-      if (users.some((user) => sameEmail(user.email, seed.email))) continue;
-      devLog('auth.init:hash vecino:start', seed.email);
-      const { password, ...rest } = seed;
-      const salt = Crypto.randomUUID();
-      const passwordHash = await hashPassword(password, salt);
-      devLog('auth.init:hash vecino:end', seed.email);
-      // Id fijo (no Crypto.randomUUID()): data/reclamos.json referencia estos ids como
-      // autorId, así que tienen que ser estables entre arranques.
-      users.push({ rol: 'vecino', ...rest, passwordHash, salt });
-      changed = true;
-    } catch (err) {
-      console.warn('[auth] No se pudo precargar un vecino de prueba', err);
-    }
-  }
-
-  for (const seed of adminSeed as AdminSeed[]) {
-    try {
-      if (users.some((user) => sameEmail(user.email, seed.email))) continue;
-      devLog('auth.init:hash admin:start', seed.email);
-      const { password, ...rest } = seed;
-      const salt = Crypto.randomUUID();
-      const passwordHash = await hashPassword(password, salt);
-      devLog('auth.init:hash admin:end', seed.email);
-      users.push({ rol: 'admin', ...rest, passwordHash, salt });
-      changed = true;
-    } catch (err) {
-      console.warn('[auth] No se pudo precargar un admin de prueba', err);
-    }
-  }
-
-  if (changed) await saveUsers(users);
-  devLog('auth.init:end', changed ? 'con cambios' : 'sin cambios');
-}
-
-export async function emailExiste(email: string): Promise<boolean> {
-  const users = await loadUsers();
-  return users.some((user) => sameEmail(user.email, email));
+async function iniciarSesionCon(respuesta: RespuestaAuth): Promise<User> {
+  await guardarToken(respuesta.token);
+  await guardarSesion(respuesta.user);
+  return respuesta.user;
 }
 
 // Siempre crea un usuario con rol "vecino": los admin no se registran desde la app.
 export async function registrar(input: RegisterInput): Promise<User> {
-  const users = await loadUsers();
-  if (users.some((user) => sameEmail(user.email, input.email))) {
-    throw new AuthError('EMAIL_TAKEN', 'Este email ya está registrado');
+  try {
+    return await iniciarSesionCon(await llamar<RespuestaAuth>('/auth/registro', { metodo: 'POST', cuerpo: input, sinSesion: true }));
+  } catch (err) {
+    throw comoAuthError(err);
   }
-  // Un DNI, una cuenta: escanear el DNI identifica a una persona real, así que la misma
-  // persona no puede abrir una segunda cuenta (con otro email) ni quedarse con sus
-  // reclamos repartidos en dos usuarios distintos.
-  if (users.some((user) => user.rol === 'vecino' && mismoDni(user.documentNumber, input.documentNumber))) {
-    throw new AuthError('DNI_TAKEN', 'Ya hay una cuenta registrada con este DNI. Iniciá sesión con tu email.');
-  }
-
-  const { password, ...rest } = input;
-  const salt = Crypto.randomUUID();
-  const passwordHash = await hashPassword(password, salt);
-  const stored: StoredUser = { id: Crypto.randomUUID(), rol: 'vecino', ...rest, passwordHash, salt };
-
-  users.push(stored);
-  await saveUsers(users);
-  return toUser(stored);
 }
 
 export async function login(email: string, password: string): Promise<User> {
-  const users = await loadUsers();
-  const stored = users.find((user) => sameEmail(user.email, email));
-  if (!stored) {
-    throw new AuthError('EMAIL_NOT_FOUND', 'No hay una cuenta con este email');
+  try {
+    return await iniciarSesionCon(
+      await llamar<RespuestaAuth>('/auth/login', { metodo: 'POST', cuerpo: { email, password }, sinSesion: true })
+    );
+  } catch (err) {
+    throw comoAuthError(err);
   }
-
-  const passwordHash = await hashPassword(password, stored.salt);
-  if (passwordHash !== stored.passwordHash) {
-    throw new AuthError('WRONG_PASSWORD', 'Contraseña incorrecta');
-  }
-
-  return toUser(stored);
 }
 
-export async function guardarSesion(user: User): Promise<void> {
+async function guardarSesion(user: User): Promise<void> {
   try {
     await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(user));
   } catch (err) {
@@ -184,55 +87,41 @@ export async function guardarSesion(user: User): Promise<void> {
   }
 }
 
-// Nunca throws: una sesión que no se puede leer se trata como "no hay sesión", no como
-// un error que bloquee el arranque.
+// La sesión guardada en el teléfono, sin consultar al servidor: así la app abre al instante y
+// también sin conexión. Nunca throws: una sesión que no se puede leer se trata como "no hay
+// sesión". Para confirmar que sigue vigente, ver verificarSesion().
 export async function obtenerSesion(): Promise<User | null> {
   devLog('auth.obtenerSesion:start');
   try {
-    const raw = await AsyncStorage.getItem(SESSION_KEY);
-    const session = raw ? (JSON.parse(raw) as User) : null;
+    const [token, raw] = await Promise.all([cargarToken(), AsyncStorage.getItem(SESSION_KEY)]);
+    const session = token && raw ? (JSON.parse(raw) as User) : null;
     devLog('auth.obtenerSesion:end', session ? `${session.email} (${session.rol})` : 'sin sesión');
     return session;
   } catch (err) {
     console.warn('[auth] No se pudo leer la sesión guardada', err);
-    devLog('auth.obtenerSesion:end (error, sin sesión)');
+    return null;
+  }
+}
+
+// Pregunta al servidor si la sesión sigue valiendo y trae los datos actualizados. Si el
+// servidor responde que no, api.ts descarta el token y avisa (ver alSesionVencida). Si no hay
+// conexión devuelve null y se sigue con la sesión guardada.
+export async function verificarSesion(): Promise<User | null> {
+  try {
+    const { user } = await llamar<{ user: User }>('/auth/me');
+    await guardarSesion(user);
+    return user;
+  } catch (err) {
+    if (!(err instanceof ApiError && err.code === 'NETWORK')) devLog('auth.verificarSesion:fallo', err);
     return null;
   }
 }
 
 export async function cerrarSesion(): Promise<void> {
+  await borrarToken();
   try {
     await AsyncStorage.removeItem(SESSION_KEY);
   } catch (err) {
     console.warn('[auth] No se pudo borrar la sesión', err);
   }
-}
-
-// Borra usuarios y sesión del storage. Solo para el botón "Restablecer datos de prueba"
-// (__DEV__): después hay que volver a llamar a init() para recargar los JSON.
-export async function resetear(): Promise<void> {
-  try {
-    await AsyncStorage.multiRemove([USERS_KEY, SESSION_KEY]);
-  } catch (err) {
-    console.warn('[auth] No se pudieron borrar los datos de prueba', err);
-  }
-}
-
-// Las cuentas de prueba son las de usuarios-vecinos.json y usuarios-admin.json; cualquier
-// otra se creó escaneando un DNI. Se distinguen por id: las de prueba tienen ids fijos y las
-// registradas, uno aleatorio.
-const IDS_DE_PRUEBA = new Set<string>([
-  ...(vecinosSeed as VecinoSeed[]).map((seed) => seed.id),
-  ...(adminSeed as AdminSeed[]).map((seed) => seed.id),
-]);
-
-export function esUsuarioDePrueba(id: string): boolean {
-  return IDS_DE_PRUEBA.has(id);
-}
-
-// Borra una cuenta del storage. Se usa al cerrar sesión de una cuenta registrada con DNI
-// mientras no exista el backend (ver AuthContext.cerrarSesion).
-export async function eliminarUsuario(id: string): Promise<void> {
-  const users = await loadUsers();
-  await saveUsers(users.filter((user) => user.id !== id));
 }

@@ -1,15 +1,10 @@
-import { Directory, File, Paths } from 'expo-file-system';
-import { devLog } from '../lib/devLog';
+import { llamar } from './api';
 
-// Las fotos que saca el vecino con la cámara (o elige de la galería) quedan en una
-// carpeta temporal que el sistema puede borrar en cualquier momento. Al publicar se
-// copian a esta carpeta permanente de la app, y el reclamo guarda la ruta de la copia.
-//
-// TODO: cuando exista el backend, acá se sube la foto al servidor y se guarda su URL.
-const CARPETA = 'reclamos-fotos';
+// Las fotos viven en el servidor: al publicar un reclamo (o resolverlo) se sube la imagen y
+// el reclamo guarda la URL que devuelve. Una URL que ya es de internet se usa tal cual.
 
-function carpeta(): Directory {
-  return new Directory(Paths.document, CARPETA);
+function esLocal(uri: string): boolean {
+  return uri.startsWith('file://') || uri.startsWith('content://') || uri.startsWith('ph://');
 }
 
 function extensionDe(uri: string): string {
@@ -19,47 +14,27 @@ function extensionDe(uri: string): string {
   return /^[a-z0-9]{2,5}$/.test(ext) ? ext : 'jpg';
 }
 
-// Copia la foto a la carpeta permanente y devuelve la ruta nueva. Tira un error si no se
-// pudo copiar: el que llama decide qué mostrarle a la persona.
-export async function guardarFotoPermanente(origenUri: string): Promise<string> {
-  const dir = carpeta();
-  if (!dir.exists) dir.create({ intermediates: true, idempotent: true });
-
-  const nombre = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extensionDe(origenUri)}`;
-  const destino = new File(dir, nombre);
-  await new File(origenUri).copy(destino);
-  devLog('fotos.guardarFotoPermanente', origenUri, '->', destino.uri);
-  return destino.uri;
+function tipoMime(extension: string): string {
+  if (extension === 'png') return 'image/png';
+  if (extension === 'webp') return 'image/webp';
+  if (extension === 'heic' || extension === 'heif') return 'image/heic';
+  return 'image/jpeg';
 }
 
-// Borra una foto guardada (por ejemplo, si el reclamo no llegó a publicarse). Nunca tira.
-export function borrarFotoPermanente(uri: string): void {
-  try {
-    const archivo = new File(resolverUriFoto(uri));
-    if (archivo.exists) archivo.delete();
-  } catch (err) {
-    console.warn('[fotos] No se pudo borrar la foto', err);
-  }
+// Sube la foto y devuelve su URL. Tira ApiError si no se pudo (sin conexión, archivo muy
+// pesado…): el que llama decide qué mostrarle a la persona.
+export async function subirFoto(uri: string): Promise<string> {
+  if (!esLocal(uri)) return uri;
+
+  const extension = extensionDe(uri);
+  const formData = new FormData();
+  // React Native acepta { uri, name, type } como archivo; los tipos de la web no lo conocen.
+  formData.append('foto', { uri, name: `foto.${extension}`, type: tipoMime(extension) } as unknown as Blob);
+  const { url } = await llamar<{ url: string }>('/fotos', { metodo: 'POST', formData });
+  return url;
 }
 
-// Borra todas las fotos guardadas. Solo para "Restablecer datos de prueba" (__DEV__).
-// Nunca tira.
-export function borrarTodasLasFotos(): void {
-  try {
-    const dir = carpeta();
-    if (dir.exists) dir.delete();
-  } catch (err) {
-    console.warn('[fotos] No se pudieron borrar las fotos guardadas', err);
-  }
-}
-
-// En iOS la ruta absoluta de la carpeta de documentos puede cambiar cuando la app se
-// actualiza o se reinstala (el contenedor cambia de identificador), aunque los archivos
-// se conservan. Por eso, si la ruta guardada apunta a nuestra carpeta, se arma de nuevo a
-// partir del nombre del archivo. Cualquier otra ruta (galería, https) queda igual.
+// Las fotos de los reclamos ya son URLs del servidor: no hay nada que resolver.
 export function resolverUriFoto(uri: string): string {
-  const marca = `/${CARPETA}/`;
-  const i = uri.indexOf(marca);
-  if (!uri.startsWith('file://') || i < 0) return uri;
-  return new File(carpeta(), uri.slice(i + marca.length)).uri;
+  return uri;
 }

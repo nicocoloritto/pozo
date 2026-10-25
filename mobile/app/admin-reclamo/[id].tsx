@@ -10,6 +10,7 @@ import Skeleton from '../../components/Skeleton';
 import StatusStamp from '../../components/StatusStamp';
 import { categoryLabels } from '../../constants/categories';
 import { fotoResolucionSource, fotoSource } from '../../lib/fotoReclamo';
+import { mensajeDeError } from '../../lib/mensajeDeError';
 import { resumenVerificacion } from '../../lib/verificacion';
 import { severityLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
@@ -65,6 +66,7 @@ export default function AdminReclamoDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const [reclamo, setReclamo] = useState<Reclamo | null | undefined>(undefined);
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
   const [procesando, setProcesando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,13 +80,26 @@ export default function AdminReclamoDetail() {
   const adminId = user && user.rol === 'admin' ? user.id : null;
 
   const cargar = useCallback(async () => {
-    const data = await obtenerReclamoPorId(id);
-    setReclamo(data ?? null);
+    try {
+      const data = await obtenerReclamoPorId(id);
+      setReclamo(data ?? null);
+      setErrorCarga(null);
+    } catch (err) {
+      setErrorCarga(mensajeDeError(err));
+    }
   }, [id]);
 
   useEffect(() => {
     cargar();
   }, [cargar]);
+
+  if (reclamo === undefined && errorCarga) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+        <EmptyState icon="cloud-offline-outline" message={errorCarga} actionLabel="Reintentar" onAction={cargar} />
+      </SafeAreaView>
+    );
+  }
 
   if (reclamo === undefined) {
     return (
@@ -111,7 +126,6 @@ export default function AdminReclamoDetail() {
   // vamos, así que no hace falta repetir el chequeo en cada handler.
   const reclamoId = reclamo.id;
   const reclamoActual = reclamo;
-  const adminIdSeguro = adminId;
   const area = areaPorId(reclamo.areaAsignada);
   const esFinal = reclamo.status === 'Resuelto' || reclamo.status === 'Rechazado';
   const puedeTomar =
@@ -135,7 +149,7 @@ export default function AdminReclamoDetail() {
   }
 
   function handleTomar() {
-    ejecutar(() => tomar(reclamoId, adminIdSeguro));
+    ejecutar(() => tomar(reclamoId));
   }
 
   function handleAsignarArea(areaId: string) {
@@ -143,7 +157,7 @@ export default function AdminReclamoDetail() {
   }
 
   function handlePasarAReparacion() {
-    ejecutar(() => pasarAReparacion(reclamoId, adminIdSeguro));
+    ejecutar(() => pasarAReparacion(reclamoId));
   }
 
   function abrirModalFecha() {
@@ -189,7 +203,7 @@ export default function AdminReclamoDetail() {
     const foto = result.assets[0].uri;
     Alert.alert('Resolver reclamo', '¿Confirmás que el problema está resuelto con esta foto?', [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Resolver', onPress: () => ejecutar(() => resolver(reclamoId, adminIdSeguro, foto)) },
+      { text: 'Resolver', onPress: () => ejecutar(() => resolver(reclamoId, foto)) },
     ]);
   }
 
@@ -213,7 +227,7 @@ export default function AdminReclamoDetail() {
         style: 'destructive',
         onPress: () =>
           ejecutar(
-            () => rechazar(reclamoId, adminIdSeguro, motivoRechazo),
+            () => rechazar(reclamoId, motivoRechazo),
             () => {
               setRechazoModalVisible(false);
               setMotivoRechazo('');
@@ -226,7 +240,7 @@ export default function AdminReclamoDetail() {
   function handleAgregarNota() {
     if (!notaTexto.trim()) return;
     ejecutar(
-      () => agregarNota(reclamoId, notaTexto, adminIdSeguro),
+      () => agregarNota(reclamoId, notaTexto),
       () => setNotaTexto('')
     );
   }

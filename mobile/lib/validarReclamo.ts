@@ -4,7 +4,6 @@ import type { Reclamo } from '../types/reclamo';
 
 export type NuevoReclamoInput = Pick<
   Reclamo,
-  | 'autorId'
   | 'municipioId'
   | 'category'
   | 'severity'
@@ -20,11 +19,10 @@ function invalido(mensaje: string): never {
 }
 
 // Reglas de un reclamo nuevo, centralizadas acá y no solo en la pantalla: la pantalla
-// deshabilita "Publicar", pero esa es una comodidad de la interfaz, no una garantía. Cuando
-// exista el backend, estas mismas reglas tienen que vivir del lado del servidor. Función
+// deshabilita "Publicar", pero esa es una comodidad de la interfaz, no una garantía: el
+// servidor aplica las mismas reglas y es el que decide. Acá sirven para avisar rápido. Función
 // pura: tira ReclamoError('INVALID_INPUT') con el motivo, o no devuelve nada.
 export function validarNuevoReclamo(input: NuevoReclamoInput): void {
-  if (!input.autorId) invalido('Falta el autor del reclamo.');
   if (!input.municipioId) invalido('Falta el municipio del reclamo.');
 
   if (typeof input.photoUrl !== 'string' || !input.photoUrl.trim()) {

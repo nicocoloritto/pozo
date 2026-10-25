@@ -9,6 +9,7 @@ import ReclamoCardSkeleton from '../../components/ReclamoCardSkeleton';
 import StatusStamp from '../../components/StatusStamp';
 import { categoryLabels } from '../../constants/categories';
 import { useAuth } from '../../contexts/AuthContext';
+import { mensajeDeError } from '../../lib/mensajeDeError';
 import { aplicarFiltros, FILTROS_VACIOS, hayFiltrosActivos } from '../../lib/filtrosMunicipio';
 import type { FiltrosMunicipio } from '../../lib/filtrosMunicipio';
 import { estaVencido, ordenarPorPrioridad } from '../../lib/prioridad';
@@ -51,13 +52,18 @@ export default function BandejaScreen() {
   const [busqueda, setBusqueda] = useState('');
   const [filtros, setFiltros] = useState<FiltrosMunicipio>(FILTROS_VACIOS);
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
 
   const municipioId = user && user.rol === 'admin' ? user.municipioId : null;
 
   const cargar = useCallback(async () => {
     if (!municipioId) return;
-    const data = await obtenerReclamosPorMunicipio(municipioId);
-    setReclamos(data);
+    try {
+      setReclamos(await obtenerReclamosPorMunicipio());
+      setErrorCarga(null);
+    } catch (err) {
+      setErrorCarga(mensajeDeError(err));
+    }
   }, [municipioId]);
 
   // Se recarga cada vez que la tab vuelve a estar en foco: así aparecen los reclamos
@@ -141,7 +147,9 @@ export default function BandejaScreen() {
         ))}
       </View>
 
-      {reclamos === null ? (
+      {reclamos === null && errorCarga ? (
+        <EmptyState icon="cloud-offline-outline" message={errorCarga} actionLabel="Reintentar" onAction={cargar} />
+      ) : reclamos === null ? (
         <View style={styles.list}>
           {[1, 2, 3].map((n) => (
             <ReclamoCardSkeleton key={n} />
