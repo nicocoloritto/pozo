@@ -13,6 +13,7 @@ import { useFonts } from 'expo-font';
 import { useEffect, useState } from 'react';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import { CatalogoProvider } from '../contexts/CatalogoContext';
 import { devLog } from '../lib/devLog';
 import { colors } from '../theme';
 
@@ -143,7 +144,9 @@ export default function RootLayout() {
       <StatusBar style="auto" />
       <ErrorBoundary>
         <AuthProvider>
-          <AppNavigator fontsReady={fontsReady} />
+          <CatalogoProvider>
+            <AppNavigator fontsReady={fontsReady} />
+          </CatalogoProvider>
         </AuthProvider>
       </ErrorBoundary>
     </>

@@ -6,8 +6,8 @@ import EmptyState from '../../components/EmptyState';
 import Skeleton from '../../components/Skeleton';
 import { statusColors, statusLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCatalogo } from '../../contexts/CatalogoContext';
 import { estaVencido } from '../../lib/prioridad';
-import { AREAS } from '../../services/areas';
 import { obtenerEvolucionMunicipio, obtenerRanking } from '../../services/estadisticas';
 import { mensajeDeError } from '../../lib/mensajeDeError';
 import { ESTADOS_RECLAMO, obtenerReclamosPorMunicipio } from '../../services/reclamos';
@@ -39,6 +39,7 @@ function tiempoPromedioResolucionDias(reclamos: Reclamo[]): number {
 
 export default function TableroScreen() {
   const { user } = useAuth();
+  const { areas } = useCatalogo();
   const [reclamos, setReclamos] = useState<Reclamo[] | null>(null);
   const [evolucion, setEvolucion] = useState<{ label: string; value: number }[]>([]);
   const [ranking, setRanking] = useState<RankingBarrio[]>([]);
@@ -97,12 +98,12 @@ export default function TableroScreen() {
   // calcular en el servidor; hoy se calculan en el cliente a partir de la lista de reclamos.
   const abiertos = reclamos.filter((r) => !esEstadoFinal(r.status)).length;
   const nuevosSinTomar = reclamos.filter(esNuevoSinTomar).length;
-  const vencidos = reclamos.filter((r) => estaVencido(r, AREAS)).length;
+  const vencidos = reclamos.filter((r) => estaVencido(r, areas)).length;
   const resueltos = reclamos.filter((r) => r.status === 'Resuelto').length;
   const porcentajeResuelto = reclamos.length ? Math.round((resueltos / reclamos.length) * 1000) / 10 : 0;
   const diasPromedio = tiempoPromedioResolucionDias(reclamos);
 
-  const porAreaData = AREAS.map((area) => ({
+  const porAreaData = areas.map((area) => ({
     label: area.nombre,
     value: reclamos.filter((r) => r.areaAsignada === area.id).length,
   }));
