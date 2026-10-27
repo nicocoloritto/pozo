@@ -14,6 +14,7 @@ import { mensajeDeError } from '../../lib/mensajeDeError';
 import { resumenVerificacion } from '../../lib/verificacion';
 import { severityLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCatalogo } from '../../contexts/CatalogoContext';
 import {
   agregarNota,
   asignarArea,
@@ -25,7 +26,6 @@ import {
   tomar,
   ReclamoError,
 } from '../../services/reclamos';
-import { areaPorId, AREAS } from '../../services/areas';
 import { CATEGORIAS_PELIGROSAS } from '../../types/reclamo';
 import type { Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
@@ -63,6 +63,7 @@ function formatFechaInput(fecha: Date): string {
 export default function AdminReclamoDetail() {
   const router = useRouter();
   const { user } = useAuth();
+  const { areas, areaPorId, error: errorCatalogo } = useCatalogo();
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const [reclamo, setReclamo] = useState<Reclamo | null | undefined>(undefined);
@@ -414,7 +415,8 @@ export default function AdminReclamoDetail() {
       {/* Asignar área */}
       <SheetModal visible={areaModalVisible} onClose={() => setAreaModalVisible(false)} title="Asignar área">
           <ScrollView contentContainerStyle={styles.modalContent}>
-            {AREAS.map((item) => (
+            {errorCatalogo && <Text style={styles.errorText}>{errorCatalogo}</Text>}
+            {areas.map((item) => (
               <Pressable
                 key={item.id}
                 onPress={() => handleAsignarArea(item.id)}

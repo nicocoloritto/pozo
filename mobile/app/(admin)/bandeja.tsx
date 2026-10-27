@@ -9,13 +9,13 @@ import ReclamoCardSkeleton from '../../components/ReclamoCardSkeleton';
 import StatusStamp from '../../components/StatusStamp';
 import { categoryLabels } from '../../constants/categories';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCatalogo } from '../../contexts/CatalogoContext';
 import { mensajeDeError } from '../../lib/mensajeDeError';
 import { aplicarFiltros, FILTROS_VACIOS, hayFiltrosActivos } from '../../lib/filtrosMunicipio';
 import type { FiltrosMunicipio } from '../../lib/filtrosMunicipio';
 import { estaVencido, ordenarPorPrioridad } from '../../lib/prioridad';
 import { fotoSource } from '../../lib/fotoReclamo';
 import { resumenVerificacion } from '../../lib/verificacion';
-import { areaPorId, AREAS } from '../../services/areas';
 import { obtenerReclamosPorMunicipio } from '../../services/reclamos';
 import { CATEGORIAS_PELIGROSAS } from '../../types/reclamo';
 import type { Reclamo } from '../../types/reclamo';
@@ -191,8 +191,9 @@ export default function BandejaScreen() {
 }
 
 function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => void }) {
+  const { areas, areaPorId } = useCatalogo();
   const area = areaPorId(reclamo.areaAsignada);
-  const vencido = estaVencido(reclamo, AREAS);
+  const vencido = estaVencido(reclamo, areas);
   const { yaNoEsta, posiblementeResuelto } = resumenVerificacion(reclamo, null);
 
   return (

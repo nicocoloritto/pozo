@@ -1,9 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import municipios from '../../data/municipios.json';
 import PressableScale from '../../components/PressableScale';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCatalogo } from '../../contexts/CatalogoContext';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
 type DatoProps = { etiqueta: string; valor: string };
@@ -19,6 +19,7 @@ function Dato({ etiqueta, valor }: DatoProps) {
 
 export default function PerfilAdminScreen() {
   const { user, cerrarSesion } = useAuth();
+  const { municipios } = useCatalogo();
 
   if (!user || user.rol !== 'admin') return null;
 

@@ -73,7 +73,7 @@ export type Reclamo = {
 
   // Gestión municipal (services/reclamos.ts: tomar/asignarArea/pasarAReparacion/
   // resolver/rechazar/agregarNota). Nada de esto lo toca el vecino directamente.
-  areaAsignada?: string; // id de data/areas.json
+  areaAsignada?: string; // id de un Area
   fechaEstimada?: string; // ISO date
   notas?: NotaReclamo[];
   fotoResolucion?: string;

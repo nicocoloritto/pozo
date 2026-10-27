@@ -17,13 +17,13 @@ import { mensajeDeError } from '../../lib/mensajeDeError';
 import { resumenVerificacion } from '../../lib/verificacion';
 import { severityLabels, statusColors, statusLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCatalogo } from '../../contexts/CatalogoContext';
 import {
   obtenerReclamoPorId,
   ESTADOS_TIMELINE_VECINO,
   ReclamoError,
   votarReclamo,
 } from '../../services/reclamos';
-import { areaPorId } from '../../services/areas';
 import type { EstadoReclamo, Reclamo, TipoVoto } from '../../types/reclamo';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
@@ -45,6 +45,7 @@ function formatDateTime(isoDate: string): string {
 export default function ReclamoDetail() {
   const router = useRouter();
   const { user } = useAuth();
+  const { areaPorId } = useCatalogo();
   const { id } = useLocalSearchParams<{ id: string }>();
   const reducedMotion = useReducedMotion();
 
