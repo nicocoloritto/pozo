@@ -1,7 +1,6 @@
 import type { Categoria, EstadoReclamo } from './reclamo';
 
-// Pensados como la respuesta de la futura API del municipio (ver services/estadisticas.ts
-// para el TODO de cada endpoint). Por ahora los datos salen de JSON locales.
+// Respuestas de la API (ver services/estadisticas.ts).
 
 export type Barrio = {
   id: string;

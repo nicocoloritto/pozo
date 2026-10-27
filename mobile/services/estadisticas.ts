@@ -1,48 +1,24 @@
-import barriosData from '../data/barrios.json';
-import estadisticasPorBarrio from '../data/estadisticas-barrios.json';
-import { devLog } from '../lib/devLog';
 import type { Barrio, EstadisticasBarrio, EvolucionMensual, RankingBarrio } from '../types/estadisticas';
+import { llamar } from './api';
+import { listarMunicipios } from './municipios';
 
-// Simula la futura API del municipio: las pantallas solo llaman a estas funciones, así
-// que el día que exista el backend real, se reemplaza esta implementación y nada más.
-// La demora artificial deja ver los estados de carga mientras tanto.
+// Las estadísticas las calcula el servidor a partir de los reclamos; las pantallas solo llaman
+// a estas funciones.
 
-const DELAY_MS = 450;
-
-function delay<T>(value: T): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), DELAY_MS));
+export function obtenerBarrios(municipioId: string): Promise<Barrio[]> {
+  return llamar<Barrio[]>(`/municipios/${municipioId}/barrios`);
 }
 
-// TODO: reemplazar por GET /municipios/:municipioId/barrios
-export async function obtenerBarrios(municipioId: string): Promise<Barrio[]> {
-  devLog('estadisticas.obtenerBarrios', municipioId);
-  const barrios = (barriosData as Barrio[]).filter((barrio) => barrio.municipioId === municipioId);
-  return delay(barrios);
+export function obtenerEstadisticasBarrio(barrioId: string): Promise<EstadisticasBarrio> {
+  return llamar<EstadisticasBarrio>(`/barrios/${barrioId}/estadisticas`);
 }
 
-// TODO: reemplazar por GET /barrios/:barrioId/estadisticas
-export async function obtenerEstadisticasBarrio(barrioId: string): Promise<EstadisticasBarrio | undefined> {
-  devLog('estadisticas.obtenerEstadisticasBarrio', barrioId);
-  const data = (estadisticasPorBarrio as Record<string, EstadisticasBarrio>)[barrioId];
-  return delay(data);
+export function obtenerRanking(municipioId: string): Promise<RankingBarrio[]> {
+  return llamar<RankingBarrio[]>(`/municipios/${municipioId}/ranking`);
 }
 
-// TODO: reemplazar por GET /municipios/:municipioId/ranking
-export async function obtenerRanking(municipioId: string): Promise<RankingBarrio[]> {
-  devLog('estadisticas.obtenerRanking', municipioId);
-  const barrios = (barriosData as Barrio[]).filter((barrio) => barrio.municipioId === municipioId);
-  const stats = estadisticasPorBarrio as Record<string, EstadisticasBarrio>;
-
-  const ranking = barrios
-    .map((barrio) => ({
-      barrioId: barrio.id,
-      nombre: barrio.nombre,
-      porcentajeResolucion: stats[barrio.id]?.porcentajeResolucion ?? 0,
-    }))
-    .sort((a, b) => b.porcentajeResolucion - a.porcentajeResolucion)
-    .map((item, index): RankingBarrio => ({ ...item, puesto: index + 1 }));
-
-  return delay(ranking);
+export function obtenerEvolucionMunicipio(municipioId: string): Promise<EvolucionMensual[]> {
+  return llamar<EvolucionMensual[]>(`/municipios/${municipioId}/evolucion`);
 }
 
 // Distancia aproximada en metros (fórmula de Haversine) para elegir el barrio más
@@ -62,30 +38,10 @@ function distanciaMetros(lat1: number, lon1: number, lat2: number, lon2: number)
 // coordenadas reales (no del barrio del perfil del vecino, que puede vivir en un
 // barrio distinto de donde reportó el problema). Busca en TODOS los barrios, de
 // cualquier municipio — hoy solo existe "caba", pero esto no asume eso.
-// TODO: reemplazar por un reverse-geocoding real del backend cuando exista.
 export async function obtenerBarrioPorCoordenadas(latitude: number, longitude: number): Promise<Barrio | undefined> {
-  devLog('estadisticas.obtenerBarrioPorCoordenadas', latitude, longitude);
-  return delay(barrioMasCercano(barriosData as Barrio[], latitude, longitude));
-}
-
-// Suma la evolución mensual de los últimos 6 meses de todos los barrios del
-// municipio — hoy no hay un endpoint a nivel municipio, así que se agrega acá.
-// TODO: reemplazar por GET /municipios/:municipioId/evolucion
-export async function obtenerEvolucionMunicipio(municipioId: string): Promise<EvolucionMensual[]> {
-  devLog('estadisticas.obtenerEvolucionMunicipio', municipioId);
-  const barrios = (barriosData as Barrio[]).filter((barrio) => barrio.municipioId === municipioId);
-  const stats = estadisticasPorBarrio as Record<string, EstadisticasBarrio>;
-
-  const totalesPorMes = new Map<string, number>();
-  for (const barrio of barrios) {
-    const evolucion = stats[barrio.id]?.evolucionUltimos6Meses ?? [];
-    for (const { mes, reclamos } of evolucion) {
-      totalesPorMes.set(mes, (totalesPorMes.get(mes) ?? 0) + reclamos);
-    }
-  }
-
-  const evolucion = Array.from(totalesPorMes, ([mes, reclamos]) => ({ mes, reclamos }));
-  return delay(evolucion);
+  const municipios = await listarMunicipios();
+  const barrios = (await Promise.all(municipios.map((municipio) => obtenerBarrios(municipio.id)))).flat();
+  return barrioMasCercano(barrios, latitude, longitude);
 }
 
 export function barrioMasCercano(barrios: Barrio[], latitude: number, longitude: number): Barrio | undefined {

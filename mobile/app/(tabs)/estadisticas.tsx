@@ -4,11 +4,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BarChart from '../../components/BarChart';
+import EmptyState from '../../components/EmptyState';
 import SheetModal from '../../components/SheetModal';
 import Skeleton from '../../components/Skeleton';
 import { categoryLabels } from '../../constants/categories';
 import { statusColors, statusLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
+import { mensajeDeError } from '../../lib/mensajeDeError';
 import {
   barrioMasCercano,
   buscarBarrioPorNombre,
@@ -31,6 +33,7 @@ export default function EstadisticasScreen() {
   const [estadisticas, setEstadisticas] = useState<EstadisticasBarrio | null>(null);
   const [ranking, setRanking] = useState<RankingBarrio[]>([]);
   const [cargandoEstadisticas, setCargandoEstadisticas] = useState(true);
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
 
   const [selectorAbierto, setSelectorAbierto] = useState(false);
   const [busqueda, setBusqueda] = useState('');
@@ -40,7 +43,13 @@ export default function EstadisticasScreen() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const lista = await obtenerBarrios(MUNICIPIO_ID);
+      let lista: Barrio[];
+      try {
+        lista = await obtenerBarrios(MUNICIPIO_ID);
+      } catch (err) {
+        if (!cancelled) setErrorCarga(mensajeDeError(err));
+        return;
+      }
       if (cancelled) return;
       setBarrios(lista);
 
@@ -76,15 +85,20 @@ export default function EstadisticasScreen() {
     if (!barrio) return;
     let cancelled = false;
     setCargandoEstadisticas(true);
+    setErrorCarga(null);
     (async () => {
-      const [stats, rankingCompleto] = await Promise.all([
-        obtenerEstadisticasBarrio(barrio.id),
-        obtenerRanking(MUNICIPIO_ID),
-      ]);
-      if (cancelled) return;
-      setEstadisticas(stats ?? null);
-      setRanking(rankingCompleto);
-      setCargandoEstadisticas(false);
+      try {
+        const [stats, rankingCompleto] = await Promise.all([
+          obtenerEstadisticasBarrio(barrio.id),
+          obtenerRanking(MUNICIPIO_ID),
+        ]);
+        if (cancelled) return;
+        setEstadisticas(stats);
+        setRanking(rankingCompleto);
+        setCargandoEstadisticas(false);
+      } catch (err) {
+        if (!cancelled) setErrorCarga(mensajeDeError(err));
+      }
     })();
     return () => {
       cancelled = true;
@@ -144,7 +158,9 @@ export default function EstadisticasScreen() {
           <Ionicons name="chevron-expand-outline" size={20} color={colors.inkSoft} />
         </Pressable>
 
-        {cargandoEstadisticas || !estadisticas ? (
+        {errorCarga ? (
+          <EmptyState icon="cloud-offline-outline" message={errorCarga} />
+        ) : cargandoEstadisticas || !estadisticas ? (
           <View style={styles.skeletonBlock}>
             <Skeleton height={90} />
             <Skeleton height={160} />

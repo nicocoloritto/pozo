@@ -1,17 +1,13 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import barriosData from '../data/barrios.json';
 import { categoryLabels, categoryOrder } from '../constants/categories';
 import { useCatalogo } from '../contexts/CatalogoContext';
 import { FILTROS_VACIOS } from '../lib/filtrosMunicipio';
 import type { FiltrosMunicipio } from '../lib/filtrosMunicipio';
-import type { Barrio } from '../types/estadisticas';
 import type { Categoria } from '../types/reclamo';
 import { colors, fonts, fontSizes, radii, spacing } from '../theme';
 import PressableScale from './PressableScale';
 import SheetModal from './SheetModal';
-
-const barrios = barriosData as Barrio[];
 
 type Props = {
   visible: boolean;
@@ -24,7 +20,7 @@ type Props = {
 // Modal de filtros compartido por la Bandeja y el Mapa del municipio. Se edita un
 // borrador: los cambios solo valen al tocar "Aplicar"; cerrar sin aplicar los descarta.
 export default function FiltrosMunicipioModal({ visible, municipioId, filtros, onClose, onApply }: Props) {
-  const { areas } = useCatalogo();
+  const { areas, barrios } = useCatalogo();
   const [borrador, setBorrador] = useState<FiltrosMunicipio>(filtros);
 
   useEffect(() => {
