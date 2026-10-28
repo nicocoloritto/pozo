@@ -23,11 +23,15 @@ export const API_URL = urlBase();
 export class ApiError extends Error {
   code: string;
   status: number;
+  // El objeto `error` completo de la respuesta, por si trae algo más que código y mensaje
+  // (por ejemplo, el reclamo cercano de RECLAMO_CERCANO).
+  datos: Record<string, unknown>;
 
-  constructor(code: string, message: string, status: number) {
+  constructor(code: string, message: string, status: number, datos: Record<string, unknown> = {}) {
     super(message);
     this.code = code;
     this.status = status;
+    this.datos = datos;
   }
 }
 
@@ -110,7 +114,7 @@ export async function llamar<T>(ruta: string, opciones: Opciones = {}): Promise<
   }
 
   if (!respuesta.ok) {
-    const error = (datos as { error?: { code?: string; message?: string } } | null)?.error;
+    const error = (datos as { error?: { code?: string; message?: string } & Record<string, unknown> } | null)?.error;
     if (respuesta.status === 401 && !sinSesion) {
       await borrarToken();
       alVencerSesion?.();
@@ -118,7 +122,8 @@ export async function llamar<T>(ruta: string, opciones: Opciones = {}): Promise<
     throw new ApiError(
       error?.code ?? 'SERVER',
       error?.message ?? 'El servidor tuvo un problema. Probá de nuevo en un rato.',
-      respuesta.status
+      respuesta.status,
+      error
     );
   }
   return datos as T;

@@ -11,6 +11,7 @@ import StatusStamp from '../../components/StatusStamp';
 import { categoryLabels } from '../../constants/categories';
 import { fotoResolucionSource, fotoSource } from '../../lib/fotoReclamo';
 import { mensajeDeError } from '../../lib/mensajeDeError';
+import { calcularPrioridad, desglosarPrioridad } from '../../lib/prioridad';
 import { resumenVerificacion } from '../../lib/verificacion';
 import { severityLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
@@ -313,6 +314,21 @@ export default function AdminReclamoDetail() {
             </Text>
           </View>
         </View>
+
+        {!esFinal && (
+          <View style={styles.metaBox}>
+            <Text style={styles.prioridadTitulo}>Prioridad {calcularPrioridad(reclamo)}</Text>
+            {desglosarPrioridad(reclamo).map((parte) => (
+              <View key={parte.motivo} style={styles.metaRow}>
+                <Text style={styles.metaKey}>{parte.motivo}</Text>
+                <Text style={styles.metaValue}>
+                  {parte.puntos > 0 ? '+' : '−'}
+                  {Math.abs(parte.puntos)}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
 
         {reclamo.status === 'Rechazado' && reclamo.motivoRechazo && (
           <View style={styles.rechazadoBox}>
@@ -644,6 +660,12 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.sm,
     color: colors.ink,
+  },
+  prioridadTitulo: {
+    fontFamily: fonts.bodyBold,
+    fontSize: fontSizes.sm,
+    color: colors.ink,
+    marginBottom: spacing.xs,
   },
   rechazadoBox: {
     borderRadius: radii.lg,

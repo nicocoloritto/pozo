@@ -109,7 +109,7 @@ export default function MapaAdminScreen() {
           <View style={[styles.legendDot, { backgroundColor: colors.pink }]}>
             <Ionicons name="alarm" size={9} color={colors.ink} />
           </View>
-          <Text style={styles.legendText}>Vencido</Text>
+          <Text style={styles.legendText}>Fuera de plazo del área</Text>
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, { backgroundColor: colors.mandarin }]}>

@@ -18,7 +18,7 @@ import PressableScale from '../components/PressableScale';
 import { useAuth } from '../contexts/AuthContext';
 import { DniParseError, parseDniBarcode } from '../lib/dni';
 import type { ParsedDni } from '../lib/dni';
-import { AuthError } from '../services/auth';
+import { AuthError, dniRegistrado } from '../services/auth';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../theme';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -32,6 +32,8 @@ export default function Register() {
   const [scanned, setScanned] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
   const [dni, setDni] = useState<ParsedDni | null>(null);
+  const [verificandoDni, setVerificandoDni] = useState(false);
+  const [dniConCuenta, setDniConCuenta] = useState(false);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,19 +41,28 @@ export default function Register() {
   const [offerLogin, setOfferLogin] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  function handleBarcodeScanned({ data }: BarcodeScanningResult) {
+  async function handleBarcodeScanned({ data }: BarcodeScanningResult) {
     if (scanned) return;
     setScanned(true);
+    let leido: ParsedDni;
     try {
-      setDni(parseDniBarcode(data));
-      setScanError(null);
+      leido = parseDniBarcode(data);
     } catch (err) {
       setScanError(
         err instanceof DniParseError
           ? err.message
           : 'No se pudo leer el DNI. Probá escanear de nuevo.'
       );
+      return;
     }
+    setScanError(null);
+    setDni(leido);
+    // Un DNI, una cuenta: si ya está registrado se avisa ahora, no después de cargar email
+    // y contraseña.
+    setDniConCuenta(false);
+    setVerificandoDni(true);
+    setDniConCuenta(await dniRegistrado(leido));
+    setVerificandoDni(false);
   }
 
   function handleRetry() {
@@ -152,7 +163,13 @@ export default function Register() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={styles.formHeader}>
-          <Pressable onPress={() => setDni(null)}>
+          <Pressable
+            onPress={() => {
+              setDni(null);
+              setDniConCuenta(false);
+              setScanned(false);
+            }}
+          >
             <Text style={styles.cancel}>Volver</Text>
           </Pressable>
           <Text style={styles.headerTitle}>Completá tu cuenta</Text>
@@ -179,60 +196,81 @@ export default function Register() {
               </Text>
             </View>
 
-            <View style={styles.field}>
-              <Text style={styles.lbl}>Email</Text>
-              <TextInput
-                style={styles.input}
-                value={email}
-                onChangeText={(text) => {
-                  setEmail(text);
-                  setFormError(null);
-                }}
-                placeholder="tu@email.com"
-                placeholderTextColor={colors.inkSoft}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoComplete="email"
-              />
-            </View>
+            {verificandoDni ? (
+              <Text style={styles.verificando}>Revisando si ya tenés una cuenta…</Text>
+            ) : dniConCuenta ? (
+              <>
+                <View style={styles.formErrorBox}>
+                  <Text style={styles.formErrorText}>
+                    Ya hay una cuenta con este DNI. Iniciá sesión con el email con el que te registraste.
+                  </Text>
+                </View>
+                <PressableScale
+                  onPress={() => router.replace('/login')}
+                  style={styles.button}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.buttonText}>Ir a iniciar sesión</Text>
+                </PressableScale>
+              </>
+            ) : (
+              <>
+                <View style={styles.field}>
+                  <Text style={styles.lbl}>Email</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={email}
+                    onChangeText={(text) => {
+                      setEmail(text);
+                      setFormError(null);
+                    }}
+                    placeholder="tu@email.com"
+                    placeholderTextColor={colors.inkSoft}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                  />
+                </View>
 
-            <View style={styles.field}>
-              <Text style={styles.lbl}>Contraseña</Text>
-              <TextInput
-                style={styles.input}
-                value={password}
-                onChangeText={(text) => {
-                  setPassword(text);
-                  setFormError(null);
-                }}
-                placeholder={`Mínimo ${MIN_PASSWORD_LENGTH} caracteres`}
-                placeholderTextColor={colors.inkSoft}
-                secureTextEntry
-                autoCapitalize="none"
-              />
-            </View>
+                <View style={styles.field}>
+                  <Text style={styles.lbl}>Contraseña</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={password}
+                    onChangeText={(text) => {
+                      setPassword(text);
+                      setFormError(null);
+                    }}
+                    placeholder={`Mínimo ${MIN_PASSWORD_LENGTH} caracteres`}
+                    placeholderTextColor={colors.inkSoft}
+                    secureTextEntry
+                    autoCapitalize="none"
+                  />
+                </View>
 
-            {formError && (
-              <View style={styles.formErrorBox}>
-                <Text style={styles.formErrorText}>{formError}</Text>
-                {offerLogin && (
-                  <Pressable onPress={() => router.replace('/login')}>
-                    <Text style={styles.link}>Ir a iniciar sesión</Text>
-                  </Pressable>
+                {formError && (
+                  <View style={styles.formErrorBox}>
+                    <Text style={styles.formErrorText}>{formError}</Text>
+                    {offerLogin && (
+                      <Pressable onPress={() => router.replace('/login')}>
+                        <Text style={styles.link}>Ir a iniciar sesión</Text>
+                      </Pressable>
+                    )}
+                  </View>
                 )}
-              </View>
-            )}
 
-            <PressableScale
-              disabled={!canSubmit}
-              onPress={handleSubmit}
-              style={[styles.button, !canSubmit && styles.buttonDisabled]}
-              accessibilityRole="button"
-            >
-              <Text style={[styles.buttonText, !canSubmit && styles.buttonTextDisabled]}>
-                {submitting ? 'Creando cuenta…' : 'Registrarme'}
-              </Text>
-            </PressableScale>
+                <PressableScale
+                  disabled={!canSubmit}
+                  onPress={handleSubmit}
+                  style={[styles.button, !canSubmit && styles.buttonDisabled]}
+                  accessibilityRole="button"
+                >
+                  <Text style={[styles.buttonText, !canSubmit && styles.buttonTextDisabled]}>
+                    {submitting ? 'Creando cuenta…' : 'Registrarme'}
+                  </Text>
+                </PressableScale>
+              </>
+            )}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -410,6 +448,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
     color: colors.pinkDeep,
+  },
+  verificando: {
+    fontFamily: fonts.body,
+    fontSize: fontSizes.sm,
+    color: colors.inkSoft,
   },
   link: {
     fontFamily: fonts.bodySemiBold,

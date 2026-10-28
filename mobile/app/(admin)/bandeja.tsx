@@ -13,7 +13,7 @@ import { useCatalogo } from '../../contexts/CatalogoContext';
 import { mensajeDeError } from '../../lib/mensajeDeError';
 import { aplicarFiltros, FILTROS_VACIOS, hayFiltrosActivos } from '../../lib/filtrosMunicipio';
 import type { FiltrosMunicipio } from '../../lib/filtrosMunicipio';
-import { estaVencido, ordenarPorPrioridad } from '../../lib/prioridad';
+import { calcularPrioridad, estaVencido, ordenarPorPrioridad } from '../../lib/prioridad';
 import { fotoSource } from '../../lib/fotoReclamo';
 import { resumenVerificacion } from '../../lib/verificacion';
 import { obtenerReclamosPorMunicipio } from '../../services/reclamos';
@@ -233,7 +233,8 @@ function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => voi
         <View style={styles.rowFooter}>
           <StatusStamp status={reclamo.status} />
           <Text style={styles.rowMeta}>
-            {reclamo.confirmaciones.length} sigue · {yaNoEsta} ya no está{area ? ` · ${area.nombre}` : ''}
+            Prioridad {calcularPrioridad(reclamo)} · {reclamo.confirmaciones.length} sigue · {yaNoEsta} ya no está
+            {area ? ` · ${area.nombre}` : ''}
           </Text>
         </View>
       </View>

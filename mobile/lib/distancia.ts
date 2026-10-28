@@ -1,10 +1,6 @@
-import type { Categoria, Reclamo } from '../types/reclamo';
+import type { Reclamo } from '../types/reclamo';
 
 const RADIO_TIERRA_METROS = 6371000;
-
-// A partir de esta distancia, un reclamo de la misma categoría se considera "el mismo
-// problema" y se avisa antes de publicar un duplicado.
-export const RADIO_RECLAMO_CERCANO_METROS = 50;
 
 type Coordenada = { latitude: number; longitude: number };
 
@@ -47,22 +43,4 @@ export function formatearDistancia(metros: number): string {
   const redondeado = Math.round(metros);
   if (redondeado < 1000) return `${redondeado} m`;
   return `${(metros / 1000).toFixed(1).replace('.', ',')} km`;
-}
-
-// El reclamo abierto (ni Resuelto ni Rechazado) de la misma categoría más cercano a
-// `punto`, siempre que esté a menos de `radioMetros`. Si no hay, null.
-export function encontrarReclamoCercano(
-  reclamos: Reclamo[],
-  punto: Coordenada & { category: Categoria },
-  radioMetros: number = RADIO_RECLAMO_CERCANO_METROS
-): { reclamo: Reclamo; distanciaMetros: number } | null {
-  let mejor: { reclamo: Reclamo; distanciaMetros: number } | null = null;
-  for (const reclamo of reclamos) {
-    if (reclamo.category !== punto.category) continue;
-    if (reclamo.status === 'Resuelto' || reclamo.status === 'Rechazado') continue;
-    const distanciaMetros = distanciaEnMetros(punto, reclamo);
-    if (distanciaMetros >= radioMetros) continue;
-    if (!mejor || distanciaMetros < mejor.distanciaMetros) mejor = { reclamo, distanciaMetros };
-  }
-  return mejor;
 }
