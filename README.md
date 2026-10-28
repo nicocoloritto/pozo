@@ -119,9 +119,9 @@ Decisiones:
   `services/` (`login`, `publicarReclamo`, `confirmarReclamo`, `tomar`, `resolver`…), que a su
   vez llaman al servidor a través de `services/api.ts`. Las reglas (estados, confirmaciones,
   permisos) las aplica el servidor; la app solo valida lo mínimo para avisar rápido.
-- **Reglas de negocio puras.** La máquina de estados (`lib/maquinaEstados.ts`), la prioridad
-  y el vencimiento (`lib/prioridad.ts`) y la distancia entre reclamos (`lib/distancia.ts`)
-  son funciones sin efectos, fáciles de probar.
+- **Reglas de negocio puras.** La máquina de estados (`lib/maquinaEstados.ts`) y la distancia
+  entre reclamos (`lib/distancia.ts`) son funciones sin efectos, fáciles de probar. La
+  prioridad y el vencimiento los calcula el servidor y llegan en cada reclamo.
 - **Datos de prueba en JSON.** Usuarios, reclamos, barrios y áreas se cargan una sola vez
   desde `mobile/data/` y nunca pisan lo que ya está guardado.
 - **Sesión hidratada.** `AuthProvider` lee el token y el usuario guardados al montar, y

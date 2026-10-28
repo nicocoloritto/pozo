@@ -73,7 +73,8 @@ Las decisiones detrás de prioridad, vencimiento, duplicados y registro están e
 
 ## Prioridad y vencimiento (municipio)
 
-La bandeja ordena por una **prioridad** calculada, no guardada (`mobile/lib/prioridad.ts`):
+La bandeja ordena por una **prioridad** que calcula el servidor en cada respuesta, no se guarda (`pozo-backend`,
+`src/domain/prioridad.ts`):
 
 - +50 si la categoría es peligrosa.
 - +0 / +10 / +20 según la severidad baja, media o alta.

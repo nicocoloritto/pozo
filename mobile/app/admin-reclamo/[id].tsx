@@ -11,7 +11,6 @@ import StatusStamp from '../../components/StatusStamp';
 import { categoryLabels } from '../../constants/categories';
 import { fotoResolucionSource, fotoSource } from '../../lib/fotoReclamo';
 import { mensajeDeError } from '../../lib/mensajeDeError';
-import { calcularPrioridad, desglosarPrioridad } from '../../lib/prioridad';
 import { resumenVerificacion } from '../../lib/verificacion';
 import { severityLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
@@ -317,8 +316,8 @@ export default function AdminReclamoDetail() {
 
         {!esFinal && (
           <View style={styles.metaBox}>
-            <Text style={styles.prioridadTitulo}>Prioridad {calcularPrioridad(reclamo)}</Text>
-            {desglosarPrioridad(reclamo).map((parte) => (
+            <Text style={styles.prioridadTitulo}>Prioridad {reclamo.prioridad}</Text>
+            {reclamo.desglosePrioridad.map((parte) => (
               <View key={parte.motivo} style={styles.metaRow}>
                 <Text style={styles.metaKey}>{parte.motivo}</Text>
                 <Text style={styles.metaValue}>
