@@ -21,7 +21,8 @@ reclamo pasa a ser un pedido validado por la comunidad. A cada reclamo se le arm
 hasta que se resuelve.
 
 Del otro lado, el **municipio** tiene su propio panel dentro de la misma app: una bandeja
-priorizada (más confirmaciones, más antigüedad y categorías peligrosas primero), un mapa con
+priorizada (categorías peligrosas, severidad, confirmaciones y antigüedad; ver
+[decisiones](docs/decisiones.md)), un mapa con
 todos los reclamos, un tablero con estadísticas y las herramientas para gestionarlos
 (asignar un área, fijar una fecha estimada, pasar a reparación, resolver con foto del
 "después" o rechazar con motivo). Se avisa cuando un reclamo está vencido respecto del plazo
@@ -53,8 +54,9 @@ de su área.
 - **Nuevo reclamo:** foto con la cámara (o de la galería), ubicación por GPS, categoría
   (pozo, vereda, semáforo, luminaria, poste, árbol caído, zanja, corte de luz o agua,
   residuos), severidad y notas.
-- **Aviso de reclamo cercano:** antes de publicar, si ya hay un reclamo abierto de la misma
-  categoría a menos de 50 metros, la app lo muestra y deja confirmarlo en lugar de duplicarlo.
+- **Aviso de reclamo cercano:** al publicar, si ya hay un reclamo abierto de la misma
+  categoría a menos de 50 metros, el servidor no lo publica y la app lo muestra para
+  confirmarlo en lugar de duplicarlo.
   Si es un reclamo del propio usuario, se lo avisa.
 - **Mapa:** todos los reclamos, con filtros por categoría y estado. Los reclamos muy
   cercanos se agrupan en un círculo con la cantidad; al tocarlo, el mapa hace zoom hasta

@@ -20,11 +20,10 @@ import StatusStamp from '../../components/StatusStamp';
 import { categoryLabels, categoryOrder } from '../../constants/categories';
 import { severityLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
-import { encontrarReclamoCercano } from '../../lib/distancia';
 import { coordenadasDesdeExif } from '../../lib/exif';
 import { fotoSource } from '../../lib/fotoReclamo';
 import { obtenerBarrioPorCoordenadas } from '../../services/estadisticas';
-import { confirmarReclamo, obtenerReclamos, publicarReclamo, ReclamoError } from '../../services/reclamos';
+import { confirmarReclamo, publicarReclamo, ReclamoCercanoError, ReclamoError } from '../../services/reclamos';
 import type { Categoria, OrigenUbicacion, Reclamo, Severidad } from '../../types/reclamo';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
@@ -64,8 +63,12 @@ export default function NewReclamo() {
   const [severity, setSeverity] = useState<Severidad | null>(null);
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  // Reclamo abierto de la misma categoría a menos de 50 m: se avisa antes de publicar.
+  // Reclamo abierto de la misma categoría a menos de 50 m: el servidor no publica y lo
+  // devuelve, y se le ofrece a la persona confirmarlo en lugar de duplicarlo.
   const [cercano, setCercano] = useState<Reclamo | null>(null);
+  // URL de la foto que ya se subió en el intento rechazado, para no subirla otra vez si
+  // elige "publicar igual".
+  const [fotoSubida, setFotoSubida] = useState<string | null>(null);
   const [confirmandoCercano, setConfirmandoCercano] = useState(false);
   const [errorCercano, setErrorCercano] = useState<string | null>(null);
   // Mensaje de error de la acción en curso (foto, ubicación o guardado). Nunca borra lo que
@@ -127,6 +130,7 @@ export default function NewReclamo() {
 
   function handleRetakePhoto() {
     setPhotoUri(null);
+    setFotoSubida(null);
     setCoords(null);
     setLocationSource(null);
     setAddress(null);
@@ -185,6 +189,7 @@ export default function NewReclamo() {
 
     const asset = result.assets[0];
     setPhotoUri(asset.uri);
+    setFotoSubida(null);
     setLocatingPhoto(true);
 
     // El EXIF guarda latitud/longitud sin signo más una letra N/S y E/W: coordenadasDesdeExif
@@ -209,28 +214,10 @@ export default function NewReclamo() {
     photoUri && coords && category && severity && user?.rol === 'vecino' && !submitting
   );
 
-  // Antes de publicar se busca un reclamo parecido cerca. Si hay, se muestra la tarjeta
-  // de aviso y la publicación espera a que la persona elija; si no, se publica directo.
   async function handleSubmit() {
-    if (!canSubmit || !coords || !category) return;
+    if (!canSubmit) return;
     setSubmitting(true);
-    setErrorMsg(null);
-    try {
-      const hallado = encontrarReclamoCercano(await obtenerReclamos(), {
-        category,
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-      });
-      if (hallado) {
-        setErrorCercano(null);
-        setCercano(hallado.reclamo);
-        setSubmitting(false);
-        return;
-      }
-    } catch {
-      // Si no se puede revisar si hay uno cerca, no se bloquea la publicación.
-    }
-    await publicar();
+    await publicar(false);
   }
 
   async function handleConfirmarCercano() {
@@ -255,13 +242,15 @@ export default function NewReclamo() {
   async function handlePublicarIgual() {
     setCercano(null);
     setSubmitting(true);
-    await publicar();
+    await publicar(true);
   }
 
   // Pasos: resolver el barrio → publicar el reclamo (publicarReclamo sube la foto; autor,
-  // estado Reportado y primer cambio del historial los pone el servidor). Si algo falla se
-  // muestra el motivo y se queda en esta pantalla con todo lo cargado, para poder reintentar.
-  async function publicar() {
+  // estado Reportado y primer cambio del historial los pone el servidor). Si el servidor
+  // encuentra un reclamo parecido cerca, se muestra la tarjeta de aviso y la publicación
+  // espera a que la persona elija. Si algo falla se muestra el motivo y se queda en esta
+  // pantalla con todo lo cargado, para poder reintentar.
+  async function publicar(publicarIgual: boolean) {
     if (!photoUri || !coords || !category || !severity || !user || user.rol !== 'vecino') {
       setSubmitting(false);
       return;
@@ -278,7 +267,7 @@ export default function NewReclamo() {
         category,
         severity,
         notes: notes.trim() || undefined,
-        photoUrl: photoUri,
+        photoUrl: fotoSubida ?? photoUri,
         latitude: coords.latitude,
         longitude: coords.longitude,
         accuracyMeters: coords.accuracy ?? undefined,
@@ -286,6 +275,7 @@ export default function NewReclamo() {
         address: address ?? undefined,
         neighborhood: barrio?.nombre ?? user.neighborhood,
         comuna: barrio?.comuna,
+        publicarIgual,
       });
       router.replace({
         pathname: '/reclamos/published',
@@ -297,6 +287,13 @@ export default function NewReclamo() {
         },
       });
     } catch (err) {
+      if (err instanceof ReclamoCercanoError) {
+        setFotoSubida(err.photoUrl);
+        setErrorCercano(null);
+        setCercano(err.reclamo);
+        setSubmitting(false);
+        return;
+      }
       console.warn('[nuevo-reclamo] No se pudo publicar', err);
       // Los errores del servicio dicen exactamente qué pasó (falta un dato, no hay conexión…);
       // cualquier otro es genérico.

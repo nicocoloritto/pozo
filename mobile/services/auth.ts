@@ -69,6 +69,24 @@ export async function registrar(input: RegisterInput): Promise<User> {
   }
 }
 
+// Se consulta apenas se escanea el DNI, antes de pedir email y contraseña. Manda DNI, sexo y
+// fecha de nacimiento (no solo el número) para que la consulta no sirva para averiguar si un
+// DNI ajeno tiene cuenta. Si no se puede consultar (sin conexión…) devuelve false y el registro
+// sigue: el servidor igual rechaza un DNI repetido al registrar.
+export async function dniRegistrado(dni: Pick<RegisterInput, 'documentNumber' | 'sex' | 'birthDate'>): Promise<boolean> {
+  try {
+    const { registrado } = await llamar<{ registrado: boolean }>('/auth/dni-registrado', {
+      metodo: 'POST',
+      cuerpo: { documentNumber: dni.documentNumber, sex: dni.sex, birthDate: dni.birthDate },
+      sinSesion: true,
+    });
+    return registrado;
+  } catch (err) {
+    devLog('auth.dniRegistrado:fallo', err);
+    return false;
+  }
+}
+
 export async function login(email: string, password: string): Promise<User> {
   try {
     return await iniciarSesionCon(

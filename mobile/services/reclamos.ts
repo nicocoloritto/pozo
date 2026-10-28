@@ -1,11 +1,11 @@
-import { ReclamoError } from '../lib/reclamoError';
+import { ReclamoCercanoError, ReclamoError } from '../lib/reclamoError';
 import type { ReclamoErrorCode } from '../lib/reclamoError';
 import { validarNuevoReclamo } from '../lib/validarReclamo';
 import { ApiError, llamar } from './api';
 import { subirFoto } from './fotos';
 import type { Categoria, EstadoReclamo, OrigenUbicacion, Reclamo, TipoVoto } from '../types/reclamo';
 
-export { ReclamoError };
+export { ReclamoCercanoError, ReclamoError };
 export type { ReclamoErrorCode };
 
 // Los reclamos viven en el servidor (repo pozo-backend). Las pantallas llaman a estas
@@ -27,6 +27,8 @@ export type PublicarReclamoInput = {
   address?: string;
   neighborhood?: string;
   comuna?: number;
+  // La persona vio el aviso de reclamo cercano y dijo que es otro problema.
+  publicarIgual?: boolean;
 };
 
 const CODIGOS: ReclamoErrorCode[] = [
@@ -38,20 +40,23 @@ const CODIGOS: ReclamoErrorCode[] = [
   'FOTO_REQUIRED',
   'MOTIVO_REQUIRED',
   'NOTA_VACIA',
+  'RECLAMO_CERCANO',
   'INVALID_INPUT',
   'FORBIDDEN',
   'UNAUTHENTICATED',
   'NETWORK',
 ];
 
+function comoReclamoError(err: unknown): unknown {
+  if (!(err instanceof ApiError)) return err;
+  return new ReclamoError(CODIGOS.find((c) => c === err.code) ?? 'SERVER', err.message);
+}
+
 async function pedir<T>(ruta: string, opciones?: Parameters<typeof llamar>[1]): Promise<T> {
   try {
     return await llamar<T>(ruta, opciones);
   } catch (err) {
-    if (err instanceof ApiError) {
-      throw new ReclamoError(CODIGOS.find((c) => c === err.code) ?? 'SERVER', err.message);
-    }
-    throw err;
+    throw comoReclamoError(err);
   }
 }
 
@@ -92,10 +97,24 @@ export async function obtenerReclamosPorMunicipio(): Promise<Reclamo[]> {
   return pedir<Reclamo[]>('/reclamos');
 }
 
+function esReclamo(valor: unknown): valor is Reclamo {
+  return typeof valor === 'object' && valor !== null && typeof (valor as { id?: unknown }).id === 'string';
+}
+
+// El servidor rechaza con RECLAMO_CERCANO si ya hay un reclamo abierto de la misma categoría a
+// menos de 50 m (salvo con `publicarIgual`): se convierte en ReclamoCercanoError con ese
+// reclamo, para que la pantalla ofrezca confirmarlo.
 export async function publicarReclamo(input: PublicarReclamoInput): Promise<Reclamo> {
   validarNuevoReclamo(input);
   const photoUrl = await subir(input.photoUrl);
-  return pedir<Reclamo>('/reclamos', { metodo: 'POST', cuerpo: { ...input, photoUrl } });
+  try {
+    return await llamar<Reclamo>('/reclamos', { metodo: 'POST', cuerpo: { ...input, photoUrl } });
+  } catch (err) {
+    if (err instanceof ApiError && err.code === 'RECLAMO_CERCANO' && esReclamo(err.datos.reclamo)) {
+      throw new ReclamoCercanoError(err.message, err.datos.reclamo, photoUrl);
+    }
+    throw comoReclamoError(err);
+  }
 }
 
 // Voto "¿Sigue ahí?" estilo Waze. Un voto por vecino: "sigue" (cuenta como confirmación) o

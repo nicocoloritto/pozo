@@ -65,35 +65,43 @@ luz/agua y residuos. Cada una pertenece a **un área** del municipio, y cada ár
 
 ## Severidad
 
-El vecino elige **Baja, Media o Alta** al reportar. Es un dato informativo; no cambia el
-estado por sí sola.
+El vecino elige **Baja, Media o Alta** al reportar. No cambia el estado; suma poco a la
+prioridad (ver abajo).
+
+Las decisiones detrás de prioridad, vencimiento, duplicados y registro están explicadas en
+[decisiones.md](decisiones.md).
 
 ## Prioridad y vencimiento (municipio)
 
 La bandeja ordena por una **prioridad** calculada, no guardada (`mobile/lib/prioridad.ts`):
 
+- +50 si la categoría es peligrosa.
+- +0 / +10 / +20 según la severidad baja, media o alta.
 - +10 por cada confirmación.
 - −10 por cada voto "Ya no está" (nunca queda negativa).
-- +2 por cada día de antigüedad.
-- +50 si la categoría es peligrosa.
+- +2 por cada día desde que se creó.
 
-Un reclamo está **vencido** cuando el municipio ya lo tomó (`Enviado al municipio` o `En
-reparación`) y pasaron más días que el plazo de su área. Si todavía no tiene área, se usa el
-plazo más corto de todas. Antes de ser tomado, o una vez cerrado, no corre plazo.
+La bandeja muestra la prioridad de cada reclamo y el detalle del municipio, el desglose.
+
+Un reclamo está **vencido** (en el mapa: "fuera de plazo del área") cuando el municipio ya lo
+tomó (`Enviado al municipio` o `En reparación`) y, **desde que lo tomó**, pasaron más días que
+el plazo de su área. Si todavía no tiene área, se usa el plazo más corto de todas. Antes de
+ser tomado, o una vez cerrado, no corre plazo.
 
 ## Pantallas
 
 ### Ingreso
 
 - **Ingresar:** email y contraseña.
-- **Crear cuenta:** escaneo del PDF417 del DNI y datos de acceso.
+- **Crear cuenta:** escaneo del PDF417 del DNI y datos de acceso. Si el DNI ya tiene cuenta,
+  se avisa apenas se escanea y se ofrece ir a iniciar sesión.
 
 ### Vecino
 
 | Pantalla | Comportamiento |
 |---|---|
 | Mapa | Todos los reclamos con filtros por categoría y estado. Los cercanos se agrupan en un círculo con la cantidad. Panel **"Cerca tuyo"**: reclamos activos a menos de 500 m, del más cercano al más lejano. |
-| Nuevo reclamo | Foto con la cámara (o galería), ubicación por GPS, categoría, severidad y notas. Si ya hay un reclamo abierto de la misma categoría a menos de 50 m, lo muestra y deja confirmarlo en lugar de duplicarlo. Al publicar se genera el número de expediente. |
+| Nuevo reclamo | Foto con la cámara (o galería), ubicación por GPS, categoría, severidad y notas. Si ya hay un reclamo abierto de la misma categoría a menos de 50 m, el servidor no lo publica y la app lo muestra para confirmarlo en lugar de duplicarlo (o publicar igual si es otro problema). Al publicar se genera el número de expediente. |
 | Detalle | Foto, mapa, dirección, barrio, expediente, días abierto, votos **"Sigue ahí" / "Ya no está"** y línea de tiempo. Con el reclamo resuelto muestra el antes y el después. |
 | Mis reclamos | Lista de los propios, con filtro por estado. |
 | Barrio | Estadísticas del barrio (porcentaje resuelto, total, días promedio, posición entre los barrios, reclamos por categoría y evolución de 6 meses). |
