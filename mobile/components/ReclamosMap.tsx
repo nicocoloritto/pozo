@@ -8,8 +8,6 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import type { Region } from 'react-native-maps';
 import Supercluster from 'supercluster';
 import { categoryLabels } from '../constants/categories';
-import { useCatalogo } from '../contexts/CatalogoContext';
-import { estaVencido } from '../lib/prioridad';
 import { CATEGORIAS_PELIGROSAS } from '../types/reclamo';
 import type { Reclamo } from '../types/reclamo';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../theme';
@@ -87,7 +85,6 @@ export default function ReclamosMap({
   onEnfocado,
   overlayBottom = 0,
 }: Props) {
-  const { areas } = useCatalogo();
   const mapRef = useRef<MapView>(null);
   const movidoPorUsuario = useRef(false);
   const reducedMotion = useReducedMotion();
@@ -180,14 +177,14 @@ export default function ReclamosMap({
         type: 'Feature' as const,
         properties: {
           id: r.id,
-          vencido: modoMunicipio && estaVencido(r, areas) ? 1 : 0,
+          vencido: modoMunicipio && r.vencido ? 1 : 0,
           peligroso: modoMunicipio && CATEGORIAS_PELIGROSAS.includes(r.category) ? 1 : 0,
         },
         geometry: { type: 'Point' as const, coordinates: [r.longitude, r.latitude] },
       }))
     );
     return sc;
-  }, [reclamos, modoMunicipio, areas]);
+  }, [reclamos, modoMunicipio]);
 
   // Zoom mínimo (desde 15, para no alejarse de más) en el que el reclamo es un marcador
   // individual y no parte de un grupo. Si comparte punto exacto con otro reclamo no se

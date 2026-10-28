@@ -79,7 +79,15 @@ export type Reclamo = {
   fotoResolucion?: string;
   fotoResolucionKey?: string; // idem photoKey, para la foto de resolución del seed
   motivoRechazo?: string;
+
+  // Los calcula el servidor en cada respuesta (pozo-backend, src/domain/prioridad.ts): la
+  // app solo los muestra. Ver docs/decisiones.md.
+  prioridad: number;
+  desglosePrioridad: ParteDePrioridad[];
+  vencido: boolean;
 };
+
+export type ParteDePrioridad = { motivo: string; puntos: number };
 
 // Configuración, no un número mágico: a cuántas confirmaciones de otros vecinos pasa
 // de Reportado a ConfirmadoPorVecinos.

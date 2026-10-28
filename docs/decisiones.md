@@ -17,7 +17,8 @@ reclamo viejo no tiene ese cambio en el historial, se usa la fecha de creación.
   clasificar indefinidamente.
 - En el mapa del municipio la leyenda dice **"Fuera de plazo del área"** en vez de "Vencido".
 
-**Dónde.** `mobile/lib/prioridad.ts` (`estaVencido`). Lo usan la bandeja, el mapa y el tablero.
+**Dónde.** Backend: `src/domain/prioridad.ts` (`estaVencido`), y cada reclamo trae el campo
+`vencido`. La app solo lo muestra en la bandeja, el mapa y el tablero.
 
 ## 2. Prioridad de la bandeja: una fórmula que se puede explicar
 
@@ -44,9 +45,25 @@ El total nunca baja de 0.
   municipio muestra el desglose (por ejemplo: Categoría peligrosa +50, Severidad alta +20,
   2 confirmaciones +20, 3 días abierto +6).
 
-**Dónde.** `mobile/lib/prioridad.ts`: los pesos están en `PUNTOS_PRIORIDAD`;
+**Dónde.** Backend: `src/domain/prioridad.ts`. Los pesos están en `PUNTOS_PRIORIDAD`,
 `desglosarPrioridad` arma el desglose y `calcularPrioridad` lo suma. Si cambian los pesos,
-cambia esta tabla.
+cambia esta tabla. Cada reclamo trae `prioridad` y `desglosePrioridad`; la app solo ordena
+por ese número y muestra el desglose.
+
+## 5. Prioridad y vencimiento se calculan en el servidor
+
+**Problema.** La fórmula de prioridad y la regla de vencido vivían solo en la app. Cualquier
+otro cliente (otra app, un panel web) tendría que copiarlas, y dos copias terminan
+diferentes.
+
+**Decisión.** El servidor las calcula en cada respuesta y las manda en el reclamo
+(`prioridad`, `desglosePrioridad`, `vencido`). No se guardan en la base porque cambian solas
+con los días. La app borró `lib/prioridad.ts`.
+
+- El desglose viaja como texto listo para mostrar ("Severidad alta", +20). Así un cambio de
+  fórmula no obliga a actualizar la app.
+- Los vecinos también reciben estos campos. No muestran nada privado, y no hace falta separar
+  respuestas por rol.
 
 ## 3. Reclamos duplicados: el servidor los controla al publicar
 

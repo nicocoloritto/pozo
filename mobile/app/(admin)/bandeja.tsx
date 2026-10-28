@@ -13,7 +13,6 @@ import { useCatalogo } from '../../contexts/CatalogoContext';
 import { mensajeDeError } from '../../lib/mensajeDeError';
 import { aplicarFiltros, FILTROS_VACIOS, hayFiltrosActivos } from '../../lib/filtrosMunicipio';
 import type { FiltrosMunicipio } from '../../lib/filtrosMunicipio';
-import { calcularPrioridad, estaVencido, ordenarPorPrioridad } from '../../lib/prioridad';
 import { fotoSource } from '../../lib/fotoReclamo';
 import { resumenVerificacion } from '../../lib/verificacion';
 import { obtenerReclamosPorMunicipio } from '../../services/reclamos';
@@ -97,7 +96,7 @@ export default function BandejaScreen() {
     (r) => !textoBusqueda || r.address?.toLowerCase().includes(textoBusqueda)
   );
 
-  const ordenados = ordenarPorPrioridad(filtrados);
+  const ordenados = [...filtrados].sort((a, b) => b.prioridad - a.prioridad);
   const filtrosActivos = hayFiltrosActivos(filtros);
 
   return (
@@ -191,9 +190,9 @@ export default function BandejaScreen() {
 }
 
 function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => void }) {
-  const { areas, areaPorId } = useCatalogo();
+  const { areaPorId } = useCatalogo();
   const area = areaPorId(reclamo.areaAsignada);
-  const vencido = estaVencido(reclamo, areas);
+  const { vencido } = reclamo;
   const { yaNoEsta, posiblementeResuelto } = resumenVerificacion(reclamo, null);
 
   return (
@@ -233,7 +232,7 @@ function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => voi
         <View style={styles.rowFooter}>
           <StatusStamp status={reclamo.status} />
           <Text style={styles.rowMeta}>
-            Prioridad {calcularPrioridad(reclamo)} · {reclamo.confirmaciones.length} sigue · {yaNoEsta} ya no está
+            Prioridad {reclamo.prioridad} · {reclamo.confirmaciones.length} sigue · {yaNoEsta} ya no está
             {area ? ` · ${area.nombre}` : ''}
           </Text>
         </View>
