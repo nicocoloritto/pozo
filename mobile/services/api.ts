@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
+import { File, UploadType } from 'expo-file-system';
 import { devLog } from '../lib/devLog';
 
 // Cliente de la API (repo pozo-backend). Los servicios de auth, reclamos y fotos hablan con el
@@ -75,37 +76,57 @@ export function alSesionVencida(callback: (() => void) | null): void {
 type Opciones = {
   metodo?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   cuerpo?: unknown;
-  formData?: FormData;
+  // Archivo local a subir como multipart. No va en un FormData: el fetch de Expo no acepta
+  // { uri } en FormData y tira antes de enviar, así que la subida usa expo-file-system.
+  archivo?: { uri: string; campo: string; mimeType: string };
   // Login y registro: un 401 ahí es "contraseña incorrecta", no una sesión vencida.
   sinSesion?: boolean;
+  // Milisegundos de espera; por defecto TIMEOUT_MS. La subida de fotos necesita más.
+  timeoutMs?: number;
 };
 
 const TIMEOUT_MS = 20000;
 
 export async function llamar<T>(ruta: string, opciones: Opciones = {}): Promise<T> {
-  const { metodo = 'GET', cuerpo, formData, sinSesion = false } = opciones;
+  const { metodo = 'GET', cuerpo, archivo, sinSesion = false, timeoutMs = TIMEOUT_MS } = opciones;
   const headers: Record<string, string> = {};
   if (token) headers.Authorization = `Bearer ${token}`;
   if (cuerpo !== undefined) headers['Content-Type'] = 'application/json';
 
   const controlador = new AbortController();
-  const timer = setTimeout(() => controlador.abort(), TIMEOUT_MS);
-  let respuesta: Response;
+  const timer = setTimeout(() => controlador.abort(), timeoutMs);
+  let status: number;
+  let texto: string;
   try {
     devLog('api', metodo, ruta);
-    respuesta = await fetch(`${API_URL}${ruta}`, {
-      method: metodo,
-      headers,
-      body: formData ?? (cuerpo !== undefined ? JSON.stringify(cuerpo) : undefined),
-      signal: controlador.signal,
-    });
-  } catch {
+    if (archivo) {
+      const subida = await new File(archivo.uri).upload(`${API_URL}${ruta}`, {
+        httpMethod: 'POST',
+        uploadType: UploadType.MULTIPART,
+        fieldName: archivo.campo,
+        mimeType: archivo.mimeType,
+        headers,
+        signal: controlador.signal,
+      });
+      status = subida.status;
+      texto = subida.body;
+    } else {
+      const respuesta = await fetch(`${API_URL}${ruta}`, {
+        method: metodo,
+        headers,
+        body: cuerpo !== undefined ? JSON.stringify(cuerpo) : undefined,
+        signal: controlador.signal,
+      });
+      status = respuesta.status;
+      texto = await respuesta.text();
+    }
+  } catch (err) {
+    devLog('api', 'falló', metodo, ruta, err);
     throw new ApiError('NETWORK', 'No pudimos conectar con el servidor. Revisá tu conexión y probá de nuevo.', 0);
   } finally {
     clearTimeout(timer);
   }
 
-  const texto = await respuesta.text();
   let datos: unknown = null;
   try {
     datos = texto ? JSON.parse(texto) : null;
@@ -113,16 +134,16 @@ export async function llamar<T>(ruta: string, opciones: Opciones = {}): Promise<
     // Respuesta que no es JSON (por ejemplo una página de error de un proxy): se trata abajo.
   }
 
-  if (!respuesta.ok) {
+  if (status < 200 || status >= 300) {
     const error = (datos as { error?: { code?: string; message?: string } & Record<string, unknown> } | null)?.error;
-    if (respuesta.status === 401 && !sinSesion) {
+    if (status === 401 && !sinSesion) {
       await borrarToken();
       alVencerSesion?.();
     }
     throw new ApiError(
       error?.code ?? 'SERVER',
       error?.message ?? 'El servidor tuvo un problema. Probá de nuevo en un rato.',
-      respuesta.status,
+      status,
       error
     );
   }
