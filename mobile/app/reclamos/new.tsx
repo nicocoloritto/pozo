@@ -443,7 +443,12 @@ export default function NewReclamo() {
         </View>
       )}
 
-      <ScrollView style={styles.form} contentContainerStyle={styles.formContent}>
+      <ScrollView
+        style={styles.form}
+        contentContainerStyle={styles.formContent}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+      >
         <Text style={styles.lbl}>2 · Categoría</Text>
         <View style={styles.categoryGrid}>
           {categoryOrder.map((item) => (
@@ -490,6 +495,8 @@ export default function NewReclamo() {
           placeholder="Contanos algo más del problema…"
           placeholderTextColor={colors.inkSoft}
           multiline
+          returnKeyType="done"
+          submitBehavior="blurAndSubmit"
           maxLength={NOTES_MAX_LENGTH}
         />
         <Text style={styles.notesCount}>
