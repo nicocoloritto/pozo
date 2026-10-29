@@ -113,7 +113,8 @@ hay cuenta, en lugar del formulario muestra el aviso y un botón **"Ir a iniciar
 - **Si la consulta falla** (sin conexión), el registro sigue normal: el servidor igual rechaza
   un DNI repetido al registrar (`DNI_TAKEN`), que es la garantía real.
 - **Límite conocido.** `POST /auth/registro` todavía responde `DNI_TAKEN` con solo el número
-  (y cualquier sexo o fecha). Lo cierra el límite de intentos, que está pendiente.
+  (y cualquier sexo o fecha), y no tiene límite de intentos. `POST /auth/dni-registrado` sí lo
+  tiene (30 pedidos por IP cada 15 minutos).
 
 **Dónde.** Backend: `src/services/auth.ts` (`dniRegistrado`) y `src/routes/auth.ts`. App:
 `mobile/services/auth.ts` (`dniRegistrado`) y `mobile/app/register.tsx`.
