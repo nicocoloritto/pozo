@@ -1,3 +1,4 @@
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { llamar } from './api';
 
 // Las fotos viven en el servidor: al publicar un reclamo (o resolverlo) se sube la imagen y
@@ -7,18 +8,23 @@ function esLocal(uri: string): boolean {
   return uri.startsWith('file://') || uri.startsWith('content://') || uri.startsWith('ph://');
 }
 
-function extensionDe(uri: string): string {
-  const limpio = uri.split('?')[0];
-  const punto = limpio.lastIndexOf('.');
-  const ext = punto >= 0 ? limpio.slice(punto + 1).toLowerCase() : '';
-  return /^[a-z0-9]{2,5}$/.test(ext) ? ext : 'jpg';
-}
+// La cámara saca fotos de varios MB: se achican antes de subirlas para no pasar el límite del
+// servidor ni el tiempo de espera.
+const LADO_MAXIMO_PX = 1600;
+const CALIDAD_JPEG = 0.7;
+const TIMEOUT_SUBIDA_MS = 60000;
 
-function tipoMime(extension: string): string {
-  if (extension === 'png') return 'image/png';
-  if (extension === 'webp') return 'image/webp';
-  if (extension === 'heic' || extension === 'heif') return 'image/heic';
-  return 'image/jpeg';
+// Lado más largo de hasta LADO_MAXIMO_PX (sin agrandar las fotos más chicas) y siempre JPEG.
+async function achicarFoto(uri: string): Promise<string> {
+  const original = await ImageManipulator.manipulate(uri).renderAsync();
+  const achicada =
+    Math.max(original.width, original.height) > LADO_MAXIMO_PX
+      ? await ImageManipulator.manipulate(original)
+          .resize(original.width >= original.height ? { width: LADO_MAXIMO_PX } : { height: LADO_MAXIMO_PX })
+          .renderAsync()
+      : original;
+  const { uri: resultado } = await achicada.saveAsync({ compress: CALIDAD_JPEG, format: SaveFormat.JPEG });
+  return resultado;
 }
 
 // Sube la foto y devuelve su URL. Tira ApiError si no se pudo (sin conexión, archivo muy
@@ -26,11 +32,11 @@ function tipoMime(extension: string): string {
 export async function subirFoto(uri: string): Promise<string> {
   if (!esLocal(uri)) return uri;
 
-  const extension = extensionDe(uri);
-  const formData = new FormData();
-  // React Native acepta { uri, name, type } como archivo; los tipos de la web no lo conocen.
-  formData.append('foto', { uri, name: `foto.${extension}`, type: tipoMime(extension) } as unknown as Blob);
-  const { url } = await llamar<{ url: string }>('/fotos', { metodo: 'POST', formData });
+  const { url } = await llamar<{ url: string }>('/fotos', {
+    metodo: 'POST',
+    archivo: { uri: await achicarFoto(uri), campo: 'foto', mimeType: 'image/jpeg' },
+    timeoutMs: TIMEOUT_SUBIDA_MS,
+  });
   return url;
 }
 
