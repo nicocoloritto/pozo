@@ -34,6 +34,9 @@ export default function EstadisticasScreen() {
   const [ranking, setRanking] = useState<RankingBarrio[]>([]);
   const [cargandoEstadisticas, setCargandoEstadisticas] = useState(true);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
+  // Se suman al tocar "Reintentar" para volver a correr el efecto que falló.
+  const [intentoBarrios, setIntentoBarrios] = useState(0);
+  const [intentoEstadisticas, setIntentoEstadisticas] = useState(0);
 
   const [selectorAbierto, setSelectorAbierto] = useState(false);
   const [busqueda, setBusqueda] = useState('');
@@ -42,6 +45,7 @@ export default function EstadisticasScreen() {
   // hay permiso/falla, el del perfil del vecino.
   useEffect(() => {
     let cancelled = false;
+    setErrorCarga(null);
     (async () => {
       let lista: Barrio[];
       try {
@@ -78,7 +82,7 @@ export default function EstadisticasScreen() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [intentoBarrios]);
 
   // 2) Cada vez que cambia el barrio elegido, pide sus estadísticas y el ranking.
   useEffect(() => {
@@ -103,7 +107,14 @@ export default function EstadisticasScreen() {
     return () => {
       cancelled = true;
     };
-  }, [barrio]);
+  }, [barrio, intentoEstadisticas]);
+
+  // Si ni siquiera llegó la lista de barrios, se reintenta eso (y se vuelve a elegir el inicial);
+  // si no, solo las estadísticas, sin cambiar el barrio que la persona eligió.
+  function reintentar() {
+    if (barrios.length === 0) setIntentoBarrios((n) => n + 1);
+    else setIntentoEstadisticas((n) => n + 1);
+  }
 
   const puesto = useMemo(
     () => ranking.find((item) => item.barrioId === barrio?.id)?.puesto,
@@ -159,7 +170,7 @@ export default function EstadisticasScreen() {
         </Pressable>
 
         {errorCarga ? (
-          <EmptyState icon="cloud-offline-outline" message={errorCarga} />
+          <EmptyState icon="cloud-offline-outline" message={errorCarga} actionLabel="Reintentar" onAction={reintentar} />
         ) : cargandoEstadisticas || !estadisticas ? (
           <View style={styles.skeletonBlock}>
             <Skeleton height={90} />
