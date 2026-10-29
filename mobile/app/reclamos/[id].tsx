@@ -17,13 +17,13 @@ import { mensajeDeError } from '../../lib/mensajeDeError';
 import { resumenVerificacion } from '../../lib/verificacion';
 import { severityLabels, statusColors, statusLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
-import { useCatalogo } from '../../contexts/CatalogoContext';
 import {
   obtenerReclamoPorId,
   ESTADOS_TIMELINE_VECINO,
   ReclamoError,
   votarReclamo,
 } from '../../services/reclamos';
+import { CONFIRMACIONES_NECESARIAS } from '../../types/reclamo';
 import type { EstadoReclamo, Reclamo, TipoVoto } from '../../types/reclamo';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
@@ -45,7 +45,6 @@ function formatDateTime(isoDate: string): string {
 export default function ReclamoDetail() {
   const router = useRouter();
   const { user } = useAuth();
-  const { areaPorId } = useCatalogo();
   const { id } = useLocalSearchParams<{ id: string }>();
   const reducedMotion = useReducedMotion();
 
@@ -127,7 +126,6 @@ export default function ReclamoDetail() {
         ?.status ?? 'Reportado')
     : reclamo.status;
   const indiceActual = ESTADOS_TIMELINE_VECINO.indexOf(ultimoEstadoTimeline);
-  const area = areaPorId(reclamo.areaAsignada);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -180,6 +178,13 @@ export default function ReclamoDetail() {
           onPress={() => router.dismissTo({ pathname: '/map', params: { reclamoId: reclamo.id } })}
         />
 
+        {reclamo.notes && (
+          <>
+            <Text style={styles.sectionTitle}>Descripción del vecino</Text>
+            <Text style={styles.descripcion}>{reclamo.notes}</Text>
+          </>
+        )}
+
         <View style={styles.metaBox}>
           <View style={styles.metaRow}>
             <Text style={styles.metaKey}>Coordenadas</Text>
@@ -196,12 +201,6 @@ export default function ReclamoDetail() {
             <Text style={styles.metaKey}>N° expediente</Text>
             <Text style={styles.metaValueMono}>{reclamo.caseNumber}</Text>
           </View>
-          {area && (
-            <View style={styles.metaRow}>
-              <Text style={styles.metaKey}>Área asignada</Text>
-              <Text style={styles.metaValue}>{area.nombre}</Text>
-            </View>
-          )}
           {reclamo.fechaEstimada && (
             <View style={styles.metaRow}>
               <Text style={styles.metaKey}>Fecha estimada</Text>
@@ -216,10 +215,21 @@ export default function ReclamoDetail() {
           )}
         </View>
 
-        {fueRechazado && reclamo.motivoRechazo && (
+        {fueRechazado && (reclamo.motivoRechazoTipo || reclamo.motivoRechazo) && (
           <View style={styles.rechazadoBox}>
             <Text style={styles.rechazadoTitulo}>Este reclamo fue rechazado</Text>
-            <Text style={styles.rechazadoTexto}>{reclamo.motivoRechazo}</Text>
+            <Text style={styles.rechazadoTexto}>
+              {[reclamo.motivoRechazoTipo, reclamo.motivoRechazo].filter(Boolean).join(': ')}
+            </Text>
+          </View>
+        )}
+
+        {reclamo.status === 'Resuelto' && !fotoResolucionSource(reclamo) && (
+          <View style={styles.rechazadoBox}>
+            <Text style={styles.rechazadoTitulo}>Resuelto por los vecinos</Text>
+            <Text style={styles.rechazadoTexto}>
+              El problema ya no está (se resolvió y el municipio todavía no lo actualizó).
+            </Text>
           </View>
         )}
 
@@ -250,6 +260,18 @@ export default function ReclamoDetail() {
                 </View>
               ))}
             </View>
+          </>
+        )}
+
+        {reclamo.status === 'Reportado' && (
+          <>
+            <View style={styles.timelineHeading}>
+              <Text style={styles.sectionTitle}>Confirmaciones</Text>
+              <Text style={styles.timelineStep}>
+                {reclamo.confirmaciones.length} de {CONFIRMACIONES_NECESARIAS} vecinos confirmaron
+              </Text>
+            </View>
+            <ProgressBar value={reclamo.confirmaciones.length / CONFIRMACIONES_NECESARIAS} color={statusColors.Reportado} />
           </>
         )}
 
@@ -521,6 +543,12 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.xs + 1,
     textAlign: 'center',
     color: colors.inkSoft,
+  },
+  descripcion: {
+    fontFamily: fonts.body,
+    fontSize: fontSizes.sm,
+    color: colors.ink,
+    marginBottom: spacing.lg,
   },
   notasBox: {
     gap: spacing.sm,

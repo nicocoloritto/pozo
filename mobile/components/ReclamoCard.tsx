@@ -27,7 +27,7 @@ function antiguedad(isoDate: string): string {
   return `hace ${dias} d`;
 }
 
-// Reused across el mapa, "Mis reclamos" y resultados de búsqueda.
+// Reused across el mapa, "Reclamos" y resultados de búsqueda.
 export default function ReclamoCard({ reclamo, distanciaMetros, onPress }: ReclamoCardProps) {
   return (
     <PressableScale

@@ -3,7 +3,7 @@ import type { ReclamoErrorCode } from '../lib/reclamoError';
 import { validarNuevoReclamo } from '../lib/validarReclamo';
 import { ApiError, llamar } from './api';
 import { subirFoto } from './fotos';
-import type { Categoria, EstadoReclamo, OrigenUbicacion, Reclamo, TipoVoto } from '../types/reclamo';
+import type { Categoria, EstadoReclamo, MotivoRechazo, OrigenUbicacion, Reclamo, TipoVoto } from '../types/reclamo';
 
 export { ReclamoCercanoError, ReclamoError };
 export type { ReclamoErrorCode };
@@ -18,7 +18,7 @@ export type PublicarReclamoInput = {
   category: Categoria;
   severity: Reclamo['severity'];
   notes?: string;
-  // Foto local (cámara o galería) o URL: si es local, se sube antes de publicar.
+  // Foto local (cámara) o URL: si es local, se sube antes de publicar.
   photoUrl: string;
   latitude: number;
   longitude: number;
@@ -87,9 +87,9 @@ export async function obtenerReclamoPorId(id: string): Promise<Reclamo | undefin
   }
 }
 
-// Del más nuevo al más viejo: así se muestran en "Mis reclamos".
-export async function obtenerReclamosPorAutor(): Promise<Reclamo[]> {
-  return pedir<Reclamo[]>('/reclamos?mios=1');
+// Para el mapa: el servidor omite los Resueltos o Rechazados hace más de 7 días.
+export async function obtenerReclamosParaMapa(): Promise<Reclamo[]> {
+  return pedir<Reclamo[]>('/reclamos?mapa=1');
 }
 
 // El servidor le devuelve al municipio solo los reclamos de su propio municipio.
@@ -134,8 +134,9 @@ export async function tomar(id: string): Promise<Reclamo> {
   return pedir<Reclamo>(`${idEn(id)}/tomar`, { metodo: 'POST' });
 }
 
-export async function pasarAReparacion(id: string): Promise<Reclamo> {
-  return pedir<Reclamo>(`${idEn(id)}/reparacion`, { metodo: 'POST' });
+// Pasar a reparación pide la fecha estimada (ISO) en el mismo paso.
+export async function pasarAReparacion(id: string, fechaEstimada: string): Promise<Reclamo> {
+  return pedir<Reclamo>(`${idEn(id)}/reparacion`, { metodo: 'POST', cuerpo: { fechaEstimada } });
 }
 
 export async function resolver(id: string, fotoResolucion: string): Promise<Reclamo> {
@@ -146,12 +147,9 @@ export async function resolver(id: string, fotoResolucion: string): Promise<Recl
   });
 }
 
-export async function rechazar(id: string, motivo: string): Promise<Reclamo> {
-  return pedir<Reclamo>(`${idEn(id)}/rechazar`, { metodo: 'POST', cuerpo: { motivo } });
-}
-
-export async function asignarArea(id: string, areaId: string): Promise<Reclamo> {
-  return pedir<Reclamo>(`${idEn(id)}/area`, { metodo: 'PUT', cuerpo: { areaId } });
+// `motivo` es uno de MOTIVOS_RECHAZO; `detalle` es texto opcional.
+export async function rechazar(id: string, motivo: MotivoRechazo, detalle: string): Promise<Reclamo> {
+  return pedir<Reclamo>(`${idEn(id)}/rechazar`, { metodo: 'POST', cuerpo: { motivo, detalle } });
 }
 
 export async function definirFechaEstimada(id: string, fechaEstimada: string): Promise<Reclamo> {

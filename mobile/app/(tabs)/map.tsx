@@ -10,7 +10,7 @@ import { categoryLabels, categoryOrder, categoryTints } from '../../constants/ca
 import { statusColors, statusLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
 import { mensajeDeError } from '../../lib/mensajeDeError';
-import { ESTADOS_RECLAMO, obtenerReclamos } from '../../services/reclamos';
+import { ESTADOS_RECLAMO, obtenerReclamosParaMapa } from '../../services/reclamos';
 import type { Categoria, EstadoReclamo, Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
@@ -66,7 +66,7 @@ export default function MapScreen() {
   // Se recarga cada vez que la tab vuelve a estar en foco: así se ven los reclamos
   // recién publicados o confirmados.
   const cargar = useCallback(() => {
-    obtenerReclamos()
+    obtenerReclamosParaMapa()
       .then((lista) => {
         setErrorCarga(null);
         setReclamos(lista);

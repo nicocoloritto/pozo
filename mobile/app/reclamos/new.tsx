@@ -1,5 +1,4 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
@@ -20,7 +19,6 @@ import StatusStamp from '../../components/StatusStamp';
 import { categoryLabels, categoryOrder } from '../../constants/categories';
 import { severityLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
-import { coordenadasDesdeExif } from '../../lib/exif';
 import { fotoSource } from '../../lib/fotoReclamo';
 import { obtenerBarrioPorCoordenadas } from '../../services/estadisticas';
 import { confirmarReclamo, publicarReclamo, ReclamoCercanoError, ReclamoError } from '../../services/reclamos';
@@ -167,49 +165,6 @@ export default function NewReclamo() {
     setLocatingPhoto(false);
   }
 
-  async function handlePickFromGallery() {
-    setErrorMsg(null);
-    let result: ImagePicker.ImagePickerResult;
-    try {
-      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permission.granted) {
-        setErrorMsg('Sin permiso para ver tus fotos. Podés activarlo desde los ajustes del teléfono.');
-        return;
-      }
-      result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        exif: true,
-        quality: 0.7,
-      });
-    } catch {
-      setErrorMsg('No pudimos abrir la galería. Probá de nuevo.');
-      return;
-    }
-    if (result.canceled || !result.assets[0]) return;
-
-    const asset = result.assets[0];
-    setPhotoUri(asset.uri);
-    setFotoSubida(null);
-    setLocatingPhoto(true);
-
-    // El EXIF guarda latitud/longitud sin signo más una letra N/S y E/W: coordenadasDesdeExif
-    // aplica el hemisferio (en CABA, Sur y Oeste) y descarta valores imposibles.
-    const exifCoords = coordenadasDesdeExif(asset.exif);
-    if (exifCoords) {
-      // The photo already carries its own coordinates: no need for the current
-      // location, and it stays truthful about where the picture was actually taken.
-      setLocationSource('Exif');
-      setCoords({ ...exifCoords, accuracy: null });
-    } else {
-      // No EXIF location (common: WhatsApp, some Android versions, iOS sharing).
-      // Fall back to where the neighbor is standing right now, marked as such.
-      setLocationSource('Manual');
-      const found = await resolveCurrentLocation();
-      setCoords(found);
-    }
-    setLocatingPhoto(false);
-  }
-
   const canSubmit = Boolean(
     photoUri && coords && category && severity && user?.rol === 'vecino' && !submitting
   );
@@ -271,7 +226,7 @@ export default function NewReclamo() {
         latitude: coords.latitude,
         longitude: coords.longitude,
         accuracyMeters: coords.accuracy ?? undefined,
-        locationSource: locationSource ?? 'Manual',
+        locationSource: locationSource ?? 'Device',
         address: address ?? undefined,
         neighborhood: barrio?.nombre ?? user.neighborhood,
         comuna: barrio?.comuna,
@@ -327,7 +282,7 @@ export default function NewReclamo() {
       {!cameraPermission.granted ? (
         <PermissionNotice
           title="Sin acceso a la cámara"
-          message="La foto es obligatoria para reportar un reclamo: sin cámara no vas a poder generar el expediente. Podés elegir una foto de la galería mientras tanto."
+          message="La foto es obligatoria para reportar un reclamo: sin cámara no vas a poder generar el expediente."
           onRetry={requestCameraPermission}
         />
       ) : (
@@ -360,9 +315,7 @@ export default function NewReclamo() {
           )}
 
           <View style={styles.controls}>
-            <Pressable onPress={handlePickFromGallery}>
-              <Text style={styles.controlLabel}>Galería</Text>
-            </Pressable>
+            <View style={styles.controlSlot} />
             {photoUri ? (
               <Pressable
                 accessibilityRole="button"
@@ -382,9 +335,11 @@ export default function NewReclamo() {
                 <View style={styles.shutterInner} />
               </Pressable>
             )}
-            <Pressable onPress={() => setTorchOn((prev) => !prev)}>
-              <Text style={[styles.controlLabel, torchOn && styles.controlLabelActive]}>Flash</Text>
-            </Pressable>
+            <View style={styles.controlSlot}>
+              <Pressable onPress={() => setTorchOn((prev) => !prev)}>
+                <Text style={[styles.controlLabel, torchOn && styles.controlLabelActive]}>Flash</Text>
+              </Pressable>
+            </View>
           </View>
         </View>
       )}
@@ -410,11 +365,6 @@ export default function NewReclamo() {
                   {coords.accuracy ? ` · ±${Math.round(coords.accuracy)} m` : ''}
                 </Text>
                 {address ? <Text style={styles.geoDetail}>{address}</Text> : null}
-                {locationSource === 'Exif' ? (
-                  <Text style={styles.geoDetail}>Ubicación de la foto</Text>
-                ) : locationSource === 'Manual' ? (
-                  <Text style={styles.geoDetail}>Ubicación actual, sin GPS en la foto</Text>
-                ) : null}
               </>
             ) : (
               <Text style={styles.geoDetail}>Ubicación no disponible</Text>
@@ -771,6 +721,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     padding: spacing.lg,
+  },
+  // Dos huecos iguales a los lados: el obturador queda centrado.
+  controlSlot: {
+    flex: 1,
+    alignItems: 'center',
   },
   controlLabel: {
     fontFamily: fonts.bodySemiBold,

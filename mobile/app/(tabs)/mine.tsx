@@ -9,7 +9,7 @@ import ReclamoCardSkeleton from '../../components/ReclamoCardSkeleton';
 import { statusLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
 import { mensajeDeError } from '../../lib/mensajeDeError';
-import { ESTADOS_RECLAMO, obtenerReclamosPorAutor } from '../../services/reclamos';
+import { ESTADOS_RECLAMO, obtenerReclamos } from '../../services/reclamos';
 import type { EstadoReclamo, Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, radii, spacing } from '../../theme';
 
@@ -21,6 +21,7 @@ export default function MineScreen() {
   const [reclamos, setReclamos] = useState<Reclamo[] | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [filtro, setFiltro] = useState<EstadoReclamo | null>(null);
+  const [soloMios, setSoloMios] = useState(false);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
 
   const autorId = user && user.rol === 'vecino' ? user.id : null;
@@ -28,7 +29,7 @@ export default function MineScreen() {
   const cargar = useCallback(async () => {
     if (!autorId) return;
     try {
-      setReclamos(await obtenerReclamosPorAutor());
+      setReclamos(await obtenerReclamos());
       setErrorCarga(null);
     } catch (err) {
       setErrorCarga(mensajeDeError(err));
@@ -51,18 +52,21 @@ export default function MineScreen() {
 
   if (!autorId) return null;
 
+  // "Solo míos" se combina con el filtro de estado; los contadores respetan los dos.
+  const visibles = soloMios ? (reclamos ?? []).filter((r) => r.autorId === autorId) : reclamos ?? [];
+
   const contadores = ESTADOS_RECLAMO.reduce<Record<EstadoReclamo, number>>((acc, estado) => {
-    acc[estado] = (reclamos ?? []).filter((r) => r.status === estado).length;
+    acc[estado] = visibles.filter((r) => r.status === estado).length;
     return acc;
   }, {} as Record<EstadoReclamo, number>);
 
-  const listaFiltrada = filtro ? (reclamos ?? []).filter((r) => r.status === filtro) : reclamos ?? [];
+  const listaFiltrada = filtro ? visibles.filter((r) => r.status === filtro) : visibles;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>Mis reclamos</Text>
-        <Text style={styles.subtitle}>Seguí el avance de lo que reportaste</Text>
+        <Text style={styles.title}>Reclamos</Text>
+        <Text style={styles.subtitle}>Lo que se reportó en tu municipio</Text>
         {reclamos && (
           <ScrollView
             horizontal
@@ -74,8 +78,17 @@ export default function MineScreen() {
               style={[styles.counterChip, filtro === null && styles.counterChipActive]}
             >
               <Text style={[styles.counterChipText, filtro === null && styles.counterChipTextActive]}>
-                Todos · {reclamos.length}
+                Todos · {visibles.length}
               </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setSoloMios((v) => !v)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: soloMios }}
+              accessibilityLabel="Solo mis reclamos"
+              style={[styles.counterChip, soloMios && styles.counterChipActive]}
+            >
+              <Text style={[styles.counterChipText, soloMios && styles.counterChipTextActive]}>Solo míos</Text>
             </Pressable>
             {ESTADOS_RECLAMO.map((estado) => (
               <Pressable
@@ -116,7 +129,9 @@ export default function MineScreen() {
               message={
                 filtro
                   ? `No tenés reclamos en "${statusLabels[filtro]}".`
-                  : 'Todavía no hiciste reclamos.'
+                  : soloMios
+                    ? 'Todavía no hiciste reclamos.'
+                    : 'Todavía no hay reclamos.'
               }
               actionLabel={filtro ? undefined : 'Hacer un reclamo'}
               onAction={filtro ? undefined : () => router.push('/reclamos/new')}

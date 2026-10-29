@@ -78,20 +78,25 @@ export type Reclamo = {
   notas?: NotaReclamo[];
   fotoResolucion?: string;
   fotoResolucionKey?: string; // idem photoKey, para la foto de resolución del seed
-  motivoRechazo?: string;
+  motivoRechazoTipo?: MotivoRechazo; // uno de MOTIVOS_RECHAZO
+  motivoRechazo?: string; // detalle de texto
 
-  // Los calcula el servidor en cada respuesta (pozo-backend, src/domain/prioridad.ts): la
-  // app solo los muestra. Ver docs/decisiones.md.
+  // Los calcula el servidor (pozo-backend, src/domain/prioridad.ts). `prioridad` solo ordena
+  // la bandeja; `atrasado` se muestra. Ver docs/decisiones.md.
   prioridad: number;
-  desglosePrioridad: ParteDePrioridad[];
-  vencido: boolean;
+  atrasado: boolean;
 };
-
-export type ParteDePrioridad = { motivo: string; puntos: number };
 
 // Configuración, no un número mágico: a cuántas confirmaciones de otros vecinos pasa
 // de Reportado a ConfirmadoPorVecinos.
-export const CONFIRMACIONES_NECESARIAS = 3;
+export const CONFIRMACIONES_NECESARIAS = 1;
+
+// A cuántos "Ya no está" el reclamo pasa solo a Resuelto, desde cualquier estado abierto.
+export const VOTOS_YA_NO_ESTA_NECESARIOS = 10;
+
+// Motivos de rechazo permitidos. "Ya no está" no es un rechazo: lo resuelven los vecinos.
+export const MOTIVOS_RECHAZO = ['No corresponde al municipio', 'No requiere arreglo', 'Duplicado'] as const;
+export type MotivoRechazo = (typeof MOTIVOS_RECHAZO)[number];
 
 // Desde cuántos "Ya no está" (y más que "Sigue ahí") se avisa al municipio que el
 // reclamo posiblemente ya se resolvió.

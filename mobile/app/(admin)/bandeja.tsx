@@ -8,34 +8,17 @@ import FiltrosMunicipioModal from '../../components/FiltrosMunicipioModal';
 import ReclamoCardSkeleton from '../../components/ReclamoCardSkeleton';
 import StatusStamp from '../../components/StatusStamp';
 import { categoryLabels } from '../../constants/categories';
+import { peligrosidadColors, peligrosidadLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
-import { useCatalogo } from '../../contexts/CatalogoContext';
 import { mensajeDeError } from '../../lib/mensajeDeError';
-import { aplicarFiltros, FILTROS_VACIOS, hayFiltrosActivos } from '../../lib/filtrosMunicipio';
-import type { FiltrosMunicipio } from '../../lib/filtrosMunicipio';
+import { aplicarFiltros, FILTROS_VACIOS, hayFiltrosActivos, seccionDe } from '../../lib/filtrosMunicipio';
+import type { FiltrosMunicipio, Seccion } from '../../lib/filtrosMunicipio';
 import { fotoSource } from '../../lib/fotoReclamo';
+import { nivelPeligrosidad, ORDEN_PELIGROSIDAD } from '../../lib/peligrosidad';
 import { resumenVerificacion } from '../../lib/verificacion';
 import { obtenerReclamosPorMunicipio } from '../../services/reclamos';
-import { CATEGORIAS_PELIGROSAS } from '../../types/reclamo';
 import type { Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
-
-type Segmento = 'nuevos' | 'gestion' | 'cerrados';
-
-function esNuevo(reclamo: Reclamo): boolean {
-  return (
-    reclamo.status === 'ConfirmadoPorVecinos' ||
-    (reclamo.status === 'Reportado' && CATEGORIAS_PELIGROSAS.includes(reclamo.category))
-  );
-}
-
-function esEnGestion(reclamo: Reclamo): boolean {
-  return reclamo.status === 'EnviadoAlMunicipio' || reclamo.status === 'EnReparacion';
-}
-
-function esCerrado(reclamo: Reclamo): boolean {
-  return reclamo.status === 'Resuelto' || reclamo.status === 'Rechazado';
-}
 
 function daysSince(iso: string): number {
   return Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24)));
@@ -47,7 +30,7 @@ export default function BandejaScreen() {
 
   const [reclamos, setReclamos] = useState<Reclamo[] | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [segmento, setSegmento] = useState<Segmento>('nuevos');
+  const [segmento, setSegmento] = useState<Seccion>('nuevos');
   const [busqueda, setBusqueda] = useState('');
   const [filtros, setFiltros] = useState<FiltrosMunicipio>(FILTROS_VACIOS);
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
@@ -81,22 +64,21 @@ export default function BandejaScreen() {
 
   if (!municipioId) return null;
 
-  const porSegmento = (reclamos ?? []).filter((r) =>
-    segmento === 'nuevos' ? esNuevo(r) : segmento === 'gestion' ? esEnGestion(r) : esCerrado(r)
-  );
+  const porSegmento = (reclamos ?? []).filter((r) => seccionDe(r) === segmento);
 
-  const contadores = {
-    nuevos: (reclamos ?? []).filter(esNuevo).length,
-    gestion: (reclamos ?? []).filter(esEnGestion).length,
-    cerrados: (reclamos ?? []).filter(esCerrado).length,
-  };
+  const cuenta = (seccion: Seccion) => (reclamos ?? []).filter((r) => seccionDe(r) === seccion).length;
+  const contadores = { nuevos: cuenta('nuevos'), gestion: cuenta('gestion'), cerrados: cuenta('cerrados') };
 
   const textoBusqueda = busqueda.trim().toLowerCase();
   const filtrados = aplicarFiltros(porSegmento, filtros).filter(
     (r) => !textoBusqueda || r.address?.toLowerCase().includes(textoBusqueda)
   );
 
-  const ordenados = [...filtrados].sort((a, b) => b.prioridad - a.prioridad);
+  // Primero los rojos, después amarillos y verdes; dentro de cada nivel, por puntaje.
+  const ordenados = [...filtrados].sort(
+    (a, b) =>
+      ORDEN_PELIGROSIDAD[nivelPeligrosidad(a)] - ORDEN_PELIGROSIDAD[nivelPeligrosidad(b)] || b.prioridad - a.prioridad
+  );
   const filtrosActivos = hayFiltrosActivos(filtros);
 
   return (
@@ -190,16 +172,15 @@ export default function BandejaScreen() {
 }
 
 function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => void }) {
-  const { areaPorId } = useCatalogo();
-  const area = areaPorId(reclamo.areaAsignada);
-  const { vencido } = reclamo;
+  const { atrasado } = reclamo;
+  const nivel = nivelPeligrosidad(reclamo);
   const { yaNoEsta, posiblementeResuelto } = resumenVerificacion(reclamo, null);
 
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Reclamo de ${categoryLabels[reclamo.category]} en ${reclamo.address ?? 'ubicación sin resolver'}${vencido ? ', vencido' : ''}${posiblementeResuelto ? ', posiblemente resuelto' : ''}`}
+      accessibilityLabel={`Reclamo de ${categoryLabels[reclamo.category]} en ${reclamo.address ?? 'ubicación sin resolver'}${atrasado ? ', atrasado' : ''}, ${peligrosidadLabels[nivel].toLowerCase()}${posiblementeResuelto ? ', posiblemente resuelto' : ''}`}
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}
     >
       <View style={styles.rowPhotoWrap}>
@@ -216,14 +197,17 @@ function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => voi
           <View style={styles.chips}>
             {posiblementeResuelto && (
               <View style={styles.resueltoChip}>
-                <Text style={styles.vencidoChipText}>Posiblemente resuelto</Text>
+                <Text style={styles.chipText}>Posiblemente resuelto</Text>
               </View>
             )}
-            {vencido && (
-              <View style={styles.vencidoChip}>
-                <Text style={styles.vencidoChipText}>Vencido</Text>
+            {atrasado && (
+              <View style={styles.atrasadoChip}>
+                <Text style={styles.chipText}>Atrasado</Text>
               </View>
             )}
+            <View accessible accessibilityLabel={peligrosidadLabels[nivel]}>
+              <Ionicons name="warning" size={18} color={peligrosidadColors[nivel]} />
+            </View>
           </View>
         </View>
         <Text style={styles.rowAddress} numberOfLines={1}>
@@ -232,8 +216,7 @@ function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => voi
         <View style={styles.rowFooter}>
           <StatusStamp status={reclamo.status} />
           <Text style={styles.rowMeta}>
-            Prioridad {reclamo.prioridad} · {reclamo.confirmaciones.length} sigue · {yaNoEsta} ya no está
-            {area ? ` · ${area.nombre}` : ''}
+            {reclamo.confirmaciones.length} sigue · {yaNoEsta} ya no está
           </Text>
         </View>
       </View>
@@ -379,13 +362,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
   },
-  vencidoChip: {
+  atrasadoChip: {
     borderRadius: radii.pill,
     backgroundColor: colors.pinkSoft,
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
   },
-  vencidoChipText: {
+  chipText: {
     fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.xs,
     color: colors.ink,

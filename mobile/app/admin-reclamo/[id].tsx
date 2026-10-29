@@ -14,10 +14,8 @@ import { mensajeDeError } from '../../lib/mensajeDeError';
 import { resumenVerificacion } from '../../lib/verificacion';
 import { severityLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
-import { useCatalogo } from '../../contexts/CatalogoContext';
 import {
   agregarNota,
-  asignarArea,
   definirFechaEstimada,
   obtenerReclamoPorId,
   pasarAReparacion,
@@ -26,8 +24,8 @@ import {
   tomar,
   ReclamoError,
 } from '../../services/reclamos';
-import { CATEGORIAS_PELIGROSAS } from '../../types/reclamo';
-import type { Reclamo } from '../../types/reclamo';
+import { CATEGORIAS_PELIGROSAS, MOTIVOS_RECHAZO } from '../../types/reclamo';
+import type { MotivoRechazo, Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
 function formatDateTime(iso: string): string {
@@ -63,7 +61,6 @@ function formatFechaInput(fecha: Date): string {
 export default function AdminReclamoDetail() {
   const router = useRouter();
   const { user } = useAuth();
-  const { areas, areaPorId, error: errorCatalogo } = useCatalogo();
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const [reclamo, setReclamo] = useState<Reclamo | null | undefined>(undefined);
@@ -71,10 +68,12 @@ export default function AdminReclamoDetail() {
   const [procesando, setProcesando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [areaModalVisible, setAreaModalVisible] = useState(false);
   const [fechaModalVisible, setFechaModalVisible] = useState(false);
+  // El modal de fecha sirve para pasar a reparación (fecha obligatoria) y para cambiarla después.
+  const [fechaParaReparacion, setFechaParaReparacion] = useState(false);
   const [fechaInput, setFechaInput] = useState('');
   const [rechazoModalVisible, setRechazoModalVisible] = useState(false);
+  const [motivoTipo, setMotivoTipo] = useState<MotivoRechazo | null>(null);
   const [motivoRechazo, setMotivoRechazo] = useState('');
   const [notaTexto, setNotaTexto] = useState('');
 
@@ -127,7 +126,6 @@ export default function AdminReclamoDetail() {
   // vamos, así que no hace falta repetir el chequeo en cada handler.
   const reclamoId = reclamo.id;
   const reclamoActual = reclamo;
-  const area = areaPorId(reclamo.areaAsignada);
   const esFinal = reclamo.status === 'Resuelto' || reclamo.status === 'Rechazado';
   const puedeTomar =
     reclamo.status === 'ConfirmadoPorVecinos' ||
@@ -153,16 +151,11 @@ export default function AdminReclamoDetail() {
     ejecutar(() => tomar(reclamoId));
   }
 
-  function handleAsignarArea(areaId: string) {
-    ejecutar(() => asignarArea(reclamoId, areaId), () => setAreaModalVisible(false));
-  }
-
-  function handlePasarAReparacion() {
-    ejecutar(() => pasarAReparacion(reclamoId));
-  }
-
-  function abrirModalFecha() {
-    setFechaInput(reclamoActual.fechaEstimada ? formatFechaInput(new Date(reclamoActual.fechaEstimada)) : '');
+  function abrirModalFecha(paraReparacion = false) {
+    setFechaParaReparacion(paraReparacion);
+    setFechaInput(
+      !paraReparacion && reclamoActual.fechaEstimada ? formatFechaInput(new Date(reclamoActual.fechaEstimada)) : ''
+    );
     setFechaModalVisible(true);
   }
 
@@ -182,23 +175,21 @@ export default function AdminReclamoDetail() {
       setError('La fecha estimada no puede ser una fecha pasada');
       return;
     }
-    ejecutar(() => definirFechaEstimada(reclamoId, fecha.toISOString()), () => setFechaModalVisible(false));
+    const iso = fecha.toISOString();
+    ejecutar(
+      () => (fechaParaReparacion ? pasarAReparacion(reclamoId, iso) : definirFechaEstimada(reclamoId, iso)),
+      () => setFechaModalVisible(false)
+    );
   }
 
-  async function capturarFotoResolucion(origen: 'camera' | 'library') {
-    let result: ImagePicker.ImagePickerResult;
-    if (origen === 'camera') {
-      const permission = await ImagePicker.requestCameraPermissionsAsync();
-      if (!permission.granted) {
-        setError('Necesitamos permiso de cámara para la foto del "después"');
-        return;
-      }
-      result = await ImagePicker.launchCameraAsync({ quality: 0.7 });
-    } else {
-      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permission.granted) return;
-      result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.7 });
+  // Solo cámara en vivo: la foto del "después" no se elige de la galería.
+  async function handleResolverPress() {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      setError('Necesitamos permiso de cámara para la foto del "después"');
+      return;
     }
+    const result = await ImagePicker.launchCameraAsync({ quality: 0.7 });
     if (result.canceled || !result.assets[0]) return;
 
     const foto = result.assets[0].uri;
@@ -208,19 +199,12 @@ export default function AdminReclamoDetail() {
     ]);
   }
 
-  function handleResolverPress() {
-    Alert.alert('Foto del "después"', '¿Cómo querés agregarla?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sacar foto', onPress: () => capturarFotoResolucion('camera') },
-      { text: 'Elegir de galería', onPress: () => capturarFotoResolucion('library') },
-    ]);
-  }
-
   function handleRechazarConfirmado() {
-    if (!motivoRechazo.trim()) {
-      setError('El motivo de rechazo es obligatorio');
+    if (!motivoTipo) {
+      setError('Elegí un motivo de rechazo');
       return;
     }
+    const motivo = motivoTipo;
     Alert.alert('Rechazar reclamo', '¿Confirmás que querés rechazarlo?', [
       { text: 'Cancelar', style: 'cancel' },
       {
@@ -228,9 +212,10 @@ export default function AdminReclamoDetail() {
         style: 'destructive',
         onPress: () =>
           ejecutar(
-            () => rechazar(reclamoId, motivoRechazo),
+            () => rechazar(reclamoId, motivo, motivoRechazo),
             () => {
               setRechazoModalVisible(false);
+              setMotivoTipo(null);
               setMotivoRechazo('');
             }
           ),
@@ -301,38 +286,44 @@ export default function AdminReclamoDetail() {
           onPress={() => router.dismissTo({ pathname: '/mapa', params: { reclamoId: reclamo.id } })}
         />
 
+        {reclamo.notes && (
+          <>
+            <Text style={styles.sectionTitle}>Descripción del vecino</Text>
+            <Text style={styles.descripcion}>{reclamo.notes}</Text>
+          </>
+        )}
+
         <View style={styles.metaBox}>
           <View style={styles.metaRow}>
-            <Text style={styles.metaKey}>Área asignada</Text>
-            <Text style={styles.metaValue}>{area?.nombre ?? 'Sin asignar'}</Text>
-          </View>
-          <View style={styles.metaRow}>
             <Text style={styles.metaKey}>Fecha estimada</Text>
-            <Text style={styles.metaValue}>
-              {reclamo.fechaEstimada ? formatFecha(reclamo.fechaEstimada) : 'Sin definir'}
-            </Text>
+            <View style={styles.fechaValor}>
+              {reclamo.atrasado && (
+                <View style={styles.atrasadoChip}>
+                  <Text style={styles.atrasadoChipText}>Atrasado</Text>
+                </View>
+              )}
+              <Text style={styles.metaValue}>
+                {reclamo.fechaEstimada ? formatFecha(reclamo.fechaEstimada) : 'Sin definir'}
+              </Text>
+            </View>
           </View>
         </View>
 
-        {!esFinal && (
-          <View style={styles.metaBox}>
-            <Text style={styles.prioridadTitulo}>Prioridad {reclamo.prioridad}</Text>
-            {reclamo.desglosePrioridad.map((parte) => (
-              <View key={parte.motivo} style={styles.metaRow}>
-                <Text style={styles.metaKey}>{parte.motivo}</Text>
-                <Text style={styles.metaValue}>
-                  {parte.puntos > 0 ? '+' : '−'}
-                  {Math.abs(parte.puntos)}
-                </Text>
-              </View>
-            ))}
+        {reclamo.status === 'Rechazado' && (reclamo.motivoRechazoTipo || reclamo.motivoRechazo) && (
+          <View style={styles.rechazadoBox}>
+            <Text style={styles.rechazadoTitulo}>Motivo del rechazo</Text>
+            <Text style={styles.rechazadoTexto}>
+              {[reclamo.motivoRechazoTipo, reclamo.motivoRechazo].filter(Boolean).join(': ')}
+            </Text>
           </View>
         )}
 
-        {reclamo.status === 'Rechazado' && reclamo.motivoRechazo && (
+        {reclamo.status === 'Resuelto' && !fotoResolucionSource(reclamo) && (
           <View style={styles.rechazadoBox}>
-            <Text style={styles.rechazadoTitulo}>Motivo del rechazo</Text>
-            <Text style={styles.rechazadoTexto}>{reclamo.motivoRechazo}</Text>
+            <Text style={styles.rechazadoTitulo}>Resuelto por los vecinos</Text>
+            <Text style={styles.rechazadoTexto}>
+              El problema ya no está (se resolvió y el municipio todavía no lo actualizó).
+            </Text>
           </View>
         )}
 
@@ -359,12 +350,15 @@ export default function AdminReclamoDetail() {
             <Text style={styles.sectionTitle}>Acciones</Text>
             <View style={styles.actionsGrid}>
               {puedeTomar && <ActionButton label="Tomar" onPress={handleTomar} disabled={procesando} />}
-              <ActionButton label="Asignar área" onPress={() => setAreaModalVisible(true)} disabled={procesando} />
-              <ActionButton label="Fecha estimada" onPress={abrirModalFecha} disabled={procesando} />
               {puedePasarAReparacion && (
-                <ActionButton label="Pasar a reparación" onPress={handlePasarAReparacion} disabled={procesando} />
+                <ActionButton label="Pasar a reparación" onPress={() => abrirModalFecha(true)} disabled={procesando} />
               )}
-              {puedeResolver && <ActionButton label="Resolver" onPress={handleResolverPress} disabled={procesando} />}
+              {puedeResolver && (
+                <>
+                  <ActionButton label="Cambiar fecha" onPress={() => abrirModalFecha()} disabled={procesando} />
+                  <ActionButton label="Resuelto" onPress={handleResolverPress} disabled={procesando} />
+                </>
+              )}
               <ActionButton
                 label="Rechazar"
                 onPress={() => setRechazoModalVisible(true)}
@@ -427,29 +421,8 @@ export default function AdminReclamoDetail() {
         </View>
       </View>
 
-      {/* Asignar área */}
-      <SheetModal visible={areaModalVisible} onClose={() => setAreaModalVisible(false)} title="Asignar área">
-          <ScrollView contentContainerStyle={styles.modalContent}>
-            {errorCatalogo && <Text style={styles.errorText}>{errorCatalogo}</Text>}
-            {areas.map((item) => (
-              <Pressable
-                key={item.id}
-                onPress={() => handleAsignarArea(item.id)}
-                style={({ pressed }) => [
-                  styles.modalRow,
-                  reclamo.areaAsignada === item.id && styles.modalRowActive,
-                  pressed && styles.pressed,
-                ]}
-              >
-                <Text style={styles.modalRowText}>{item.nombre}</Text>
-                <Text style={styles.modalRowMeta}>{item.plazoMaximoDias} días de plazo</Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-      </SheetModal>
-
       {/* Fecha estimada */}
-      <SheetModal visible={fechaModalVisible} onClose={() => setFechaModalVisible(false)} title="Fecha estimada" fill={false}>
+      <SheetModal visible={fechaModalVisible} onClose={() => setFechaModalVisible(false)} title={fechaParaReparacion ? 'Pasar a reparación' : 'Cambiar fecha'} fill={false}>
           <View style={styles.modalContent}>
             <TextInput
               style={styles.fechaInput}
@@ -476,7 +449,7 @@ export default function AdminReclamoDetail() {
               onPress={handleGuardarFecha}
               disabled={procesando}
             >
-              <Text style={styles.primaryButtonText}>Guardar</Text>
+              <Text style={styles.primaryButtonText}>{fechaParaReparacion ? 'Pasar a reparación' : 'Guardar'}</Text>
             </Pressable>
           </View>
       </SheetModal>
@@ -484,11 +457,24 @@ export default function AdminReclamoDetail() {
       {/* Rechazar */}
       <SheetModal visible={rechazoModalVisible} onClose={() => setRechazoModalVisible(false)} title="Rechazar reclamo" fill={false}>
           <View style={styles.modalContent}>
+            {MOTIVOS_RECHAZO.map((motivo) => (
+              <Pressable
+                key={motivo}
+                onPress={() => setMotivoTipo(motivo)}
+                style={({ pressed }) => [
+                  styles.modalRow,
+                  motivoTipo === motivo && styles.modalRowActive,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Text style={styles.modalRowText}>{motivo}</Text>
+              </Pressable>
+            ))}
             <TextInput
               style={styles.fechaInput}
               value={motivoRechazo}
               onChangeText={setMotivoRechazo}
-              placeholder="Motivo del rechazo…"
+              placeholder="Detalle (opcional)…"
               placeholderTextColor={colors.inkSoft}
               multiline
             />
@@ -660,11 +646,21 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.sm,
     color: colors.ink,
   },
-  prioridadTitulo: {
-    fontFamily: fonts.bodyBold,
-    fontSize: fontSizes.sm,
+  fechaValor: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  atrasadoChip: {
+    borderRadius: radii.pill,
+    backgroundColor: colors.pinkSoft,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+  },
+  atrasadoChipText: {
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs,
     color: colors.ink,
-    marginBottom: spacing.xs,
   },
   rechazadoBox: {
     borderRadius: radii.lg,
@@ -687,6 +683,11 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.lg,
     color: colors.ink,
     marginTop: spacing.sm,
+  },
+  descripcion: {
+    fontFamily: fonts.body,
+    fontSize: fontSizes.sm,
+    color: colors.ink,
   },
   beforeAfterRow: {
     flexDirection: 'row',
@@ -883,11 +884,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodyMedium,
     fontSize: fontSizes.sm,
     color: colors.ink,
-  },
-  modalRowMeta: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: fontSizes.xs,
-    color: colors.inkSoft,
   },
   fechaInput: {
     borderRadius: radii.md,
