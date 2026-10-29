@@ -37,19 +37,29 @@ export function CatalogoProvider({ children }: { children: ReactNode }) {
     setError(null);
     if (!userId) return;
 
-    // Si la sesión cambia mientras carga, la respuesta vieja se descarta.
+    // Si la sesión cambia mientras carga, la respuesta vieja se descarta. Cada parte se guarda
+    // apenas llega: si una falla (los barrios, por ejemplo), las que sí llegaron se conservan y
+    // `error` avisa que el catálogo quedó incompleto.
     let vigente = true;
-    Promise.all([listarAreas(), listarMunicipios()])
-      .then(async ([nuevasAreas, nuevosMunicipios]) => {
-        const nuevosBarrios = (await Promise.all(nuevosMunicipios.map((m) => obtenerBarrios(m.id)))).flat();
+    (async () => {
+      let falla: unknown = null;
+      const [resAreas, resMunicipios] = await Promise.allSettled([listarAreas(), listarMunicipios()]);
+      if (!vigente) return;
+      if (resAreas.status === 'fulfilled') setAreas(resAreas.value);
+      else falla = resAreas.reason;
+
+      if (resMunicipios.status === 'fulfilled') {
+        setMunicipios(resMunicipios.value);
+        const resBarrios = await Promise.allSettled(resMunicipios.value.map((m) => obtenerBarrios(m.id)));
         if (!vigente) return;
-        setAreas(nuevasAreas);
-        setMunicipios(nuevosMunicipios);
-        setBarrios(nuevosBarrios);
-      })
-      .catch((err) => {
-        if (vigente) setError(mensajeDeError(err));
-      });
+        setBarrios(resBarrios.flatMap((r) => (r.status === 'fulfilled' ? r.value : [])));
+        const rechazado = resBarrios.find((r) => r.status === 'rejected');
+        if (rechazado) falla = rechazado.reason;
+      } else {
+        falla = resMunicipios.reason;
+      }
+      if (falla) setError(mensajeDeError(falla));
+    })();
     return () => {
       vigente = false;
     };
