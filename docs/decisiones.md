@@ -13,9 +13,9 @@ reclamo viejo no tiene ese cambio en el historial, se usa la fecha de creación.
 
 - Solo corre en `Enviado al municipio` y `En reparación`. Antes de la toma no hay nadie
   responsable; después de `Resuelto` o `Rechazado`, está cerrado.
-- Sin área asignada se usa el plazo más corto de todas las áreas, para que no quede sin
-  clasificar indefinidamente.
-- En el mapa del municipio la leyenda dice **"Fuera de plazo del área"** en vez de "Vencido".
+- Al tomar el reclamo se le asigna su área, así que siempre tiene plazo; sin área (un dato
+  viejo) se usa el plazo más corto de todas.
+- En toda la app (bandeja, mapa, tablero) se muestra **"Atrasado"** en vez de "Vencido"; el campo sigue siendo `vencido`.
 
 **Dónde.** Backend: `src/domain/prioridad.ts` (`estaVencido`), y cada reclamo trae el campo
 `vencido`. La app solo lo muestra en la bandeja, el mapa y el tablero.
@@ -108,3 +108,31 @@ hay cuenta, en lugar del formulario muestra el aviso y un botón **"Ir a iniciar
 
 **Dónde.** Backend: `src/services/auth.ts` (`dniRegistrado`) y `src/routes/auth.ts`. App:
 `mobile/services/auth.ts` (`dniRegistrado`) y `mobile/app/register.tsx`.
+
+## 6. Flujo de estados: los vecinos pueden cerrar, el municipio no elige el área
+
+**Decisión.**
+
+- **Confirmar:** alcanza 1 confirmación de otro vecino (`CONFIRMACIONES_NECESARIAS`; el autor
+  no cuenta) para pasar a `Confirmado por vecinos`.
+- **Ya no está:** con 10 votos (`VOTOS_YA_NO_ESTA_NECESARIOS`) el reclamo pasa solo a
+  `Resuelto` desde cualquier estado abierto, sin foto. No es un rechazo: se resolvió y el
+  municipio todavía no lo había actualizado. Cuenta como resuelto en las estadísticas.
+- **Tomar:** asigna sola el área de la categoría (cada categoría está en una sola área). El
+  admin ya no la elige; el área solo se usa para el plazo.
+- **Rechazar:** motivo de una lista fija (`MOTIVOS_RECHAZO`) en `motivoRechazoTipo`, y el
+  texto opcional en `motivoRechazo`. La app los muestra como "motivo: detalle".
+- **Mapa:** `GET /reclamos?mapa=1` omite los resueltos o rechazados hace más de 7 días
+  (`DIAS_CERRADO_EN_MAPA`, contados desde la entrada de cierre del historial). La lista y las
+  estadísticas siguen mostrándolos.
+- **Pantalla Reclamos (vecino):** la tab "Míos" pasó a "Reclamos" y lista todos; "Solo míos" filtra
+  en la app por autor. El detalle muestra "X de N vecinos confirmaron" mientras está Reportado.
+- **Textos de la app:** `Enviado al municipio` se muestra como "Tomado por el municipio" y
+  "Fuera de plazo del área" como "Atrasado"; los valores internos no cambian.
+
+**Por qué una columna aparte para el motivo.** Permite filtrar y contar por motivo sin
+parsear texto.
+
+**Dónde.** Backend: `src/domain/tipos.ts` (constantes), `src/domain/maquinaEstados.ts`
+(`decidirTomar`, `decidirResolverPorVecinos`, `decidirRechazar`) y `src/services/reclamos.ts`.
+App: `mobile/types/reclamo.ts` y `mobile/lib/maquinaEstados.ts`.

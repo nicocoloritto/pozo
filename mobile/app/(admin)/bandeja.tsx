@@ -16,17 +16,13 @@ import type { FiltrosMunicipio } from '../../lib/filtrosMunicipio';
 import { fotoSource } from '../../lib/fotoReclamo';
 import { resumenVerificacion } from '../../lib/verificacion';
 import { obtenerReclamosPorMunicipio } from '../../services/reclamos';
-import { CATEGORIAS_PELIGROSAS } from '../../types/reclamo';
 import type { Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
 type Segmento = 'nuevos' | 'gestion' | 'cerrados';
 
 function esNuevo(reclamo: Reclamo): boolean {
-  return (
-    reclamo.status === 'ConfirmadoPorVecinos' ||
-    (reclamo.status === 'Reportado' && CATEGORIAS_PELIGROSAS.includes(reclamo.category))
-  );
+  return reclamo.status === 'Reportado' || reclamo.status === 'ConfirmadoPorVecinos';
 }
 
 function esEnGestion(reclamo: Reclamo): boolean {
@@ -199,7 +195,7 @@ function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => voi
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Reclamo de ${categoryLabels[reclamo.category]} en ${reclamo.address ?? 'ubicación sin resolver'}${vencido ? ', vencido' : ''}${posiblementeResuelto ? ', posiblemente resuelto' : ''}`}
+      accessibilityLabel={`Reclamo de ${categoryLabels[reclamo.category]} en ${reclamo.address ?? 'ubicación sin resolver'}${vencido ? ', atrasado' : ''}${posiblementeResuelto ? ', posiblemente resuelto' : ''}`}
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}
     >
       <View style={styles.rowPhotoWrap}>
@@ -221,7 +217,7 @@ function BandejaRow({ reclamo, onPress }: { reclamo: Reclamo; onPress: () => voi
             )}
             {vencido && (
               <View style={styles.vencidoChip}>
-                <Text style={styles.vencidoChipText}>Vencido</Text>
+                <Text style={styles.vencidoChipText}>Atrasado</Text>
               </View>
             )}
           </View>

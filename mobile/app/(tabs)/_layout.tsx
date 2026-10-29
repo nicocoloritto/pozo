@@ -81,8 +81,8 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="mine"
         options={{
-          title: 'Míos',
-          tabBarAccessibilityLabel: 'Mis reclamos',
+          title: 'Reclamos',
+          tabBarAccessibilityLabel: 'Reclamos',
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} outline="document-text-outline" filled="document-text" />
           ),

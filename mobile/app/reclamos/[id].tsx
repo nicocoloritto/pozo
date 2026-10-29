@@ -24,6 +24,7 @@ import {
   ReclamoError,
   votarReclamo,
 } from '../../services/reclamos';
+import { CONFIRMACIONES_NECESARIAS } from '../../types/reclamo';
 import type { EstadoReclamo, Reclamo, TipoVoto } from '../../types/reclamo';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
@@ -216,10 +217,21 @@ export default function ReclamoDetail() {
           )}
         </View>
 
-        {fueRechazado && reclamo.motivoRechazo && (
+        {fueRechazado && (reclamo.motivoRechazoTipo || reclamo.motivoRechazo) && (
           <View style={styles.rechazadoBox}>
             <Text style={styles.rechazadoTitulo}>Este reclamo fue rechazado</Text>
-            <Text style={styles.rechazadoTexto}>{reclamo.motivoRechazo}</Text>
+            <Text style={styles.rechazadoTexto}>
+              {[reclamo.motivoRechazoTipo, reclamo.motivoRechazo].filter(Boolean).join(': ')}
+            </Text>
+          </View>
+        )}
+
+        {reclamo.status === 'Resuelto' && !fotoResolucionSource(reclamo) && (
+          <View style={styles.rechazadoBox}>
+            <Text style={styles.rechazadoTitulo}>Resuelto por los vecinos</Text>
+            <Text style={styles.rechazadoTexto}>
+              El problema ya no está (se resolvió y el municipio todavía no lo actualizó).
+            </Text>
           </View>
         )}
 
@@ -250,6 +262,18 @@ export default function ReclamoDetail() {
                 </View>
               ))}
             </View>
+          </>
+        )}
+
+        {reclamo.status === 'Reportado' && (
+          <>
+            <View style={styles.timelineHeading}>
+              <Text style={styles.sectionTitle}>Confirmaciones</Text>
+              <Text style={styles.timelineStep}>
+                {reclamo.confirmaciones.length} de {CONFIRMACIONES_NECESARIAS} vecinos confirmaron
+              </Text>
+            </View>
+            <ProgressBar value={reclamo.confirmaciones.length / CONFIRMACIONES_NECESARIAS} color={statusColors.Reportado} />
           </>
         )}
 

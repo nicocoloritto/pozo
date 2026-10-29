@@ -4,7 +4,7 @@ import { colors } from '../theme';
 export const statusLabels: Record<EstadoReclamo, string> = {
   Reportado: 'Reportado',
   ConfirmadoPorVecinos: 'Confirmado por vecinos',
-  EnviadoAlMunicipio: 'Enviado al municipio',
+  EnviadoAlMunicipio: 'Tomado por el municipio',
   EnReparacion: 'En reparación',
   Resuelto: 'Resuelto',
   Rechazado: 'Rechazado',

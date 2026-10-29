@@ -9,7 +9,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { aplicarFiltros, FILTROS_VACIOS, hayFiltrosActivos } from '../../lib/filtrosMunicipio';
 import type { FiltrosMunicipio } from '../../lib/filtrosMunicipio';
 import { mensajeDeError } from '../../lib/mensajeDeError';
-import { obtenerReclamosPorMunicipio } from '../../services/reclamos';
+import { obtenerReclamosParaMapa } from '../../services/reclamos';
 import type { Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
@@ -43,7 +43,7 @@ export default function MapaAdminScreen() {
 
   const cargar = useCallback(() => {
     if (!municipioId) return;
-    obtenerReclamosPorMunicipio()
+    obtenerReclamosParaMapa()
       .then((lista) => {
         setErrorCarga(null);
         setReclamos(lista);
@@ -109,7 +109,7 @@ export default function MapaAdminScreen() {
           <View style={[styles.legendDot, { backgroundColor: colors.pink }]}>
             <Ionicons name="alarm" size={9} color={colors.ink} />
           </View>
-          <Text style={styles.legendText}>Fuera de plazo del área</Text>
+          <Text style={styles.legendText}>Atrasado</Text>
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, { backgroundColor: colors.mandarin }]}>

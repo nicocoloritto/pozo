@@ -4,8 +4,8 @@
 // persiste. Separarla así también permite probarla sin AsyncStorage (ver
 // scripts/test-maquina-estados.ts).
 import { ReclamoError } from './reclamoError';
-import { CATEGORIAS_PELIGROSAS } from '../types/reclamo';
-import type { EstadoReclamo, Reclamo } from '../types/reclamo';
+import { CATEGORIAS_PELIGROSAS, MOTIVOS_RECHAZO, VOTOS_YA_NO_ESTA_NECESARIOS } from '../types/reclamo';
+import type { EstadoReclamo, MotivoRechazo, Reclamo } from '../types/reclamo';
 
 export type Decision = {
   status: EstadoReclamo;
@@ -13,7 +13,7 @@ export type Decision = {
   extra?: Partial<Reclamo>;
 };
 
-type ReclamoParaTransicion = Pick<Reclamo, 'status' | 'category' | 'areaAsignada'>;
+type ReclamoParaTransicion = Pick<Reclamo, 'status' | 'category'>;
 
 export function esEstadoFinal(status: EstadoReclamo): boolean {
   return status === 'Resuelto' || status === 'Rechazado';
@@ -21,8 +21,9 @@ export function esEstadoFinal(status: EstadoReclamo): boolean {
 
 // Confirmado por vecinos → Enviado al municipio (caso normal), o directamente
 // Reportado → Enviado al municipio si la categoría es peligrosa: ahí no se espera a
-// que junte confirmaciones.
-export function decidirTomar(reclamo: ReclamoParaTransicion): Decision {
+// que junte confirmaciones. Al tomar se asigna el área de la categoría (solo se usa para el
+// plazo).
+export function decidirTomar(reclamo: ReclamoParaTransicion, areaId: string | undefined): Decision {
   const esPeligrosoSinConfirmar =
     reclamo.status === 'Reportado' && CATEGORIAS_PELIGROSAS.includes(reclamo.category);
 
@@ -33,11 +34,14 @@ export function decidirTomar(reclamo: ReclamoParaTransicion): Decision {
     );
   }
 
+  if (!areaId) throw new ReclamoError('AREA_REQUIRED', 'No hay un área del municipio para esta categoría');
+
   return {
     status: 'EnviadoAlMunicipio',
     description: esPeligrosoSinConfirmar
       ? 'Tomado por el municipio (categoría peligrosa)'
       : 'Tomado por el municipio',
+    extra: { areaAsignada: areaId },
   };
 }
 
@@ -47,9 +51,6 @@ export function decidirPasarAReparacion(reclamo: ReclamoParaTransicion): Decisio
       'INVALID_TRANSITION',
       'El reclamo tiene que estar enviado al municipio para pasar a reparación'
     );
-  }
-  if (!reclamo.areaAsignada) {
-    throw new ReclamoError('AREA_REQUIRED', 'Asigná un área antes de pasar a reparación');
   }
   return { status: 'EnReparacion', description: 'En reparación' };
 }
@@ -64,16 +65,28 @@ export function decidirResolver(reclamo: ReclamoParaTransicion, fotoResolucion: 
   return { status: 'Resuelto', description: 'Resuelto', extra: { fotoResolucion } };
 }
 
-export function decidirRechazar(reclamo: ReclamoParaTransicion, motivo: string): Decision {
-  if (!motivo.trim()) {
-    throw new ReclamoError('MOTIVO_REQUIRED', 'El motivo de rechazo es obligatorio');
+// Al llegar a VOTOS_YA_NO_ESTA_NECESARIOS "Ya no está", un reclamo abierto pasa solo a Resuelto
+// (sin foto). Devuelve null si todavía no corresponde.
+export function decidirResolverPorVecinos(reclamo: ReclamoParaTransicion, votosYaNoEsta: number): Decision | null {
+  if (esEstadoFinal(reclamo.status) || votosYaNoEsta < VOTOS_YA_NO_ESTA_NECESARIOS) return null;
+  return {
+    status: 'Resuelto',
+    description: 'Resuelto por los vecinos: el problema ya no está (se resolvió y el municipio todavía no lo actualizó)',
+  };
+}
+
+// El motivo es uno de MOTIVOS_RECHAZO; el detalle es texto libre y opcional.
+export function decidirRechazar(reclamo: ReclamoParaTransicion, motivo: string, detalle = ''): Decision {
+  if (!MOTIVOS_RECHAZO.includes(motivo as MotivoRechazo)) {
+    throw new ReclamoError('MOTIVO_REQUIRED', 'Elegí un motivo de rechazo de la lista');
   }
   if (esEstadoFinal(reclamo.status)) {
     throw new ReclamoError('INVALID_TRANSITION', 'Este reclamo ya está cerrado');
   }
+  const texto = detalle.trim();
   return {
     status: 'Rechazado',
-    description: `Rechazado: ${motivo.trim()}`,
-    extra: { motivoRechazo: motivo.trim() },
+    description: `Rechazado: ${motivo}${texto ? `: ${texto}` : ''}`,
+    extra: { motivoRechazoTipo: motivo as MotivoRechazo, motivoRechazo: texto || undefined },
   };
 }

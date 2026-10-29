@@ -3,7 +3,7 @@ import Skeleton from './Skeleton';
 import { colors, radii, shadows, spacing } from '../theme';
 
 // Mismo layout que ReclamoCard (foto + 3 líneas), usado mientras carga el mapa o
-// "Mis reclamos".
+// "Reclamos".
 export default function ReclamoCardSkeleton() {
   return (
     <View style={styles.card}>

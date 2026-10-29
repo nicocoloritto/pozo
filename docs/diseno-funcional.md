@@ -28,16 +28,17 @@ para el municipio.
 ```
 Reportado → ConfirmadoPorVecinos → EnviadoAlMunicipio → EnReparacion → Resuelto
                   (cualquiera de los anteriores, salvo los finales) → Rechazado
+   (cualquiera de los abiertos, con 10 votos "Ya no está") → Resuelto
 ```
 
 | Estado | Quién lo produce | Cuándo |
 |---|---|---|
 | Reportado | Vecino | Al publicar |
-| Confirmado por vecinos | Automático | Al juntar **3 confirmaciones** de otros vecinos |
-| Enviado al municipio | Municipio | Lo toma (acción **Tomar**) |
-| En reparación | Municipio | Pasa a reparación; exige tener un **área asignada** |
-| Resuelto | Municipio | Exige la **foto del "después"** |
-| Rechazado | Municipio | Exige un **motivo** |
+| Confirmado por vecinos | Automático | Al juntar **1 confirmación** de otro vecino (el autor no cuenta) |
+| Enviado al municipio (en la app: "Tomado por el municipio") | Municipio | Lo toma (acción **Tomar**); se le asigna sola el área de su categoría |
+| En reparación | Municipio | Pasa a reparación |
+| Resuelto | Municipio, o los vecinos | El municipio exige la **foto del "después"**. Los vecinos lo resuelven solos con **10 votos "Ya no está"**, sin foto |
+| Rechazado | Municipio | Exige un **motivo de la lista** ("No corresponde al municipio", "No requiere arreglo", "Duplicado"), con un detalle de texto opcional |
 
 `Resuelto` y `Rechazado` son finales. Cada transición queda en el historial del reclamo con
 fecha y descripción, y es lo que se muestra como línea de tiempo. Las reglas viven en
@@ -84,10 +85,10 @@ La bandeja ordena por una **prioridad** que calcula el servidor en cada respuest
 
 La bandeja muestra la prioridad de cada reclamo y el detalle del municipio, el desglose.
 
-Un reclamo está **vencido** (en el mapa: "fuera de plazo del área") cuando el municipio ya lo
+Un reclamo está **atrasado** (en el código: `vencido`) cuando el municipio ya lo
 tomó (`Enviado al municipio` o `En reparación`) y, **desde que lo tomó**, pasaron más días que
-el plazo de su área. Si todavía no tiene área, se usa el plazo más corto de todas. Antes de
-ser tomado, o una vez cerrado, no corre plazo.
+el plazo de su área. El área se asigna sola al tomar, según la categoría; el admin no la elige.
+Antes de ser tomado, o una vez cerrado, no corre plazo.
 
 ## Pantallas
 
@@ -104,7 +105,7 @@ ser tomado, o una vez cerrado, no corre plazo.
 | Mapa | Todos los reclamos con filtros por categoría y estado. Los cercanos se agrupan en un círculo con la cantidad. Panel **"Cerca tuyo"**: reclamos activos a menos de 500 m, del más cercano al más lejano. |
 | Nuevo reclamo | Foto con la cámara (o galería), ubicación por GPS, categoría, severidad y notas. Si ya hay un reclamo abierto de la misma categoría a menos de 50 m, el servidor no lo publica y la app lo muestra para confirmarlo en lugar de duplicarlo (o publicar igual si es otro problema). Al publicar se genera el número de expediente. |
 | Detalle | Foto, mapa, dirección, barrio, expediente, días abierto, votos **"Sigue ahí" / "Ya no está"** y línea de tiempo. Con el reclamo resuelto muestra el antes y el después. |
-| Mis reclamos | Lista de los propios, con filtro por estado. |
+| Reclamos | Lista de todos los reclamos, con filtro por estado y "Solo míos" (los que reportó la persona). |
 | Barrio | Estadísticas del barrio (porcentaje resuelto, total, días promedio, posición entre los barrios, reclamos por categoría y evolución de 6 meses). |
 | Perfil | Datos personales (DNI enmascarado) y cerrar sesión. |
 
@@ -112,17 +113,20 @@ ser tomado, o una vez cerrado, no corre plazo.
 
 | Pantalla | Comportamiento |
 |---|---|
-| Bandeja | Tres segmentos (Nuevos, En gestión, Cerrados), búsqueda por dirección y filtros por barrio, comuna, categoría y área. Orden por prioridad y marca de vencido. |
-| Mapa | Los mismos filtros, con marca visual para vencidos y peligrosos y una tarjeta que abre el detalle. |
-| Tablero | Reclamos abiertos que requieren seguimiento, nuevos sin tomar, vencidos, porcentaje resuelto, días promedio, reclamos por área y por estado. |
-| Detalle con gestión | Acciones: **Tomar, Asignar área, Fecha estimada, Pasar a reparación, Resolver, Rechazar**. Notas públicas del expediente. |
+| Bandeja | Tres segmentos (Nuevos: Reportado y Confirmado, En gestión, Cerrados), búsqueda por dirección y filtros por barrio, comuna, categoría y área. Orden por prioridad y marca de atrasado. |
+| Mapa | Los mismos filtros, con marca visual para atrasados y peligrosos y una tarjeta que abre el detalle. No muestra los resueltos o rechazados hace más de 7 días. |
+| Tablero | Reclamos abiertos que requieren seguimiento, nuevos sin tomar, atrasados, porcentaje resuelto, días promedio, reclamos por área y por estado. |
+| Detalle con gestión | Las acciones dependen del estado. Nuevos (Reportado, Confirmado): **Tomar** (solo si está confirmado o es peligroso) y **Rechazar**. Tomado por el municipio: **Pasar a reparación** y **Rechazar**. En reparación: **Fecha estimada**, **Resolver** y **Rechazar**. Cerrados: sin acciones; se ve el motivo del rechazo o que lo resolvieron los vecinos. Notas públicas del expediente. |
 | Perfil | Datos del admin y del municipio. |
 
 ## Votos "Sigue ahí" / "Ya no está"
 
 Los vecinos confirman que un reclamo sigue ahí o avisan que ya no está. Un vecino está en una
 lista o en la otra, nunca en las dos. Si hay **3 o más** "Ya no está" y más que "Sigue ahí",
-el reclamo se marca como **posiblemente resuelto** (`mobile/lib/verificacion.ts`).
+el reclamo se marca como **posiblemente resuelto** (`mobile/lib/verificacion.ts`). Al llegar a
+**10** "Ya no está", un reclamo abierto pasa solo a `Resuelto` y queda en el historial como
+"Resuelto por los vecinos: el problema ya no está (se resolvió y el municipio todavía no lo
+actualizó)". Cuenta como resuelto en las estadísticas.
 
 ## Origen de la ubicación de una foto
 
@@ -141,7 +145,7 @@ cada reclamo guarda de dónde salió su ubicación (`locationSource`):
 3. El vecino no escribe la ubicación a mano: sale del GPS o del EXIF de la foto.
 4. "Cerca tuyo" lista reclamos activos a menos de 500 m, ordenados por distancia.
 5. Solo el municipio mueve un reclamo de `Confirmado por vecinos` en adelante.
-6. Resolver exige foto del "después"; rechazar exige motivo; pasar a reparación exige área.
+6. Resolver exige foto del "después"; rechazar exige un motivo de la lista; la fecha estimada solo se define en reparación.
 7. Un reclamo cerrado (`Resuelto` o `Rechazado`) no cambia más de estado.
 
 ## Fuera de alcance por ahora

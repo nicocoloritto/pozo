@@ -15,8 +15,9 @@ evidencia, y le cuesta decidir qué atender primero.
 
 Pozo resuelve las dos puntas. El **vecino** reporta con una foto sacada con la cámara de la
 app y la ubicación real del teléfono, así cada reclamo llega con evidencia y coordenadas. Los
-demás vecinos lo **confirman** con un toque: cuando junta suficientes confirmaciones, el
-reclamo pasa a ser un pedido validado por la comunidad. A cada reclamo se le arma un
+demás vecinos lo **confirman** con un toque: con la confirmación de otro vecino, el
+reclamo pasa a ser un pedido validado por la comunidad. Si 10 vecinos avisan que **ya no
+está**, se da por resuelto solo. A cada reclamo se le arma un
 **expediente** con número de caso, historial de estados y fechas, que el vecino puede seguir
 hasta que se resuelve.
 
@@ -24,8 +25,8 @@ Del otro lado, el **municipio** tiene su propio panel dentro de la misma app: un
 priorizada (categorías peligrosas, severidad, confirmaciones y antigüedad; ver
 [decisiones](docs/decisiones.md)), un mapa con
 todos los reclamos, un tablero con estadísticas y las herramientas para gestionarlos
-(asignar un área, fijar una fecha estimada, pasar a reparación, resolver con foto del
-"después" o rechazar con motivo). Se avisa cuando un reclamo está vencido respecto del plazo
+(tomarlo, fijar una fecha estimada, pasar a reparación, resolver con foto del
+"después" o rechazar con un motivo de una lista). Se avisa cuando un reclamo está atrasado respecto del plazo
 de su área.
 
 ## Equipo
@@ -58,23 +59,25 @@ de su área.
   categoría a menos de 50 metros, el servidor no lo publica y la app lo muestra para
   confirmarlo en lugar de duplicarlo.
   Si es un reclamo del propio usuario, se lo avisa.
-- **Mapa:** todos los reclamos, con filtros por categoría y estado. Los reclamos muy
+- **Mapa:** todos los reclamos (los resueltos o rechazados hace más de 7 días ya no se
+  muestran), con filtros por categoría y estado. Los reclamos muy
   cercanos se agrupan en un círculo con la cantidad; al tocarlo, el mapa hace zoom hasta
   separarlos. Si están en el mismo punto exacto, se muestra una lista para elegir cuál abrir.
 - **Confirmar reclamos de otros vecinos** (una vez por persona, nunca el propio).
-- **Mis reclamos y detalle:** línea de tiempo del expediente, foto, mapa, antes y después
-  cuando se resuelve.
+- **Reclamos y detalle:** lista de todos los reclamos, con filtro por estado y "Solo míos".
+  El detalle muestra la línea de tiempo del expediente, foto, mapa, antes y después cuando se
+  resuelve, y cuántos vecinos confirmaron mientras está Reportado.
 - **Estadísticas por barrio.**
 
 ### Municipio
 
 - **Bandeja** con tres segmentos (Nuevos, En gestión, Cerrados), búsqueda por dirección y
-  filtros por barrio, comuna, categoría y área. Orden por prioridad y marca de **vencido**.
-- **Mapa** con los mismos filtros, marca visual para los reclamos vencidos y los peligrosos, y
+  filtros por barrio, comuna, categoría y área. Orden por prioridad y marca de **atrasado**.
+- **Mapa** con los mismos filtros, marca visual para los reclamos atrasados y los peligrosos, y
   una tarjeta que abre el detalle con gestión.
-- **Gestión del reclamo:** tomar, asignar área, fijar fecha estimada, pasar a reparación,
-  resolver (la foto del "después" es obligatoria), rechazar (el motivo es obligatorio) y
-  agregar notas públicas.
+- **Gestión del reclamo:** tomar (se asigna sola el área de su categoría), fijar fecha
+  estimada, pasar a reparación, resolver (la foto del "después" es obligatoria), rechazar
+  (motivo de una lista fija, más un detalle opcional) y agregar notas públicas.
 - **Tablero** con estadísticas del municipio.
 
 ### Circuito de estados de un reclamo
@@ -82,11 +85,15 @@ de su área.
 ```mermaid
 stateDiagram-v2
     [*] --> Reportado: el vecino publica
-    Reportado --> ConfirmadoPorVecinos: 3 confirmaciones de otros vecinos
+    Reportado --> ConfirmadoPorVecinos: 1 confirmación de otro vecino
     Reportado --> EnviadoAlMunicipio: el municipio lo toma (categoría peligrosa)
     ConfirmadoPorVecinos --> EnviadoAlMunicipio: el municipio lo toma
-    EnviadoAlMunicipio --> EnReparacion: se asigna un área
+    EnviadoAlMunicipio --> EnReparacion: el municipio lo pasa a reparación
     EnReparacion --> Resuelto: foto del "después"
+    Reportado --> Resuelto: 10 "ya no está"
+    ConfirmadoPorVecinos --> Resuelto: 10 "ya no está"
+    EnviadoAlMunicipio --> Resuelto: 10 "ya no está"
+    EnReparacion --> Resuelto: 10 "ya no está"
     Reportado --> Rechazado: con motivo
     ConfirmadoPorVecinos --> Rechazado: con motivo
     EnviadoAlMunicipio --> Rechazado: con motivo
@@ -97,8 +104,9 @@ stateDiagram-v2
 
 Los dos primeros estados los produce el vecino; del tercero en adelante los cambia solo el
 municipio. Las categorías peligrosas (poste caído, árbol caído, corte de luz o agua y
-semáforo) pueden pasar directo al municipio sin esperar confirmaciones. `Resuelto` y
-`Rechazado` son estados finales.
+semáforo) pueden pasar directo al municipio sin esperar confirmaciones. Con 10 votos "ya no
+está" un reclamo abierto pasa solo a `Resuelto` (sin foto). `Resuelto` y `Rechazado` son
+estados finales. En la app, `EnviadoAlMunicipio` se muestra como "Tomado por el municipio".
 
 ## Stack y decisiones técnicas
 
@@ -137,7 +145,7 @@ Decisiones:
 ```
 mobile/
   app/             Pantallas y rutas (expo-router)
-    (tabs)/        Tabs del vecino: Mapa, Mis reclamos, Nuevo, Barrio, Perfil
+    (tabs)/        Tabs del vecino: Mapa, Reclamos, Nuevo, Barrio, Perfil
     (admin)/       Tabs del municipio: Bandeja, Mapa, Tablero, Perfil
     reclamos/      Nuevo reclamo, reclamo publicado y detalle del vecino
     admin-reclamo/ Detalle con gestión del municipio

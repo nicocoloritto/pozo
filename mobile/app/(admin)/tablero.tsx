@@ -121,7 +121,7 @@ export default function TableroScreen() {
 
         <View style={styles.statGrid}>
           <StatCard label="Nuevos sin tomar" value={String(nuevosSinTomar)} />
-          <StatCard label="Vencidos" value={String(vencidos)} resaltar={vencidos > 0} />
+          <StatCard label="Atrasados" value={String(vencidos)} resaltar={vencidos > 0} />
           <StatCard label="% Resuelto" value={`${porcentajeResuelto}%`} />
           <StatCard label="Días promedio" value={String(diasPromedio)} />
         </View>
