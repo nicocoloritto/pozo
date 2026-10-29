@@ -25,6 +25,7 @@ export type AuthErrorCode =
   | 'EMAIL_NOT_FOUND'
   | 'WRONG_PASSWORD'
   | 'INVALID_INPUT'
+  | 'TOO_MANY_ATTEMPTS'
   | 'NETWORK'
   | 'SERVER';
 
@@ -34,6 +35,7 @@ const CODIGOS: AuthErrorCode[] = [
   'EMAIL_NOT_FOUND',
   'WRONG_PASSWORD',
   'INVALID_INPUT',
+  'TOO_MANY_ATTEMPTS',
   'NETWORK',
 ];
 
@@ -133,6 +135,18 @@ export async function verificarSesion(): Promise<User | null> {
     if (!(err instanceof ApiError && err.code === 'NETWORK')) devLog('auth.verificarSesion:fallo', err);
     return null;
   }
+}
+
+// Elimina la cuenta propia en el servidor (borra los datos personales; los reclamos quedan sin
+// nombre) y descarta la sesión de este teléfono. Si el servidor no la elimina, tira y no se
+// toca la sesión.
+export async function eliminarCuenta(): Promise<void> {
+  try {
+    await llamar<void>('/auth/cuenta', { metodo: 'DELETE' });
+  } catch (err) {
+    throw comoAuthError(err);
+  }
+  await cerrarSesion();
 }
 
 export async function cerrarSesion(): Promise<void> {

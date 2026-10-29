@@ -73,7 +73,7 @@ export function alSesionVencida(callback: (() => void) | null): void {
 }
 
 type Opciones = {
-  metodo?: 'GET' | 'POST' | 'PUT';
+  metodo?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   cuerpo?: unknown;
   formData?: FormData;
   // Login y registro: un 401 ahí es "contraseña incorrecta", no una sesión vencida.
