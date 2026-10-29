@@ -2,7 +2,7 @@
 
 Qué hace la app y qué reglas cumple. Describe el comportamiento actual de `mobile/`; si el
 código y este documento se contradicen, manda el código. Para las capturas ver el
-[README](../README.md#capturas).
+[docs/capturas](capturas/).
 
 ## Idea
 
@@ -67,8 +67,8 @@ interna: solo la usa el gráfico por área del tablero.
 
 ## Severidad
 
-El vecino elige **Baja, Media o Alta** al reportar. No cambia el estado; suma poco a la
-prioridad (ver abajo).
+El vecino elige **Baja, Media o Alta** al reportar. No cambia el estado ni suma a la prioridad:
+define el semáforo de la bandeja del municipio (ver abajo).
 
 Las decisiones detrás de prioridad, atraso, duplicados y registro están explicadas en
 [decisiones.md](decisiones.md).
@@ -114,7 +114,7 @@ tablero, no en el mapa.
 | Detalle | Foto, mapa, dirección, barrio, expediente, días abierto, votos **"Sigue ahí" / "Ya no está"** y línea de tiempo. Con el reclamo resuelto muestra el antes y el después. |
 | Reclamos | Lista de todos los reclamos, con filtro por estado y "Solo míos" (los que reportó la persona). |
 | Barrio | Estadísticas del barrio (porcentaje resuelto, total, días promedio, posición entre los barrios, reclamos por categoría y evolución de 6 meses). |
-| Perfil | Datos personales (DNI enmascarado) y cerrar sesión. |
+| Perfil | Datos personales (DNI enmascarado), cerrar sesión y eliminar la cuenta (se borran los datos personales y el DNI queda libre; los reclamos siguen, sin nombre). |
 
 ### Municipio
 
@@ -122,7 +122,7 @@ tablero, no en el mapa.
 |---|---|
 | Bandeja | Tres segmentos (Nuevos: Reportado y Confirmado, En gestión, Cerrados), búsqueda por dirección y filtros por barrio, comuna y categoría. Orden por semáforo de peligrosidad y, dentro de cada nivel, por puntaje. Chip de atrasado. |
 | Mapa | Los mismos filtros más **Sección** (Nuevos / En gestión / Cerrados), que solo está en el mapa. Los pines se pintan según la sección (Nuevos mandarina, En gestión cobalto, Cerrados lima) y la leyenda muestra esos tres colores. Los cerrados son los de los últimos 7 días. Una tarjeta abre el detalle. |
-| Tablero | Reclamos abiertos que requieren seguimiento, nuevos sin tomar, atrasados (fecha estimada vencida), porcentaje resuelto, días promedio, reclamos por área y por estado. |
+| Tablero | Reclamos abiertos que requieren seguimiento, nuevos sin tomar, atrasados (fecha estimada vencida), porcentaje resuelto, días promedio, reclamos por área y por estado, evolución de los últimos 6 meses y ranking de barrios por porcentaje de resolución. |
 | Detalle con gestión | Las acciones dependen del estado. Nuevos (Reportado, Confirmado): **Tomar** (solo si está confirmado o es peligroso) y **Rechazar**. Tomado por el municipio: **Pasar a reparación** (en el mismo paso se elige la fecha estimada) y **Rechazar**. En reparación: **Cambiar fecha**, **Resuelto** (pide la foto del después, con la cámara) y **Rechazar**; si la fecha ya pasó, el detalle muestra "Atrasado" junto a ella. Cerrados: sin acciones; se ve el motivo del rechazo o que lo resolvieron los vecinos. Notas públicas del expediente. |
 | Perfil | Datos del admin y del municipio. |
 
@@ -148,12 +148,12 @@ es `Device` (GPS del dispositivo al sacar la foto). El servidor todavía acepta 
 2. Un reclamo necesita foto y coordenadas para publicarse.
 3. El vecino no escribe la ubicación a mano: sale del GPS del dispositivo al sacar la foto.
 4. "Cerca tuyo" lista reclamos activos a menos de 500 m, ordenados por distancia.
-5. Solo el municipio mueve un reclamo de `Confirmado por vecinos` en adelante.
+5. Solo el municipio mueve un reclamo de `Confirmado por vecinos` en adelante, salvo que los vecinos lo resuelvan con "Ya no está".
 6. Resolver exige foto del "después"; rechazar exige un motivo de la lista; pasar a reparación exige la fecha estimada, que no puede ser anterior a hoy y solo se cambia mientras se repara.
 7. Un reclamo cerrado (`Resuelto` o `Rechazado`) no cambia más de estado.
 
 ## Fuera de alcance por ahora
 
-Backend real y base de datos del municipio, notificaciones push, varios municipios,
-almacenamiento de fotos en un servidor y modo sin conexión. Ver "Próximos pasos" en el
-[README](../README.md#próximos-pasos).
+Notificaciones push, que el municipio cargue y mantenga sus propias áreas y barrios, más de un
+municipio (hoy el backend carga solo CABA), el despliegue del backend (hoy corre en local) y el
+modo sin conexión.
