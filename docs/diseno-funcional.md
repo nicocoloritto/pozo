@@ -17,7 +17,7 @@ Dos roles con cuentas separadas (`mobile/types/user.ts`):
 - **Vecino:** reporta, confirma y sigue reclamos. Se registra escaneando el **PDF417** del
   dorso del DNI con la cámara; no escribe sus datos a mano.
 - **Admin (municipio):** gestiona los reclamos de su municipio. No se registra desde la app:
-  existe como dato de prueba (`mobile/data/usuarios-admin.json`). Hoy hay un solo municipio
+  existe como dato de prueba del backend (`prisma/data/usuarios-admin.json` en pozo-backend). Hoy hay un solo municipio
   (CABA).
 
 Según el rol, la sesión abre un grupo de tabs distinto: `(tabs)` para el vecino y `(admin)`
@@ -52,7 +52,7 @@ Poste caído, árbol o rama caída, corte de luz o agua y semáforo pueden pasar
 
 Nueve categorías: pozo, vereda, semáforo, luminaria, poste, árbol o rama caída, zanja,
 luz/agua y residuos. Cada una pertenece a **un área** del municipio, y cada área tiene un
-**plazo máximo** en días (`mobile/data/areas.json`):
+**plazo máximo** en días (`prisma/data/areas.json` en pozo-backend):
 
 | Área | Categorías | Plazo |
 |---|---|---|

@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PressableScale from '../../components/PressableScale';
 import { useAuth } from '../../contexts/AuthContext';
@@ -25,9 +25,27 @@ function Dato({ etiqueta, valor }: DatoProps) {
 }
 
 export default function ProfileScreen() {
-  const { user, cerrarSesion } = useAuth();
+  const { user, cerrarSesion, eliminarCuenta } = useAuth();
 
   if (!user || user.rol !== 'vecino') return null;
+
+  function confirmarEliminarCuenta() {
+    Alert.alert(
+      'Eliminar mi cuenta',
+      'Se borran tus datos personales y no vas a poder volver a entrar con esta cuenta. Tus reclamos siguen visibles para los vecinos y el municipio, sin tu nombre. No se puede deshacer.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: () =>
+            eliminarCuenta().catch((err) =>
+              Alert.alert('No se pudo eliminar la cuenta', err instanceof Error ? err.message : 'Probá de nuevo.')
+            ),
+        },
+      ]
+    );
+  }
 
   const iniciales = `${user.firstName[0] ?? ''}${user.lastName[0] ?? ''}`.toUpperCase();
 
@@ -66,6 +84,15 @@ export default function ProfileScreen() {
           style={styles.logoutButton}
         >
           <Text style={styles.logoutButtonText}>Cerrar sesión</Text>
+        </PressableScale>
+
+        <PressableScale
+          accessibilityRole="button"
+          accessibilityLabel="Eliminar mi cuenta"
+          onPress={confirmarEliminarCuenta}
+          style={styles.deleteButton}
+        >
+          <Text style={styles.deleteButtonText}>Eliminar mi cuenta</Text>
         </PressableScale>
       </ScrollView>
     </SafeAreaView>
@@ -168,5 +195,16 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodyBold,
     fontSize: fontSizes.sm,
     color: colors.pinkDeep,
+  },
+  deleteButton: {
+    marginHorizontal: spacing.lg,
+    padding: spacing.md,
+    alignItems: 'center',
+  },
+  deleteButtonText: {
+    fontFamily: fonts.bodyMedium,
+    fontSize: fontSizes.sm,
+    color: colors.inkSoft,
+    textDecorationLine: 'underline',
   },
 });

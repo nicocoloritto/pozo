@@ -12,6 +12,7 @@ type AuthContextValue = {
   registrar: (input: RegisterInput) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   cerrarSesion: () => Promise<void>;
+  eliminarCuenta: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -89,6 +90,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       async cerrarSesion() {
         await authService.cerrarSesion();
+        setUser(null);
+      },
+      async eliminarCuenta() {
+        await authService.eliminarCuenta();
         setUser(null);
       },
     }),

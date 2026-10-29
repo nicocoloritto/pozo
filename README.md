@@ -122,8 +122,9 @@ Decisiones:
 - **Reglas de negocio puras.** La máquina de estados (`lib/maquinaEstados.ts`) y la distancia
   entre reclamos (`lib/distancia.ts`) son funciones sin efectos, fáciles de probar. La
   prioridad y el vencimiento los calcula el servidor y llegan en cada reclamo.
-- **Datos de prueba en JSON.** Usuarios, reclamos, barrios y áreas se cargan una sola vez
-  desde `mobile/data/` y nunca pisan lo que ya está guardado.
+- **Datos de prueba en el servidor.** Usuarios, reclamos, barrios y áreas de ejemplo los carga
+  el backend con `npm run setup` (están en su carpeta `prisma/data`); la app ya no trae datos
+  propios.
 - **Sesión hidratada.** `AuthProvider` lee el token y el usuario guardados al montar, y
   recién entonces marca `isHydrated`; nada se escribe antes de eso.
 - **Tokens de diseño.** Colores, tipografías y espaciado salen de `mobile/theme/`; no hay
@@ -236,6 +237,11 @@ registrado, la app pide iniciar sesión en vez de crear otra.
 Las cuentas y los reclamos viven en el servidor: cerrar sesión solo descarta la sesión en el
 teléfono y no borra nada, así que se puede publicar un reclamo como `vecino1` y gestionarlo
 después como `admin@caba.gob.ar`, desde cualquier teléfono conectado al mismo servidor.
+
+Un vecino puede **eliminar su cuenta** desde Perfil → "Eliminar mi cuenta": se borran sus datos
+personales y el DNI queda libre para registrarse de nuevo, pero sus reclamos siguen, sin su
+nombre, porque el municipio y otros vecinos trabajan sobre ellos. Después de 5 contraseñas
+incorrectas seguidas, el servidor bloquea el login de esa cuenta por 15 minutos.
 
 ## Próximos pasos
 
