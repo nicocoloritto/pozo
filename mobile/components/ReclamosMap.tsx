@@ -8,7 +8,7 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import type { Region } from 'react-native-maps';
 import Supercluster from 'supercluster';
 import { categoryLabels } from '../constants/categories';
-import { CATEGORIAS_PELIGROSAS } from '../types/reclamo';
+import { seccionDe } from '../lib/filtrosMunicipio';
 import type { Reclamo } from '../types/reclamo';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../theme';
 import PressableScale from './PressableScale';
@@ -34,7 +34,7 @@ const MAX_ZOOM = 19;
 // supercluster trabaja con tiles de 512 px: lo usamos para pasar de región a zoom y volver.
 const TILE_SIZE = 512;
 
-type PuntoProps = { id: string; vencido: number; peligroso: number };
+type PuntoProps = { id: string };
 
 function regionAZoom(region: Region, anchoPx: number): number {
   return Math.log2((360 * anchoPx) / (TILE_SIZE * region.longitudeDelta));
@@ -50,7 +50,7 @@ type Tarjeta = { tipo: 'uno'; reclamo: Reclamo } | { tipo: 'lista'; reclamos: Re
 type Props = {
   reclamos: Reclamo[];
   loading?: boolean;
-  // Mapa del municipio: marca los reclamos vencidos y los de categoría peligrosa.
+  // Mapa del municipio: pinta cada reclamo con el color de su sección de la bandeja.
   modoMunicipio?: boolean;
   // Vecino: al conseguir la ubicación por primera vez, centra el mapa ahí (una sola vez,
   // y solo si la persona todavía no movió el mapa).
@@ -162,29 +162,20 @@ export default function ReclamosMap({
   );
 
   const index = useMemo(() => {
-    const sc = new Supercluster<PuntoProps, { vencido: number; peligroso: number }>({
+    const sc = new Supercluster<PuntoProps>({
       radius: 60,
       maxZoom: MAX_ZOOM,
       minPoints: 2,
-      map: (p) => ({ vencido: p.vencido, peligroso: p.peligroso }),
-      reduce: (acc, p) => {
-        acc.vencido += p.vencido;
-        acc.peligroso += p.peligroso;
-      },
     });
     sc.load(
       reclamos.map((r) => ({
         type: 'Feature' as const,
-        properties: {
-          id: r.id,
-          vencido: modoMunicipio && r.vencido ? 1 : 0,
-          peligroso: modoMunicipio && CATEGORIAS_PELIGROSAS.includes(r.category) ? 1 : 0,
-        },
+        properties: { id: r.id },
         geometry: { type: 'Point' as const, coordinates: [r.longitude, r.latitude] },
       }))
     );
     return sc;
-  }, [reclamos, modoMunicipio]);
+  }, [reclamos]);
 
   // Zoom mínimo (desde 15, para no alejarse de más) en el que el reclamo es un marcador
   // individual y no parte de un grupo. Si comparte punto exacto con otro reclamo no se
@@ -310,7 +301,7 @@ export default function ReclamosMap({
           {items.map((item) => {
             const [longitude, latitude] = item.geometry.coordinates;
             if ('cluster' in item.properties && item.properties.cluster) {
-              const { cluster_id, point_count, vencido, peligroso } = item.properties;
+              const { cluster_id, point_count } = item.properties;
               return (
                 <PinMarker
                   key={`c-${cluster_id}`}
@@ -318,15 +309,15 @@ export default function ReclamosMap({
                   refId={String(cluster_id)}
                   latitude={latitude}
                   longitude={longitude}
-                  version={`${point_count}-${vencido}-${peligroso}`}
+                  version={`${point_count}`}
                   label={`Grupo de ${point_count} reclamos`}
                   onPressMarker={handleMarkerPress}
                 >
-                  <ClusterBubble count={point_count} vencido={vencido > 0} peligroso={peligroso > 0} />
+                  <ClusterBubble count={point_count} neutro={modoMunicipio} />
                 </PinMarker>
               );
             }
-            const { id, vencido, peligroso } = item.properties as PuntoProps;
+            const { id } = item.properties as PuntoProps;
             const reclamo = reclamosPorId.get(id);
             if (!reclamo) return null;
             return (
@@ -336,22 +327,12 @@ export default function ReclamosMap({
                 refId={reclamo.id}
                 latitude={latitude}
                 longitude={longitude}
-                version={`${reclamo.status}-${reclamo.category}-${vencido}-${peligroso}`}
+                version={`${reclamo.status}-${reclamo.category}`}
                 label={`Reclamo: ${categoryLabels[reclamo.category]} en ${reclamo.address ?? 'ubicación sin resolver'}`}
                 onPressMarker={handleMarkerPress}
               >
                 <View style={styles.pinPad}>
-                  <ReclamoMarker reclamo={reclamo} />
-                  {vencido > 0 && (
-                    <View style={[styles.badge, styles.badgeVencido]}>
-                      <Ionicons name="alarm" size={11} color={colors.ink} />
-                    </View>
-                  )}
-                  {peligroso > 0 && (
-                    <View style={[styles.badge, styles.badgePeligroso]}>
-                      <Ionicons name="warning" size={11} color={colors.ink} />
-                    </View>
-                  )}
+                  <ReclamoMarker reclamo={reclamo} seccion={modoMunicipio ? seccionDe(reclamo) : undefined} />
                 </View>
               </PinMarker>
             );
@@ -395,7 +376,7 @@ export default function ReclamosMap({
             accessibilityRole="button"
             accessibilityLabel={`Ver reclamo de ${categoryLabels[tarjeta.reclamo.category]}`}
           >
-            <FilaReclamo reclamo={tarjeta.reclamo} />
+            <FilaReclamo reclamo={tarjeta.reclamo} modoMunicipio={modoMunicipio} />
           </PressableScale>
         </Animated.View>
       )}
@@ -421,7 +402,7 @@ export default function ReclamosMap({
                 accessibilityRole="button"
                 accessibilityLabel={`Ver reclamo de ${categoryLabels[reclamo.category]}`}
               >
-                <FilaReclamo reclamo={reclamo} />
+                <FilaReclamo reclamo={reclamo} modoMunicipio={modoMunicipio} />
               </Pressable>
             ))}
           </ScrollView>
@@ -431,11 +412,11 @@ export default function ReclamosMap({
   );
 }
 
-function FilaReclamo({ reclamo }: { reclamo: Reclamo }) {
+function FilaReclamo({ reclamo, modoMunicipio }: { reclamo: Reclamo; modoMunicipio: boolean }) {
   return (
     <>
       <View style={styles.selectedPhotoWrap}>
-        <ReclamoMarker reclamo={reclamo} size={44} />
+        <ReclamoMarker reclamo={reclamo} size={44} seccion={modoMunicipio ? seccionDe(reclamo) : undefined} />
       </View>
       <View style={styles.selectedBody}>
         <Text style={styles.selectedTitle} numberOfLines={1}>
@@ -453,17 +434,13 @@ function FilaReclamo({ reclamo }: { reclamo: Reclamo }) {
   );
 }
 
-function ClusterBubble({ count, vencido, peligroso }: { count: number; vencido: boolean; peligroso: boolean }) {
+// En el mapa del municipio el grupo es neutro: mezcla reclamos de distintas secciones.
+function ClusterBubble({ count, neutro }: { count: number; neutro?: boolean }) {
   return (
     <View style={styles.pinPad}>
-      <View style={[styles.cluster, vencido && styles.clusterVencido]}>
+      <View style={[styles.cluster, neutro && styles.clusterNeutro]}>
         <Text style={styles.clusterText}>{count}</Text>
       </View>
-      {peligroso && (
-        <View style={[styles.badge, styles.badgePeligroso]}>
-          <Ionicons name="warning" size={11} color={colors.ink} />
-        </View>
-      )}
     </View>
   );
 }
@@ -549,26 +526,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  badge: {
-    position: 'absolute',
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 2,
-    borderColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  badgeVencido: {
-    top: 0,
-    right: 0,
-    backgroundColor: colors.pink,
-  },
-  badgePeligroso: {
-    top: 0,
-    left: 0,
-    backgroundColor: colors.mandarin,
-  },
   cluster: {
     minWidth: 42,
     height: 42,
@@ -580,8 +537,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  clusterVencido: {
-    backgroundColor: colors.pink,
+  clusterNeutro: {
+    backgroundColor: colors.inkMuted,
   },
   clusterText: {
     fontFamily: fonts.display,

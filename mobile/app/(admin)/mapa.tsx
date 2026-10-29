@@ -5,16 +5,17 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import FiltrosMunicipioModal from '../../components/FiltrosMunicipioModal';
 import ReclamosMap from '../../components/ReclamosMap';
+import { seccionColors, seccionLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
 import { aplicarFiltros, FILTROS_VACIOS, hayFiltrosActivos } from '../../lib/filtrosMunicipio';
-import type { FiltrosMunicipio } from '../../lib/filtrosMunicipio';
+import type { FiltrosMunicipio, Seccion } from '../../lib/filtrosMunicipio';
 import { mensajeDeError } from '../../lib/mensajeDeError';
 import { obtenerReclamosParaMapa } from '../../services/reclamos';
 import type { Reclamo } from '../../types/reclamo';
 import { colors, fonts, fontSizes, radii, shadows, spacing } from '../../theme';
 
 // Mapa del municipio: el mismo mapa del vecino con todos los reclamos del municipio, los
-// mismos filtros que la Bandeja, y marcas para los vencidos y los peligrosos. La tarjeta
+// mismos filtros que la Bandeja, y pines pintados según la sección de la bandeja. La tarjeta
 // del marcador abre el Detalle con gestión.
 export default function MapaAdminScreen() {
   const router = useRouter();
@@ -105,18 +106,12 @@ export default function MapaAdminScreen() {
       </View>
 
       <View style={styles.legend}>
-        <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: colors.pink }]}>
-            <Ionicons name="alarm" size={9} color={colors.ink} />
+        {(Object.keys(seccionLabels) as Seccion[]).map((seccion) => (
+          <View key={seccion} style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: seccionColors[seccion] }]} />
+            <Text style={styles.legendText}>{seccionLabels[seccion]}</Text>
           </View>
-          <Text style={styles.legendText}>Atrasado</Text>
-        </View>
-        <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: colors.mandarin }]}>
-            <Ionicons name="warning" size={9} color={colors.ink} />
-          </View>
-          <Text style={styles.legendText}>Peligroso</Text>
-        </View>
+        ))}
       </View>
 
       {avisoFiltros && (
@@ -147,6 +142,7 @@ export default function MapaAdminScreen() {
       <FiltrosMunicipioModal
         visible={filtrosAbiertos}
         municipioId={municipioId}
+        conSeccion
         filtros={filtros}
         onClose={() => setFiltrosAbiertos(false)}
         onApply={setFiltros}

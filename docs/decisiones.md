@@ -3,31 +3,29 @@
 Qué decidimos, por qué y dónde está en el código. Una entrada por tema; si una decisión
 cambia, se edita su entrada (no se agrega otra al final).
 
-## 1. Vencido: el plazo corre desde que el municipio toma el reclamo
+## 1. Atrasado: la fecha estimada ya pasó
 
-**Problema.** El plazo del área se contaba desde que se creó el reclamo. Un bache que esperó
-20 días a juntar confirmaciones aparecía vencido el mismo día en que el municipio lo tomaba.
+**Problema.** Antes el atraso dependía de un plazo por área contado desde la toma. Era una
+regla que nadie del municipio podía ver ni ajustar reclamo por reclamo.
 
-**Decisión.** El plazo se cuenta desde el primer `Enviado al municipio` del historial. Si un
-reclamo viejo no tiene ese cambio en el historial, se usa la fecha de creación.
+**Decisión.** Un reclamo está **atrasado** si tiene fecha estimada, esa fecha ya pasó (un día
+completo después) y todavía no está cerrado. Ya no depende del plazo del área, que se borró.
 
-- Solo corre en `Enviado al municipio` y `En reparación`. Antes de la toma no hay nadie
-  responsable; después de `Resuelto` o `Rechazado`, está cerrado.
-- Al tomar el reclamo se le asigna su área, así que siempre tiene plazo; sin área (un dato
-  viejo) se usa el plazo más corto de todas.
-- En toda la app (bandeja, mapa, tablero) se muestra **"Atrasado"** en vez de "Vencido"; el campo sigue siendo `vencido`.
+- La fecha estimada solo se puede definir en `En reparación`, así que en la práctica solo
+  los reclamos en reparación pueden estar atrasados.
+- Se muestra como **"Atrasado"** en la fila de la bandeja, en el detalle del admin (junto a
+  la fecha estimada) y en la tarjeta del tablero. En el mapa no: ahí solo van las secciones.
 
-**Dónde.** Backend: `src/domain/prioridad.ts` (`estaVencido`), y cada reclamo trae el campo
-`vencido`. La app solo lo muestra en la bandeja, el mapa y el tablero.
+**Dónde.** Backend: `src/domain/prioridad.ts` (`estaAtrasado`); cada reclamo trae el campo
+`atrasado`. La app solo lo muestra.
 
 ## 2. Prioridad de la bandeja: una fórmula que se puede explicar
 
-**Decisión.** La prioridad es una suma de puntos, calculada (no guardada):
+**Decisión.** La prioridad es una suma de puntos, calculada (no guardada). Solo cuentan los
+votos y la antigüedad:
 
 | Qué | Puntos |
 |---|---|
-| Categoría peligrosa (poste o árbol caído, corte, semáforo) | +50 |
-| Severidad elegida por el vecino: baja / media / alta | 0 / +10 / +20 |
 | Cada confirmación "Sigue ahí" | +10 |
 | Cada voto "Ya no está" | −10 |
 | Cada día desde que se creó | +2 |
@@ -36,32 +34,43 @@ El total nunca baja de 0.
 
 **Por qué así.**
 
-- **La severidad suma, pero poco.** La elige el autor y nadie la verifica: si pesara mucho,
-  todos marcarían "Alta". Una severidad alta vale lo mismo que dos confirmaciones de otros
-  vecinos, y nunca supera a una categoría peligrosa.
+- **Ni la severidad ni la categoría suman.** Ordenan aparte, con el semáforo (ver abajo): la
+  bandeja separa primero por severidad y esta fórmula solo desempata dentro de cada nivel. La
+  categoría peligrosa ya no sube un reclamo en el orden; lo único que conserva es que el
+  municipio puede tomarla sin esperar confirmaciones.
 - **La antigüedad se cuenta desde la creación**, no desde la toma: mide cuánto lleva
-  esperando el vecino. (El vencido, en cambio, mide al área, por eso cuenta desde la toma.)
-- **Que se vea el porqué.** En la bandeja cada reclamo muestra su prioridad, y el detalle del
-  municipio muestra el desglose (por ejemplo: Categoría peligrosa +50, Severidad alta +20,
-  2 confirmaciones +20, 3 días abierto +6).
+  esperando el vecino.
+
+**Cómo se ordena la bandeja y qué se ve.** El municipio no ve el número: ve un **semáforo**,
+un ícono de alerta pintado con un color del theme. Sale solo de la severidad que eligió el
+vecino; la categoría no cuenta:
+
+| Severidad | Color |
+|---|---|
+| Alta (`High`) | rosa (`pink`) |
+| Media (`Medium`) | mandarina (`mandarin`) |
+| Baja (`Low`) | lima oscuro (`limeDeep`, por contraste) |
+
+La bandeja ordena primero las altas, después las medias y las bajas; dentro de cada nivel,
+por la prioridad (votos y antigüedad). El nivel lo calcula la app (`mobile/lib/peligrosidad.ts`);
+la prioridad sigue viniendo del servidor. El ícono tiene texto de accesibilidad ("Severidad
+alta / media / baja").
 
 **Dónde.** Backend: `src/domain/prioridad.ts`. Los pesos están en `PUNTOS_PRIORIDAD`,
 `desglosarPrioridad` arma el desglose y `calcularPrioridad` lo suma. Si cambian los pesos,
-cambia esta tabla. Cada reclamo trae `prioridad` y `desglosePrioridad`; la app solo ordena
-por ese número y muestra el desglose.
+cambia esta tabla. Cada reclamo trae `prioridad`; la app solo la usa para ordenar dentro de
+cada nivel. El desglose ya no viaja en la respuesta.
 
-## 5. Prioridad y vencimiento se calculan en el servidor
+## 5. Prioridad y atraso se calculan en el servidor
 
-**Problema.** La fórmula de prioridad y la regla de vencido vivían solo en la app. Cualquier
+**Problema.** La fórmula de prioridad y la regla de atraso vivían solo en la app. Cualquier
 otro cliente (otra app, un panel web) tendría que copiarlas, y dos copias terminan
 diferentes.
 
 **Decisión.** El servidor las calcula en cada respuesta y las manda en el reclamo
-(`prioridad`, `desglosePrioridad`, `vencido`). No se guardan en la base porque cambian solas
-con los días. La app borró `lib/prioridad.ts`.
+(`prioridad`, `atrasado`). No se guardan en la base porque cambian solas con los días.
+La app borró `lib/prioridad.ts`.
 
-- El desglose viaja como texto listo para mostrar ("Severidad alta", +20). Así un cambio de
-  fórmula no obliga a actualizar la app.
 - Los vecinos también reciben estos campos. No muestran nada privado, y no hace falta separar
   respuestas por rol.
 
@@ -119,7 +128,7 @@ hay cuenta, en lugar del formulario muestra el aviso y un botón **"Ir a iniciar
   `Resuelto` desde cualquier estado abierto, sin foto. No es un rechazo: se resolvió y el
   municipio todavía no lo había actualizado. Cuenta como resuelto en las estadísticas.
 - **Tomar:** asigna sola el área de la categoría (cada categoría está en una sola área). El
-  admin ya no la elige; el área solo se usa para el plazo.
+  admin ya no la elige; el área es interna y solo la usa el gráfico por área del tablero.
 - **Rechazar:** motivo de una lista fija (`MOTIVOS_RECHAZO`) en `motivoRechazoTipo`, y el
   texto opcional en `motivoRechazo`. La app los muestra como "motivo: detalle".
 - **Mapa:** `GET /reclamos?mapa=1` omite los resueltos o rechazados hace más de 7 días
@@ -127,8 +136,18 @@ hay cuenta, en lugar del formulario muestra el aviso y un botón **"Ir a iniciar
   estadísticas siguen mostrándolos.
 - **Pantalla Reclamos (vecino):** la tab "Míos" pasó a "Reclamos" y lista todos; "Solo míos" filtra
   en la app por autor. El detalle muestra "X de N vecinos confirmaron" mientras está Reportado.
-- **Textos de la app:** `Enviado al municipio` se muestra como "Tomado por el municipio" y
-  "Fuera de plazo del área" como "Atrasado"; los valores internos no cambian.
+- **Textos de la app:** `Enviado al municipio` se muestra como "Tomado por el municipio"; el
+  valor interno no cambia.
+- **Pasar a reparación pide la fecha estimada:** `POST /reclamos/:id/reparacion` recibe
+  `fechaEstimada`, obligatoria y no anterior a hoy (mismo criterio que "atrasado": hoy mismo
+  vale). En `En reparación` el botón "Fecha estimada" pasa a "Cambiar fecha" y el servidor
+  aplica la misma validación a `PUT /fecha-estimada`. En la app, el botón de resolver se
+  llama "Resuelto" y pide la foto del después.
+- **Fotos solo en vivo:** el reclamo nuevo y la foto del después se sacan con la cámara; no se
+  elige de la galería. Por eso se borró la lectura del EXIF y el permiso de fotos. El servidor
+  sigue aceptando `Exif` y `Manual` en `locationSource`, pero la app ya no los manda.
+- **Mapa del admin:** los pines se pintan según la sección de la bandeja (Nuevos, En gestión,
+  Cerrados) y el filtro "Sección" solo está en el mapa. El panel de filtros ya no tiene "Área".
 
 **Por qué una columna aparte para el motivo.** Permite filtrar y contar por motivo sin
 parsear texto.

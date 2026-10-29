@@ -10,8 +10,7 @@
       "supportsTablet": false,
       "infoPlist": {
         "NSCameraUsageDescription": "Pozo usa la cámara para fotografiar el problema que reportás.",
-        "NSLocationWhenInUseUsageDescription": "Pozo usa tu ubicación para registrar las coordenadas exactas del reclamo.",
-        "NSPhotoLibraryUsageDescription": "Pozo accede a tu galería para que puedas elegir una foto ya tomada."
+        "NSLocationWhenInUseUsageDescription": "Pozo usa tu ubicación para registrar las coordenadas exactas del reclamo."
       }
     },
     "android": {
@@ -45,7 +44,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Pozo accede a tu galería para que puedas elegir una foto ya tomada."
+          "photosPermission": false
         }
       ],
       [

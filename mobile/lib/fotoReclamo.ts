@@ -4,7 +4,7 @@ import { resolverUriFoto } from '../services/fotos';
 import type { Reclamo } from '../types/reclamo';
 
 // Los reclamos de prueba traen `photoKey` (foto empaquetada con la app); los que publica
-// el vecino traen `photoUrl` (URI de la cámara o galería). Las pantallas usan siempre esto.
+// el vecino traen `photoUrl` (URI de la cámara). Las pantallas usan siempre esto.
 export function fotoSource(reclamo: Pick<Reclamo, 'photoUrl' | 'photoKey'>): ImageSourcePropType {
   if (reclamo.photoKey && fotosReclamo[reclamo.photoKey]) return fotosReclamo[reclamo.photoKey];
   return { uri: resolverUriFoto(reclamo.photoUrl) };

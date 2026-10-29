@@ -45,14 +45,24 @@ export function decidirTomar(reclamo: ReclamoParaTransicion, areaId: string | un
   };
 }
 
-export function decidirPasarAReparacion(reclamo: ReclamoParaTransicion): Decision {
+const MS_POR_DIA = 1000 * 60 * 60 * 24;
+
+// Pasar a reparación pide la fecha estimada en el mismo paso; no puede ser anterior a hoy.
+export function decidirPasarAReparacion(
+  reclamo: ReclamoParaTransicion,
+  fechaEstimada: string,
+  ahora = new Date()
+): Decision {
   if (reclamo.status !== 'EnviadoAlMunicipio') {
     throw new ReclamoError(
       'INVALID_TRANSITION',
       'El reclamo tiene que estar enviado al municipio para pasar a reparación'
     );
   }
-  return { status: 'EnReparacion', description: 'En reparación' };
+  if (ahora.getTime() - new Date(fechaEstimada).getTime() >= MS_POR_DIA) {
+    throw new ReclamoError('INVALID_INPUT', 'La fecha estimada no puede ser anterior a hoy');
+  }
+  return { status: 'EnReparacion', description: 'En reparación', extra: { fechaEstimada } };
 }
 
 export function decidirResolver(reclamo: ReclamoParaTransicion, fotoResolucion: string): Decision {

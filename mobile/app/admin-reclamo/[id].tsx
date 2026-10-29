@@ -14,7 +14,6 @@ import { mensajeDeError } from '../../lib/mensajeDeError';
 import { resumenVerificacion } from '../../lib/verificacion';
 import { severityLabels } from '../../constants/status';
 import { useAuth } from '../../contexts/AuthContext';
-import { useCatalogo } from '../../contexts/CatalogoContext';
 import {
   agregarNota,
   definirFechaEstimada,
@@ -62,7 +61,6 @@ function formatFechaInput(fecha: Date): string {
 export default function AdminReclamoDetail() {
   const router = useRouter();
   const { user } = useAuth();
-  const { areaPorId } = useCatalogo();
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const [reclamo, setReclamo] = useState<Reclamo | null | undefined>(undefined);
@@ -71,6 +69,8 @@ export default function AdminReclamoDetail() {
   const [error, setError] = useState<string | null>(null);
 
   const [fechaModalVisible, setFechaModalVisible] = useState(false);
+  // El modal de fecha sirve para pasar a reparación (fecha obligatoria) y para cambiarla después.
+  const [fechaParaReparacion, setFechaParaReparacion] = useState(false);
   const [fechaInput, setFechaInput] = useState('');
   const [rechazoModalVisible, setRechazoModalVisible] = useState(false);
   const [motivoTipo, setMotivoTipo] = useState<MotivoRechazo | null>(null);
@@ -126,7 +126,6 @@ export default function AdminReclamoDetail() {
   // vamos, así que no hace falta repetir el chequeo en cada handler.
   const reclamoId = reclamo.id;
   const reclamoActual = reclamo;
-  const area = areaPorId(reclamo.areaAsignada);
   const esFinal = reclamo.status === 'Resuelto' || reclamo.status === 'Rechazado';
   const puedeTomar =
     reclamo.status === 'ConfirmadoPorVecinos' ||
@@ -152,12 +151,11 @@ export default function AdminReclamoDetail() {
     ejecutar(() => tomar(reclamoId));
   }
 
-  function handlePasarAReparacion() {
-    ejecutar(() => pasarAReparacion(reclamoId));
-  }
-
-  function abrirModalFecha() {
-    setFechaInput(reclamoActual.fechaEstimada ? formatFechaInput(new Date(reclamoActual.fechaEstimada)) : '');
+  function abrirModalFecha(paraReparacion = false) {
+    setFechaParaReparacion(paraReparacion);
+    setFechaInput(
+      !paraReparacion && reclamoActual.fechaEstimada ? formatFechaInput(new Date(reclamoActual.fechaEstimada)) : ''
+    );
     setFechaModalVisible(true);
   }
 
@@ -177,37 +175,27 @@ export default function AdminReclamoDetail() {
       setError('La fecha estimada no puede ser una fecha pasada');
       return;
     }
-    ejecutar(() => definirFechaEstimada(reclamoId, fecha.toISOString()), () => setFechaModalVisible(false));
+    const iso = fecha.toISOString();
+    ejecutar(
+      () => (fechaParaReparacion ? pasarAReparacion(reclamoId, iso) : definirFechaEstimada(reclamoId, iso)),
+      () => setFechaModalVisible(false)
+    );
   }
 
-  async function capturarFotoResolucion(origen: 'camera' | 'library') {
-    let result: ImagePicker.ImagePickerResult;
-    if (origen === 'camera') {
-      const permission = await ImagePicker.requestCameraPermissionsAsync();
-      if (!permission.granted) {
-        setError('Necesitamos permiso de cámara para la foto del "después"');
-        return;
-      }
-      result = await ImagePicker.launchCameraAsync({ quality: 0.7 });
-    } else {
-      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permission.granted) return;
-      result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.7 });
+  // Solo cámara en vivo: la foto del "después" no se elige de la galería.
+  async function handleResolverPress() {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      setError('Necesitamos permiso de cámara para la foto del "después"');
+      return;
     }
+    const result = await ImagePicker.launchCameraAsync({ quality: 0.7 });
     if (result.canceled || !result.assets[0]) return;
 
     const foto = result.assets[0].uri;
     Alert.alert('Resolver reclamo', '¿Confirmás que el problema está resuelto con esta foto?', [
       { text: 'Cancelar', style: 'cancel' },
       { text: 'Resolver', onPress: () => ejecutar(() => resolver(reclamoId, foto)) },
-    ]);
-  }
-
-  function handleResolverPress() {
-    Alert.alert('Foto del "después"', '¿Cómo querés agregarla?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sacar foto', onPress: () => capturarFotoResolucion('camera') },
-      { text: 'Elegir de galería', onPress: () => capturarFotoResolucion('library') },
     ]);
   }
 
@@ -298,33 +286,28 @@ export default function AdminReclamoDetail() {
           onPress={() => router.dismissTo({ pathname: '/mapa', params: { reclamoId: reclamo.id } })}
         />
 
+        {reclamo.notes && (
+          <>
+            <Text style={styles.sectionTitle}>Descripción del vecino</Text>
+            <Text style={styles.descripcion}>{reclamo.notes}</Text>
+          </>
+        )}
+
         <View style={styles.metaBox}>
           <View style={styles.metaRow}>
-            <Text style={styles.metaKey}>Área asignada</Text>
-            <Text style={styles.metaValue}>{area?.nombre ?? 'Sin asignar'}</Text>
-          </View>
-          <View style={styles.metaRow}>
             <Text style={styles.metaKey}>Fecha estimada</Text>
-            <Text style={styles.metaValue}>
-              {reclamo.fechaEstimada ? formatFecha(reclamo.fechaEstimada) : 'Sin definir'}
-            </Text>
+            <View style={styles.fechaValor}>
+              {reclamo.atrasado && (
+                <View style={styles.atrasadoChip}>
+                  <Text style={styles.atrasadoChipText}>Atrasado</Text>
+                </View>
+              )}
+              <Text style={styles.metaValue}>
+                {reclamo.fechaEstimada ? formatFecha(reclamo.fechaEstimada) : 'Sin definir'}
+              </Text>
+            </View>
           </View>
         </View>
-
-        {!esFinal && (
-          <View style={styles.metaBox}>
-            <Text style={styles.prioridadTitulo}>Prioridad {reclamo.prioridad}</Text>
-            {reclamo.desglosePrioridad.map((parte) => (
-              <View key={parte.motivo} style={styles.metaRow}>
-                <Text style={styles.metaKey}>{parte.motivo}</Text>
-                <Text style={styles.metaValue}>
-                  {parte.puntos > 0 ? '+' : '−'}
-                  {Math.abs(parte.puntos)}
-                </Text>
-              </View>
-            ))}
-          </View>
-        )}
 
         {reclamo.status === 'Rechazado' && (reclamo.motivoRechazoTipo || reclamo.motivoRechazo) && (
           <View style={styles.rechazadoBox}>
@@ -368,12 +351,12 @@ export default function AdminReclamoDetail() {
             <View style={styles.actionsGrid}>
               {puedeTomar && <ActionButton label="Tomar" onPress={handleTomar} disabled={procesando} />}
               {puedePasarAReparacion && (
-                <ActionButton label="Pasar a reparación" onPress={handlePasarAReparacion} disabled={procesando} />
+                <ActionButton label="Pasar a reparación" onPress={() => abrirModalFecha(true)} disabled={procesando} />
               )}
               {puedeResolver && (
                 <>
-                  <ActionButton label="Fecha estimada" onPress={abrirModalFecha} disabled={procesando} />
-                  <ActionButton label="Resolver" onPress={handleResolverPress} disabled={procesando} />
+                  <ActionButton label="Cambiar fecha" onPress={() => abrirModalFecha()} disabled={procesando} />
+                  <ActionButton label="Resuelto" onPress={handleResolverPress} disabled={procesando} />
                 </>
               )}
               <ActionButton
@@ -439,7 +422,7 @@ export default function AdminReclamoDetail() {
       </View>
 
       {/* Fecha estimada */}
-      <SheetModal visible={fechaModalVisible} onClose={() => setFechaModalVisible(false)} title="Fecha estimada" fill={false}>
+      <SheetModal visible={fechaModalVisible} onClose={() => setFechaModalVisible(false)} title={fechaParaReparacion ? 'Pasar a reparación' : 'Cambiar fecha'} fill={false}>
           <View style={styles.modalContent}>
             <TextInput
               style={styles.fechaInput}
@@ -466,7 +449,7 @@ export default function AdminReclamoDetail() {
               onPress={handleGuardarFecha}
               disabled={procesando}
             >
-              <Text style={styles.primaryButtonText}>Guardar</Text>
+              <Text style={styles.primaryButtonText}>{fechaParaReparacion ? 'Pasar a reparación' : 'Guardar'}</Text>
             </Pressable>
           </View>
       </SheetModal>
@@ -663,11 +646,21 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.sm,
     color: colors.ink,
   },
-  prioridadTitulo: {
-    fontFamily: fonts.bodyBold,
-    fontSize: fontSizes.sm,
+  fechaValor: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  atrasadoChip: {
+    borderRadius: radii.pill,
+    backgroundColor: colors.pinkSoft,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+  },
+  atrasadoChipText: {
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs,
     color: colors.ink,
-    marginBottom: spacing.xs,
   },
   rechazadoBox: {
     borderRadius: radii.lg,
@@ -690,6 +683,11 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.lg,
     color: colors.ink,
     marginTop: spacing.sm,
+  },
+  descripcion: {
+    fontFamily: fonts.body,
+    fontSize: fontSizes.sm,
+    color: colors.ink,
   },
   beforeAfterRow: {
     flexDirection: 'row',

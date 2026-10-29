@@ -18,7 +18,7 @@ export type PublicarReclamoInput = {
   category: Categoria;
   severity: Reclamo['severity'];
   notes?: string;
-  // Foto local (cámara o galería) o URL: si es local, se sube antes de publicar.
+  // Foto local (cámara) o URL: si es local, se sube antes de publicar.
   photoUrl: string;
   latitude: number;
   longitude: number;
@@ -134,8 +134,9 @@ export async function tomar(id: string): Promise<Reclamo> {
   return pedir<Reclamo>(`${idEn(id)}/tomar`, { metodo: 'POST' });
 }
 
-export async function pasarAReparacion(id: string): Promise<Reclamo> {
-  return pedir<Reclamo>(`${idEn(id)}/reparacion`, { metodo: 'POST' });
+// Pasar a reparación pide la fecha estimada (ISO) en el mismo paso.
+export async function pasarAReparacion(id: string, fechaEstimada: string): Promise<Reclamo> {
+  return pedir<Reclamo>(`${idEn(id)}/reparacion`, { metodo: 'POST', cuerpo: { fechaEstimada } });
 }
 
 export async function resolver(id: string, fotoResolucion: string): Promise<Reclamo> {

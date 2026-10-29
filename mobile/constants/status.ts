@@ -1,3 +1,5 @@
+import type { Seccion } from '../lib/filtrosMunicipio';
+import type { NivelPeligrosidad } from '../lib/peligrosidad';
 import type { EstadoReclamo, Severidad } from '../types/reclamo';
 import { colors } from '../theme';
 
@@ -39,6 +41,32 @@ export const statusTextColors: Record<EstadoReclamo, string> = {
   EnReparacion: colors.skyDeep,
   Resuelto: colors.limeDeep,
   Rechazado: colors.pinkDeep,
+};
+
+// Semáforo de la bandeja del municipio, según la severidad que eligió el vecino.
+export const peligrosidadColors: Record<NivelPeligrosidad, string> = {
+  alta: colors.pink,
+  media: colors.mandarin,
+  baja: colors.limeDeep,
+};
+
+export const peligrosidadLabels: Record<NivelPeligrosidad, string> = {
+  alta: 'Severidad alta',
+  media: 'Severidad media',
+  baja: 'Severidad baja',
+};
+
+// Secciones de la bandeja, con el color de sus pines en el mapa del municipio.
+export const seccionColors: Record<Seccion, string> = {
+  nuevos: colors.mandarin,
+  gestion: colors.cobalt,
+  cerrados: colors.lime,
+};
+
+export const seccionLabels: Record<Seccion, string> = {
+  nuevos: 'Nuevos',
+  gestion: 'En gestión',
+  cerrados: 'Cerrados',
 };
 
 export const severityLabels: Record<Severidad, string> = {

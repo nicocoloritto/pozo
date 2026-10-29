@@ -22,12 +22,11 @@ está**, se da por resuelto solo. A cada reclamo se le arma un
 hasta que se resuelve.
 
 Del otro lado, el **municipio** tiene su propio panel dentro de la misma app: una bandeja
-priorizada (categorías peligrosas, severidad, confirmaciones y antigüedad; ver
+priorizada (severidad, confirmaciones y antigüedad; ver
 [decisiones](docs/decisiones.md)), un mapa con
 todos los reclamos, un tablero con estadísticas y las herramientas para gestionarlos
-(tomarlo, fijar una fecha estimada, pasar a reparación, resolver con foto del
-"después" o rechazar con un motivo de una lista). Se avisa cuando un reclamo está atrasado respecto del plazo
-de su área.
+(tomarlo, pasar a reparación con una fecha estimada, resolver con foto del
+"después" o rechazar con un motivo de una lista). Se marca como atrasado un reclamo cuya fecha estimada ya pasó.
 
 ## Equipo
 
@@ -52,7 +51,7 @@ de su área.
 
 - **Registro con el DNI:** se escanea el código PDF417 del dorso con la cámara. Los datos
   se completan solos.
-- **Nuevo reclamo:** foto con la cámara (o de la galería), ubicación por GPS, categoría
+- **Nuevo reclamo:** foto sacada con la cámara (no se elige de la galería), ubicación por GPS, categoría
   (pozo, vereda, semáforo, luminaria, poste, árbol caído, zanja, corte de luz o agua,
   residuos), severidad y notas.
 - **Aviso de reclamo cercano:** al publicar, si ya hay un reclamo abierto de la misma
@@ -72,11 +71,13 @@ de su área.
 ### Municipio
 
 - **Bandeja** con tres segmentos (Nuevos, En gestión, Cerrados), búsqueda por dirección y
-  filtros por barrio, comuna, categoría y área. Orden por prioridad y marca de **atrasado**.
-- **Mapa** con los mismos filtros, marca visual para los reclamos atrasados y los peligrosos, y
-  una tarjeta que abre el detalle con gestión.
-- **Gestión del reclamo:** tomar (se asigna sola el área de su categoría), fijar fecha
-  estimada, pasar a reparación, resolver (la foto del "después" es obligatoria), rechazar
+  filtros por barrio, comuna y categoría. Orden por un semáforo de severidad (alta, media,
+  baja) y marca de **atrasado**.
+- **Mapa** con los mismos filtros más "Sección", pines pintados según la sección de la bandeja
+  (Nuevos, En gestión, Cerrados) y una tarjeta que abre el detalle con gestión.
+- **Gestión del reclamo:** tomar (se asigna sola el área de su categoría), pasar a
+  reparación (con la fecha estimada, obligatoria; después se puede cambiar), resolver (la foto
+  del "después" es obligatoria y se saca con la cámara), rechazar
   (motivo de una lista fija, más un detalle opcional) y agregar notas públicas.
 - **Tablero** con estadísticas del municipio.
 
@@ -88,7 +89,7 @@ stateDiagram-v2
     Reportado --> ConfirmadoPorVecinos: 1 confirmación de otro vecino
     Reportado --> EnviadoAlMunicipio: el municipio lo toma (categoría peligrosa)
     ConfirmadoPorVecinos --> EnviadoAlMunicipio: el municipio lo toma
-    EnviadoAlMunicipio --> EnReparacion: el municipio lo pasa a reparación
+    EnviadoAlMunicipio --> EnReparacion: pasa a reparación, con fecha estimada
     EnReparacion --> Resuelto: foto del "después"
     Reportado --> Resuelto: 10 "ya no está"
     ConfirmadoPorVecinos --> Resuelto: 10 "ya no está"
@@ -129,7 +130,7 @@ Decisiones:
   permisos) las aplica el servidor; la app solo valida lo mínimo para avisar rápido.
 - **Reglas de negocio puras.** La máquina de estados (`lib/maquinaEstados.ts`) y la distancia
   entre reclamos (`lib/distancia.ts`) son funciones sin efectos, fáciles de probar. La
-  prioridad y el vencimiento los calcula el servidor y llegan en cada reclamo.
+  prioridad y el atraso los calcula el servidor y llegan en cada reclamo.
 - **Datos de prueba en el servidor.** Usuarios, reclamos, barrios y áreas de ejemplo los carga
   el backend con `npm run setup` (están en su carpeta `prisma/data`); la app ya no trae datos
   propios.

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { categoryLabels, categoryOrder } from '../constants/categories';
+import { seccionLabels } from '../constants/status';
 import { useCatalogo } from '../contexts/CatalogoContext';
 import { FILTROS_VACIOS } from '../lib/filtrosMunicipio';
-import type { FiltrosMunicipio } from '../lib/filtrosMunicipio';
+import type { FiltrosMunicipio, Seccion } from '../lib/filtrosMunicipio';
 import type { Categoria } from '../types/reclamo';
 import { colors, fonts, fontSizes, radii, spacing } from '../theme';
 import PressableScale from './PressableScale';
@@ -12,6 +13,8 @@ import SheetModal from './SheetModal';
 type Props = {
   visible: boolean;
   municipioId: string;
+  // Solo el mapa: la bandeja ya tiene sus segmentos.
+  conSeccion?: boolean;
   filtros: FiltrosMunicipio;
   onClose: () => void;
   onApply: (filtros: FiltrosMunicipio) => void;
@@ -19,8 +22,8 @@ type Props = {
 
 // Modal de filtros compartido por la Bandeja y el Mapa del municipio. Se edita un
 // borrador: los cambios solo valen al tocar "Aplicar"; cerrar sin aplicar los descarta.
-export default function FiltrosMunicipioModal({ visible, municipioId, filtros, onClose, onApply }: Props) {
-  const { areas, barrios } = useCatalogo();
+export default function FiltrosMunicipioModal({ visible, municipioId, conSeccion, filtros, onClose, onApply }: Props) {
+  const { barrios } = useCatalogo();
   const [borrador, setBorrador] = useState<FiltrosMunicipio>(filtros);
 
   useEffect(() => {
@@ -78,12 +81,14 @@ export default function FiltrosMunicipioModal({ visible, municipioId, filtros, o
           valor={borrador.categoria}
           onChange={(valor) => setBorrador((prev) => ({ ...prev, categoria: valor as Categoria | null }))}
         />
-        <FiltroSeccion
-          titulo="Área"
-          opciones={areas.map((a) => ({ id: a.id, label: a.nombre }))}
-          valor={borrador.area}
-          onChange={(valor) => setBorrador((prev) => ({ ...prev, area: valor }))}
-        />
+        {conSeccion && (
+          <FiltroSeccion
+            titulo="Sección"
+            opciones={(Object.keys(seccionLabels) as Seccion[]).map((s) => ({ id: s, label: seccionLabels[s] }))}
+            valor={borrador.seccion}
+            onChange={(valor) => setBorrador((prev) => ({ ...prev, seccion: valor as Seccion | null }))}
+          />
+        )}
       </ScrollView>
     </SheetModal>
   );

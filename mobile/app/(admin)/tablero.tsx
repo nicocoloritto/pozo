@@ -93,11 +93,11 @@ export default function TableroScreen() {
     );
   }
 
-  // TODO: estos números (abiertos/nuevos/vencidos/% resuelto/tiempo promedio) van a
+  // TODO: estos números (abiertos/nuevos/atrasados/% resuelto/tiempo promedio) van a
   // calcular en el servidor; hoy se calculan en el cliente a partir de la lista de reclamos.
   const abiertos = reclamos.filter((r) => !esEstadoFinal(r.status)).length;
   const nuevosSinTomar = reclamos.filter(esNuevoSinTomar).length;
-  const vencidos = reclamos.filter((r) => r.vencido).length;
+  const atrasados = reclamos.filter((r) => r.atrasado).length;
   const resueltos = reclamos.filter((r) => r.status === 'Resuelto').length;
   const porcentajeResuelto = reclamos.length ? Math.round((resueltos / reclamos.length) * 1000) / 10 : 0;
   const diasPromedio = tiempoPromedioResolucionDias(reclamos);
@@ -121,7 +121,7 @@ export default function TableroScreen() {
 
         <View style={styles.statGrid}>
           <StatCard label="Nuevos sin tomar" value={String(nuevosSinTomar)} />
-          <StatCard label="Atrasados" value={String(vencidos)} resaltar={vencidos > 0} />
+          <StatCard label="Atrasados" value={String(atrasados)} resaltar={atrasados > 0} />
           <StatCard label="% Resuelto" value={`${porcentajeResuelto}%`} />
           <StatCard label="Días promedio" value={String(diasPromedio)} />
         </View>

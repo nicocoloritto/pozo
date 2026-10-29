@@ -81,14 +81,11 @@ export type Reclamo = {
   motivoRechazoTipo?: MotivoRechazo; // uno de MOTIVOS_RECHAZO
   motivoRechazo?: string; // detalle de texto
 
-  // Los calcula el servidor en cada respuesta (pozo-backend, src/domain/prioridad.ts): la
-  // app solo los muestra. Ver docs/decisiones.md.
+  // Los calcula el servidor (pozo-backend, src/domain/prioridad.ts). `prioridad` solo ordena
+  // la bandeja; `atrasado` se muestra. Ver docs/decisiones.md.
   prioridad: number;
-  desglosePrioridad: ParteDePrioridad[];
-  vencido: boolean;
+  atrasado: boolean;
 };
-
-export type ParteDePrioridad = { motivo: string; puntos: number };
 
 // Configuración, no un número mágico: a cuántas confirmaciones de otros vecinos pasa
 // de Reportado a ConfirmadoPorVecinos.
